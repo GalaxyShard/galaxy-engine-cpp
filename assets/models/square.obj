@@ -1,0 +1,26 @@
+# bottom left
+v -0.5 -0.5 0
+
+# bottom right
+v 0.5 -0.5 0
+
+# top left
+v -0.5 0.5 0
+
+# top right
+v 0.5 0.5 0
+
+vt 0 0
+vt 1 0
+vt 0 1
+vt 1 1
+
+#vt -0.5 -0.5
+#vt 0.5 -0.5
+#vt -0.5 0.5
+#vt 0.5 0.5
+s off
+#f 1 2 3
+#f 2 4 3
+f 1/1/ 2/2/ 3/3/
+f 2/2/ 4/4/ 3/3/

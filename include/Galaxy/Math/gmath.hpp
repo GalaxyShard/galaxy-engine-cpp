@@ -1,0 +1,30 @@
+#pragma once
+#define DECLARE_MATH_OPERATORS(t1, t2) \
+    t1 operator +(const t2 &) const; \
+    t1 operator -(const t2 &) const; \
+    t1 operator *(const t2 &) const; \
+    t1 operator /(const t2 &) const;
+
+#define DEFINE_MATH_OPERATORS(t) \
+    void operator +=(const t &v2) { *this = *this + v2; } \
+    void operator -=(const t &v2) { *this = *this - v2; } \
+    void operator *=(const t &v2) { *this = *this * v2; } \
+    void operator /=(const t &v2) { *this = *this / v2; }
+
+#define DEFINE_NOT_EQ(t) bool operator !=(const t &v2) const { return !(*this == v2); }
+
+namespace Math
+{
+    float min(float a, float b);
+    float max(float a, float b);
+    float clamp(float v, float min, float max);
+
+    template<typename T>
+    bool within(T v, T min, T max) { return v >= min && v <= max; }
+
+    float lerp(float start, float goal, float t);
+    constexpr float PI = 3.14159265359f;
+
+    constexpr float to_deg = 180.0f / PI;
+    constexpr float to_rad = PI / 180.0f;
+}

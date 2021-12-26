@@ -1,0 +1,28 @@
+# spaces shouldnt matter
+# possibly have assets in a global scene, eg DDoL
+# this is a prototype, use an editor for actually creating these files
+
+# keywords: 'mesh:' 'tex:' 'shader:' 'mat:' 'obj:'
+# {} means instance, the word before {} is the name
+mesh: square{file="GAME/assets/test.obj"}
+
+tex:test_texa {file="assets/test.tex",map="Game"}
+test_texb{file="assets/test2.tex",id=2,map="Game"}
+
+shader:
+tex_shader{}
+color_shader{}
+
+mat:
+mat_d { shader=tex_shader,uniforms=("u_tex", 1, "a") }
+
+obj:
+d{
+mesh = square,
+mat = mat_d,
+scale = (1, 2, 3),
+pos = (0, 1, 2, 3)
+}
+b{
+    
+}
