@@ -14,9 +14,10 @@
 
 namespace
 {
-    std::unique_ptr<Mesh> squareMesh;
+    //std::unique_ptr<Mesh> squareMesh;
     std::unique_ptr<Shader> tintShader;
     std::unique_ptr<Shader> colShader;
+    AssetRef<Mesh> squareMesh;
 }
 Mesh *UIImage::mesh() { return squareMesh.get(); }
 Shader *UIImage::shader() { return (texture ? tintShader : colShader).get(); }
@@ -83,7 +84,8 @@ bool UIImage::is_within(Vector2 pos)
 }
 static void init()
 {
-    squareMesh = std::unique_ptr<Mesh>(Mesh::from_obj(Assets::gasset_path()+"/models/square.obj"));
+    //squareMesh = std::unique_ptr<Mesh>(Mesh::from_obj(Assets::gasset_path()+"/models/square.obj"));
+    squareMesh = Mesh::from_obj(Assets::gasset_path()+"/models/square.obj");
 
     tintShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/tint.shader");
     colShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/color.shader");

@@ -8,6 +8,8 @@ const char *get_resource_path_platform();
 const char *get_bundle_identifier();
 extern const char *gameName;
 
+//std::unordered_map<std::string, AssetRef<>>;
+
 std::string Assets::resource_path()
 { return std::string(get_resource_path_platform()); }
 

@@ -5,6 +5,8 @@
 class VertexArray;
 class VertexBuffer;
 class IndexBuffer;
+template<typename T>
+class AssetRef;
 
 struct Vertex
 {
@@ -36,5 +38,6 @@ class Mesh
         Mesh(const Mesh&) = delete;
         void operator=(const Mesh&) = delete;
 
-        static Mesh* from_obj(const std::string &path);
+        //static Mesh* from_obj(const std::string &path);
+        static AssetRef<Mesh> from_obj(const std::string &path);
 };

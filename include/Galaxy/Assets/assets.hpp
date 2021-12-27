@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include <fstream>
 struct FileContent
 {
@@ -50,23 +51,73 @@ namespace Assets
     Texture::create("path");
     
     */
-//   void add_asset(std::string name, Asset asset);
 }
+template<typename T>
+class AssetRef
+{
+private:
+    static std::unordered_map<const std::string*, AssetRef<T>*> loadedAssets;
+    T *data = 0;
+    unsigned short *refCount = 0;
+    std::string path;
 
-//class Asset
-//{
-//private:
-//    const char *path;
+    //friend class T;
+    friend class Mesh;
+    friend class Texture;
+    friend class Shader;
+public:
+    T* get() { return data; }
+    bool valid() { return (*refCount) != 0; }
+    AssetRef();
+    AssetRef(T *asset, const std::string &ipath);
+    ~AssetRef();
+    
+    void operator=(const AssetRef &);
+    AssetRef(const AssetRef &);
+};
+template<typename T>
+std::unordered_map<const std::string*, AssetRef<T>*> AssetRef<T>::loadedAssets = {};
+template<typename T>
+AssetRef<T>::AssetRef()
+{
+    refCount = new unsigned short(1);
+}
+template<typename T>
+AssetRef<T>::AssetRef(T *asset, const std::string &ipath) : path(ipath)
+{
+    data = asset;
+    refCount = new unsigned short(1);
+    loadedAssets[&path] = this;
+}
+template<typename T>
+AssetRef<T>::~AssetRef()
+{
+    if (!valid()) return;
+    --(*refCount);
+    if ((*refCount) == 0)
+    {
+        if (data) // check if there is an asset or if it is a null asset
+            loadedAssets.erase(&path);
+        delete data;
+        delete refCount;
+    }
+}
+template<typename T>
+void AssetRef<T>::operator=(const AssetRef<T> &other)
+{
+    this->~AssetRef();
+    refCount = other.refCount;
+    data = other.data;
 
-//public:
-//    Asset(const char *path);
+    if ((*refCount) != 0)
+        ++(*refCount);
+}
+template<typename T>
+AssetRef<T>::AssetRef(const AssetRef<T> &other)
+{
+    refCount = other.refCount;
+    data = other.data;
 
-//    std::ifstream get_stream() const;
-//    FileContent get_contents() const;
-//};
-
-//namespace Galaxy
-//{
-    //#define GALAXY_ASSET_PATH "/Users/galaxyshard/Projects/Galaxy Engine/assets"
-    //extern const char *assetPath;
-//}
+    if ((*refCount) != 0)
+        ++(*refCount);
+}
