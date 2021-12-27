@@ -8,20 +8,6 @@ struct FileContent
 
     ~FileContent();
 };
-// use for reference counting on assets
-// putting in a map wont work though
-//template<typename T>
-//class AssetRef
-//{
-//private:
-//public:
-//    T *data;
-//    //T *get() { return (T*)data; }
-
-//    AssetRef();
-//    ~AssetRef();
-//};
-
 namespace Assets
 {
     std::string resource_path();
@@ -32,25 +18,6 @@ namespace Assets
     FileContent file_contents(const char *path, bool assertOnFail = true);
     FileContent file_contents(const std::string &path, bool assertOnFail = true);
 
-    // returns the asset requested, or null if not found
-    //template<typename T>
-    //T get_asset(std::string path);
-    
-    //void release_asset(std::string path);
-    //void unload_asset(std::string path);
-
-    /*
-    in constructors that load assets (eg texture, shader, mesh):
-    Assets::add_asset("identifier", this);
-    Assets::add_asset(path, this);
-
-    
-    in code
-    Assets::get_asset<Texture>("identifier");
-    or
-    Texture::create("path");
-    
-    */
 }
 template<typename T>
 class AssetRef
@@ -61,7 +28,6 @@ private:
     unsigned short *refCount = 0;
     std::string path;
 
-    //friend class T;
     friend class Mesh;
     friend class Texture;
     friend class Shader;
@@ -80,7 +46,7 @@ std::unordered_map<const std::string*, AssetRef<T>*> AssetRef<T>::loadedAssets =
 template<typename T>
 AssetRef<T>::AssetRef()
 {
-    refCount = new unsigned short(1);
+    refCount = new unsigned short(0);
 }
 template<typename T>
 AssetRef<T>::AssetRef(T *asset, const std::string &ipath) : path(ipath)
