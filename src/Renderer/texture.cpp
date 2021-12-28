@@ -67,6 +67,26 @@ Texture::~Texture()
 
     GLCall(glDeleteTextures(1, &rendererID));
 }
+AssetRef<Texture> Texture::load(const std::string &path, DisplayMode mode)
+{
+    if (AssetRef<Texture>::is_loaded(path))
+        return AssetRef<Texture>::get_loaded(path);
+    //if (AssetRef<Texture>::loadedAssets->count(&path))
+    //    return *(*AssetRef<Texture>::loadedAssets)[&path];
+
+    //Texture *tex = new Texture(path, mode);
+    //return AssetRef<Texture>(tex, path);
+    return AssetRef<Texture>(new Texture(path, mode), path);
+    // OpenGL expects images to start from the bottom left corner, normal images start from top left
+    //stbi_set_flip_vertically_on_load(1);
+
+    //auto fileContents = Assets::file_contents(path.c_str());
+    //auto image = (const unsigned char*)fileContents.str;
+
+    //unsigned char *localBuffer = stbi_load_from_memory(image, fileContents.length, &width, &height, &bpp, 4);
+    //assert(localBuffer);
+    //init_texture(localBuffer, mode);
+}
 void Texture::bind()
 {
     if (selectedSlot != NO_SLOT)

@@ -15,8 +15,9 @@
 namespace
 {
     //std::unique_ptr<Mesh> squareMesh;
-    std::unique_ptr<Shader> tintShader;
-    std::unique_ptr<Shader> colShader;
+    AssetRef<Shader> tintShader, colShader;
+    //std::unique_ptr<Shader> tintShader, colShader;
+    //std::unique_ptr<Shader> colShader;
     AssetRef<Mesh> squareMesh;
 }
 Mesh *UIImage::mesh() { return squareMesh.get(); }
@@ -87,7 +88,9 @@ static void init()
     //squareMesh = std::unique_ptr<Mesh>(Mesh::from_obj(Assets::gasset_path()+"/models/square.obj"));
     squareMesh = Mesh::from_obj(Assets::gasset_path()+"/models/square.obj");
 
-    tintShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/tint.shader");
-    colShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/color.shader");
+    tintShader = Shader::load(Assets::gasset_path()+SHADER_FOLDER+"/tint.shader");
+    colShader = Shader::load(Assets::gasset_path()+SHADER_FOLDER+"/color.shader");
+    //tintShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/tint.shader");
+    //colShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/color.shader");
 }
 INIT_FUNC(init);

@@ -68,6 +68,16 @@ Shader::Shader(const std::string& path)
     auto stream = std::ifstream(path, std::ios::binary);
     parse(stream);
 }
+AssetRef<Shader> Shader::load(const std::string &path)
+{
+    if (AssetRef<Shader>::is_loaded(path))
+        return AssetRef<Shader>::get_loaded(path);
+    //if (AssetRef<Shader>::loadedAssets->count(&path))
+    //    return *(*AssetRef<Shader>::loadedAssets)[&path];
+    //Shader *shader = new Shader(path);
+    //return AssetRef(shader, path);
+    return AssetRef(new Shader(path), path);
+}
 void Shader::bind() { GLCall(glUseProgram(program)); }
 unsigned int Shader::create_program()
 {

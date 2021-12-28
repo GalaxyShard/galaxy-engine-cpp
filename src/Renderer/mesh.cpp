@@ -153,8 +153,10 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
 //Mesh* Mesh::from_obj(const Asset &asset)
 AssetRef<Mesh> Mesh::from_obj(const std::string &path)
 {
-    if (AssetRef<Mesh>::loadedAssets.count(&path))
-        return *AssetRef<Mesh>::loadedAssets[&path];
+    if (AssetRef<Mesh>::is_loaded(path))
+        return AssetRef<Mesh>::get_loaded(path);
+    //if (AssetRef<Mesh>::loadedAssets->count(&path))
+    //    return *(*AssetRef<Mesh>::loadedAssets)[&path];
 
     Mesh *mesh = new Mesh();
     auto stream = std::ifstream(path, std::ios::binary);

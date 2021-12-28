@@ -1,7 +1,11 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <Galaxy/Assets/assets.hpp>
 class Texture;
+//template<typename T>
+//class AssetRef;
+
 struct GlyphData
 {
     //int rx, ry, rwidth, rheight, rxoff, ryoff, rxadv;
@@ -13,7 +17,8 @@ struct GlyphData
 class Font
 {
 private:
-    std::unique_ptr<Texture> fontTex;
+    //std::unique_ptr<Texture> fontTex;
+    AssetRef<Texture> fontTex;
     std::unordered_map<char, GlyphData> glyphs;
     friend class UIText;
     friend class Renderer;

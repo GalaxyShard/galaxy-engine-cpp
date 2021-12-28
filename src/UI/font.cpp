@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+//#include <Galaxy/Assets/assets.hpp>
 Font *Font::defaultFont;
 //static float coord(int pixel, float size) { return pixel / size + (1.f / (size * 2.f)); }
 //static float coord(int pixel, float size) { return (pixel*2 + 1)/(size*2); }
@@ -13,7 +14,8 @@ static float ycoord(float pixel, float size) { return xcoord(size-pixel, size); 
 Font::Font(std::string folder)
 {
     auto info = std::ifstream(folder+"/bitmapinfo.txt");
-    fontTex = std::make_unique<Texture>(folder+"/bitmap.png", Texture::Pixel);
+    fontTex = Texture::load(folder+"/bitmap.png", Texture::Pixel);
+    //fontTex = std::make_unique<Texture>(folder+"/bitmap.png", Texture::Pixel);
 
     float w = fontTex->get_width();
     float h = fontTex->get_height();
@@ -43,7 +45,7 @@ Font::Font(std::string folder)
                 if (name == "id")
                 {
                     int id_local = std::stoi(val);
-                    if (id_local > UCHAR_MAX) break;
+                    if (id_local > 255) break;
                     id = id_local;
                 }
 

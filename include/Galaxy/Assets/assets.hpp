@@ -20,70 +20,41 @@ namespace Assets
 
 }
 template<typename T>
+struct WeakAssetRef
+{
+    T *data = 0;
+    unsigned short *refCount = 0;
+};
+template<typename T>
 class AssetRef
 {
 private:
-    static std::unordered_map<const std::string*, AssetRef<T>*> loadedAssets;
+    static std::unique_ptr<std::unordered_map<std::string, WeakAssetRef<T>>> loadedAssets;
     T *data = 0;
     unsigned short *refCount = 0;
     std::string path;
 
-    friend class Mesh;
-    friend class Texture;
-    friend class Shader;
+    //friend class Mesh;
+    //friend class Texture;
+    //friend class Shader;
 public:
     T* get() { return data; }
-    bool valid() { return (*refCount) != 0; }
+    bool valid() { return data && (*refCount) != 0; }
+
+    static bool is_loaded(const std::string &path);
+    static AssetRef<T> get_loaded(const std::string &path);
+
     AssetRef();
     AssetRef(T *asset, const std::string &ipath);
     ~AssetRef();
     
-    void operator=(const AssetRef &);
+    AssetRef<T>& operator=(const AssetRef &);
     AssetRef(const AssetRef &);
+    AssetRef<T>& operator=(AssetRef &&);
+    AssetRef(AssetRef &&);
+
+    T* operator->() { return data; }
+    T& operator*() { return *data; }
 };
 template<typename T>
-std::unordered_map<const std::string*, AssetRef<T>*> AssetRef<T>::loadedAssets = {};
-template<typename T>
-AssetRef<T>::AssetRef()
-{
-    refCount = new unsigned short(0);
-}
-template<typename T>
-AssetRef<T>::AssetRef(T *asset, const std::string &ipath) : path(ipath)
-{
-    data = asset;
-    refCount = new unsigned short(1);
-    loadedAssets[&path] = this;
-}
-template<typename T>
-AssetRef<T>::~AssetRef()
-{
-    if (!valid()) return;
-    --(*refCount);
-    if ((*refCount) == 0)
-    {
-        if (data) // check if there is an asset or if it is a null asset
-            loadedAssets.erase(&path);
-        delete data;
-        delete refCount;
-    }
-}
-template<typename T>
-void AssetRef<T>::operator=(const AssetRef<T> &other)
-{
-    this->~AssetRef();
-    refCount = other.refCount;
-    data = other.data;
-
-    if ((*refCount) != 0)
-        ++(*refCount);
-}
-template<typename T>
-AssetRef<T>::AssetRef(const AssetRef<T> &other)
-{
-    refCount = other.refCount;
-    data = other.data;
-
-    if ((*refCount) != 0)
-        ++(*refCount);
-}
+std::unique_ptr<std::unordered_map<std::string, WeakAssetRef<T>>> AssetRef<T>::loadedAssets = std::make_unique<std::unordered_map<std::string, WeakAssetRef<T>>>();

@@ -84,15 +84,15 @@ static void redraw()
 
     //Input::mouseDelta = Input::mousePos - lastMousePos;
     //lastMousePos = Input::mousePos;
-    static int frames = 0;
-    static double lastTime = Time::get();
-    ++frames;
-    if (Time::get() - lastTime > 1.0)
-    {
-        printf("FPS: %d\n", frames);
-        frames = 0;
-        lastTime = Time::get();
-    }
+    //static int frames = 0;
+    //static double lastTime = Time::get();
+    //++frames;
+    //if (Time::get() - lastTime > 1.0)
+    //{
+    //    printf("FPS: %d\n", frames);
+    //    frames = 0;
+    //    lastTime = Time::get();
+    //}
 
 
     Renderer::draw_all(true);

@@ -2,6 +2,8 @@
 #include <string>
 #include <Galaxy/Renderer/material.hpp>
 
+template<typename T>
+class AssetRef;
 class Texture
 {
     public: enum DisplayMode { Pixel = 0x2600, Linear = 0x2601 }; // OpenGL
@@ -19,6 +21,7 @@ class Texture
         // possibly remove from public code
         void bind();
         void unbind() const;
+        static AssetRef<Texture> load(const std::string &path, DisplayMode mode);
 
         inline unsigned int get_slot() const { return selectedSlot; }
         inline int get_width() const { return width; }

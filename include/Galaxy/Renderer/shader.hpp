@@ -10,6 +10,8 @@ struct Matrix4x4;
 #else
     #define SHADER_FOLDER "/shaders-gl"
 #endif
+template<typename T>
+class AssetRef;
 
 struct Shader
 {
@@ -31,6 +33,7 @@ struct Shader
 
         Shader(const std::string &path);
         ~Shader();
+        static AssetRef<Shader> load(const std::string &path);
 
         Shader(const Shader&) = delete;
         void operator=(const Shader&) = delete;

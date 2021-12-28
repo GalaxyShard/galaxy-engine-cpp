@@ -3,6 +3,7 @@
 #include <vector>
 #include <Galaxy/UI/font.hpp>
 #include <Galaxy/Renderer/mesh.hpp>
+//class Font;
 class Shader;
 class Scene;
 class UIGroup;

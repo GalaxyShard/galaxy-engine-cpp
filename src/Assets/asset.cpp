@@ -4,6 +4,11 @@
 #ifdef OS_MAC
     #include <filesystem>
 #endif
+
+#include <Galaxy/Renderer/mesh.hpp>
+#include <Galaxy/Renderer/texture.hpp>
+#include <Galaxy/Renderer/shader.hpp>
+
 const char *get_resource_path_platform();
 const char *get_bundle_identifier();
 extern const char *gameName;
@@ -61,3 +66,107 @@ FileContent Assets::file_contents(const std::string &path, bool assertOnFail)
 {
     return file_contents(path.c_str(), assertOnFail);
 }
+
+
+
+template<typename T>
+AssetRef<T>::AssetRef() {  }
+template<typename T>
+AssetRef<T>::AssetRef(T *asset, const std::string &ipath) : path(ipath)
+{
+    data = asset;
+    refCount = new unsigned short(1);
+    //loadedAssets[&path] = this;
+    //if (loadedAssets->count(&path))
+    //{
+    //    printf("error_a\n");
+    //}
+    loadedAssets->insert(std::make_pair(path, WeakAssetRef<T> { .data=data, .refCount=refCount }));
+}
+template<typename T>
+AssetRef<T>::~AssetRef()
+{
+    if (!valid()) return;
+    --(*refCount);
+    if ((*refCount) == 0)
+    {
+        //if (data) // check if there is an asset or if it is a null asset
+        if (loadedAssets)
+            loadedAssets->erase(path);
+        delete data;
+        delete refCount;
+    }
+}
+template<typename T>
+AssetRef<T>& AssetRef<T>::operator=(const AssetRef<T> &other)
+{
+    if (this != &other){
+        this->~AssetRef();
+        refCount = other.refCount;
+        data = other.data;
+        path = other.path;
+
+        if (valid())
+            ++(*refCount);
+    }
+    return *this;
+}
+template<typename T>
+AssetRef<T>::AssetRef(const AssetRef<T> &other)
+{
+    refCount = other.refCount;
+    data = other.data;
+    path = other.path;
+
+    if (valid())
+        ++(*refCount);
+}
+template<typename T>
+AssetRef<T>::AssetRef(AssetRef<T> &&other)
+{
+    data = other.data;
+    refCount = other.refCount;
+    path = other.path;
+
+    // null other so the destructor doesnt cause a memory error
+    other.data = 0;
+    other.refCount = 0;
+    other.path = "";
+}
+template<typename T>
+AssetRef<T>& AssetRef<T>::operator=(AssetRef<T> &&other)
+{
+    if (this != &other)
+    {
+        this->~AssetRef();
+        data = other.data;
+        refCount = other.refCount;
+        path = other.path;
+
+        // null other so the destructor doesnt cause a memory error
+        other.data = 0;
+        other.refCount = 0;
+        other.path = "";
+    }
+    return *this;
+}
+template<typename T>
+bool AssetRef<T>::is_loaded(const std::string &path)
+{
+    return loadedAssets->count(path);
+}
+template<typename T>
+AssetRef<T> AssetRef<T>::get_loaded(const std::string &path)
+{
+    WeakAssetRef<T> &weakAsset = (*loadedAssets)[path];
+    AssetRef<T> asset = AssetRef<T>();
+    asset.refCount = weakAsset.refCount;
+    asset.data = weakAsset.data;
+    asset.path = path;
+    if (asset.valid())
+        ++(*asset.refCount);
+    return asset;
+}
+template class AssetRef<Mesh>;
+template class AssetRef<Shader>;
+template class AssetRef<Texture>;
