@@ -72,7 +72,7 @@ void Scene::remove_inst(UIGroup *data)
 }
 void Scene::on_init(std::string name, void(*func)())
 {
-    sceneEvents[name].second.signal->connect(func);
+    sceneEvents[name].second.signal->connect_int(func);
 }
 void Scene::set_create_callback(std::string name, void(*func)())
 {

@@ -2,7 +2,7 @@
 #include <Galaxy/UI/group.hpp>
 #include <Galaxy/Renderer/texture.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
-#include <Renderer/internal.hpp>
+//#include <Renderer/internal.hpp>
 #include <Galaxy/Renderer/shader.hpp>
 #include <Galaxy/Assets/assets.hpp>
 #include <Galaxy/Scene/scene.hpp>

@@ -105,40 +105,51 @@ Matrix3x3 Matrix3x3::inverse() const
 {
     assert(false);
     return 0;
-}  
-//Matrix3x3 Matrix3x3::translate(float x, float y, float z)
-//{
-//    return Matrix3x3(
-//        1, 0, 0, x,
-//        0, 1, 0, y,
-//        0, 0, 1, z,
-//        0, 0, 0, 1
-//    );
-//}
-//Matrix3x3 Matrix3x3::scale(float x, float y, float z)
-//{
-//    return Matrix3x3(
-//        x, 0, 0, 0,
-//        0, y, 0, 0,
-//        0, 0, z, 0,
-//        0, 0, 0, 1
-//    );
-//}
+}
+// rotation functions are based off of wikipedia, the order is from blender & trial/error
+Matrix3x3 rotateX(float x)
+{
+    float o = sinf(x), a = cosf(x);
+    return Matrix3x3(
+        1, 0,  0,
+        0, a, -o,
+        0, o,  a
+    );
+}
+Matrix3x3 rotateY(float y)
+{
+    float o = sinf(y), a = cosf(y);
+    return Matrix3x3(
+         a, 0, o,
+         0, 1, 0,
+        -o, 0, a
+    );
+}
+Matrix3x3 rotateZ(float z)
+{
+    float o = sinf(z), a = cosf(z);
+    return Matrix3x3(
+        a, -o, 0,
+        o,  a, 0,
+        0,  0, 1
+    );
+}
 Matrix3x3 Matrix3x3::rotate(float x, float y, float z)
 {
-    return Matrix3x3(
-        cosf(z), -sinf(z), 0,
-        sinf(z),  cosf(z), 0,
-        0,        0,       1
-    ) * Matrix3x3(
-        1, 0,        0,
-        0, cosf(x), -sinf(x),
-        0, sinf(x),  cosf(x)
-    ) * Matrix3x3(
-         cosf(y), 0, sinf(y),
-         0,       1, 0,      
-        -sinf(y), 0, cosf(y)
-    );
+    return rotateZ(z) * rotateY(y) * rotateX(x);
+    //return Matrix3x3(
+    //    cosf(z), -sinf(z), 0,
+    //    sinf(z),  cosf(z), 0,
+    //    0,        0,       1
+    //) * Matrix3x3(
+    //    1, 0,        0,
+    //    0, cosf(x), -sinf(x),
+    //    0, sinf(x),  cosf(x)
+    //) * Matrix3x3(
+    //     cosf(y), 0, sinf(y),
+    //     0,       1, 0,      
+    //    -sinf(y), 0, cosf(y)
+    //);
 }
 //Matrix3x3 Matrix3x3::translate(Vector3 v) { return translate(v.x, v.y, v.z); }
 //Matrix3x3 Matrix3x3::scale(Vector3 v) { return scale(v.x, v.y, v.z); }

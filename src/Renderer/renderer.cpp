@@ -2,7 +2,7 @@
 #include <debug.hpp>
 #include <internalinit.hpp>
 #include <Renderer/buffer.hpp>
-#include <Renderer/internal.hpp>
+//#include <Renderer/internal.hpp>
 #include <UI/uiobject.hpp>
 
 #include <Galaxy/event.hpp>
@@ -94,12 +94,13 @@ void Renderer::draw(Object &obj)
 
     Matrix4x4 model =
         Matrix4x4::translate(obj.position * filteredAspect)
-        * Matrix4x4::scale(obj.scale * filteredAspect)
-        * Matrix4x4::rotate(obj.rotation.x, obj.rotation.y, obj.rotation.z);
+        * Matrix4x4::rotate(obj.rotation.x, obj.rotation.y, obj.rotation.z)
+        * Matrix4x4::scale(obj.scale * filteredAspect);
 
 
     // Rotate camera after translating
-    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation.x, Camera::main->rotation.y, Camera::main->rotation.z)
+    // The transpose of a rotation is equal to the inverse
+    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation.x, Camera::main->rotation.y, Camera::main->rotation.z).transpose()
         * Matrix4x4::translate(-Camera::main->position);
 
     shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);

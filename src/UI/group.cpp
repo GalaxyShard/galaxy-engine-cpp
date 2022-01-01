@@ -27,8 +27,7 @@ UIGroup::~UIGroup()
 {
     if (scene) scene->remove_inst(this);
 }
-
-void init()
+static void init()
 {
     UIGroup::aspectRatio = std::make_unique<UIGroup>();
     UIGroup::safeArea = std::make_unique<UIGroup>();

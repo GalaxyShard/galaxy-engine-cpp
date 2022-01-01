@@ -20,9 +20,6 @@ void Mesh::initialize_mesh()
     varray = std::make_unique<VertexArray>();
     vbuffer = std::make_unique<VertexBuffer>(verts.data(), sizeof(Vertex)*verts.size(), isStatic);
     ibuffer = std::make_unique<IndexBuffer>(tris.data(), tris.size(), isStatic);
-    //varray = new VertexArray();
-    //vbuffer = new VertexBuffer(verts.data(), sizeof(Vertex)*verts.size(), isStatic);
-    //ibuffer = new IndexBuffer(tris.data(), tris.size(), isStatic);
 
     varray->add_buffer(*vbuffer);
     varray->add_buffer(*ibuffer);
@@ -35,12 +32,6 @@ void Mesh::initialize_mesh()
     
 }
 Mesh::~Mesh() = default; // for smart ptr
-//Mesh::~Mesh()
-//{
-//    delete ibuffer;
-//    delete vbuffer;
-//    delete varray;
-//}
 void Mesh::refresh_mesh()
 {
     varray->bind();
@@ -113,7 +104,6 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
             {
                 // TODO: triangulate
                 assert(false);
-                //std::cout << "ERROR: triangulation not implemented" << std::endl;
             }
             for (auto str : tris)
             {
@@ -126,13 +116,18 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
                 else
                 {
                     auto vert = vert_tex_norm[0];
-                    if (!vert.empty()) mesh->tris.push_back(std::stoi(vert)-1);
+                    int vertIndex = std::stoi(vert)-1;
+                    mesh->tris.push_back(vertIndex);
                     
                     auto tex = vert_tex_norm[1];
                     if (!tex.empty())
                     {
-                        int index = std::stoi(tex)-1;
-                        mesh->verts[index].texCoord = texCoords[index];
+                        int uvIndex = std::stoi(tex)-1;
+                        if (mesh->verts[vertIndex].texCoord != texCoords[uvIndex])
+                        {
+                            assert(mesh->verts[vertIndex].texCoord == Vector2(0,0));
+                            mesh->verts[vertIndex].texCoord = texCoords[uvIndex];
+                        }
                     }
                     //auto norm = vert_tex_norm[2];
                     //if (!norm.empty()) mesh->normals.push_back(std::stoi(norm)-1);
@@ -149,19 +144,15 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
         }
     }
 }
-
-//Mesh* Mesh::from_obj(const Asset &asset)
 AssetRef<Mesh> Mesh::from_obj(const std::string &path)
 {
     if (AssetRef<Mesh>::is_loaded(path))
         return AssetRef<Mesh>::get_loaded(path);
-    //if (AssetRef<Mesh>::loadedAssets->count(&path))
-    //    return *(*AssetRef<Mesh>::loadedAssets)[&path];
 
     Mesh *mesh = new Mesh();
     auto stream = std::ifstream(path, std::ios::binary);
-    //auto stream = asset.get_stream();
     parse_obj(mesh, stream);
     mesh->initialize_mesh();
+
     return AssetRef(mesh, path);
 }

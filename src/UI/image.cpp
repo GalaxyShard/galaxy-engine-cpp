@@ -9,30 +9,22 @@
 #include <Galaxy/Renderer/renderer.hpp>
 #include <Galaxy/Scene/scene.hpp>
 
-#include <Renderer/internal.hpp>
 #include "uiobject.hpp"
 
 namespace
 {
-    //std::unique_ptr<Mesh> squareMesh;
     AssetRef<Shader> tintShader, colShader;
-    //std::unique_ptr<Shader> tintShader, colShader;
-    //std::unique_ptr<Shader> colShader;
     AssetRef<Mesh> squareMesh;
 }
 Mesh *UIImage::mesh() { return squareMesh.get(); }
 Shader *UIImage::shader() { return (texture ? tintShader : colShader).get(); }
 
 auto UIImage::images = std::make_unique<std::vector<UIImage *>>();
-//UIImage *currentHeldImg;
-//UIImage *heldImages;
-//std::map<int, UIImage*> heldImages;
 std::unique_ptr<UIImage*[]> heldImages = std::make_unique<UIImage*[]>(10);
 
 UIImage *UIImage::get_held(int id) { return heldImages[id]; }
 UIImage::UIImage(Texture *texture) : texture(texture)
 {
-    //rendererID = InternalRenderer::add_renderer(this);
     rendererID = UIObject::add_image(this);
     imageID = images->size();
     images->push_back(this);
@@ -49,8 +41,6 @@ UIImage::~UIImage()
     for (int i = 0; i < 10; ++i)
         if (heldImages[i] == this)
             heldImages[i] = nullptr;
-        
-    //if (currentHeldImg == this) currentHeldImg = nullptr;
 
     UIImage *&img = images->back();
     std::swap((*images)[imageID], img);
@@ -69,7 +59,6 @@ Vector2 UIImage::calc_world_pos()
         return pos*Renderer::reverseAspect + anchor*group->world_scale() + group->world_pos();
     }
     else return pos*Renderer::reverseAspect + anchor;
-    //return pos*Renderer::reverseAspect + (keepInBounds ? anchor*Renderer::reverseAspect : anchor);
 }
 static bool is_within(Vector2 a, Vector2 b, Vector2 scale)
 {
@@ -85,12 +74,9 @@ bool UIImage::is_within(Vector2 pos)
 }
 static void init()
 {
-    //squareMesh = std::unique_ptr<Mesh>(Mesh::from_obj(Assets::gasset_path()+"/models/square.obj"));
     squareMesh = Mesh::from_obj(Assets::gasset_path()+"/models/square.obj");
 
     tintShader = Shader::load(Assets::gasset_path()+SHADER_FOLDER+"/tint.shader");
     colShader = Shader::load(Assets::gasset_path()+SHADER_FOLDER+"/color.shader");
-    //tintShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/tint.shader");
-    //colShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/color.shader");
 }
 INIT_FUNC(init);

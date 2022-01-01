@@ -290,24 +290,48 @@ Matrix4x4 Matrix4x4::scale(float x, float y, float z)
         0, 0, 0, 1
     );
 }
+// rotation functions are based off of wikipedia, the order is from blender & trial/error
+//Matrix4x4 rotateX(float x)
+//{
+//    float o = sinf(x), a = cosf(x);
+//    return Matrix4x4(
+//        1, 0,  0, 0,
+//        0, a, -o, 0,
+//        0, o,  a, 0,
+//        0, 0,  0, 1
+//    );
+//}
+//Matrix4x4 rotateY(float y)
+//{
+//    float o = sinf(y), a = cosf(y);
+//    return Matrix4x4(
+//         a, 0, o, 0,
+//         0, 1, 0, 0,
+//        -o, 0, a, 0,
+//         0, 0, 0, 1
+//    );
+//}
+//Matrix4x4 rotateZ(float z)
+//{
+//    float o = sinf(z), a = cosf(z);
+//    return Matrix4x4(
+//        a, -o, 0, 0,
+//        o,  a, 0, 0,
+//        0,  0, 1, 0,
+//        0,  0, 0, 1
+//    );
+//}
 Matrix4x4 Matrix4x4::rotate(float x, float y, float z)
 {
+    Matrix3x3 r = Matrix3x3::rotate(x,y,z);
+    const float *ptr = r.value_ptr();
     return Matrix4x4(
-        cosf(z), -sinf(z), 0, 0,
-        sinf(z),  cosf(z), 0, 0,
-        0,        0,       1, 0,
-        0,        0,       0, 1
-    ) * Matrix4x4(
-        1, 0,        0,       0,
-        0, cosf(x), -sinf(x), 0,
-        0, sinf(x),  cosf(x), 0,
-        0, 0,        0,       1
-    ) * Matrix4x4(
-         cosf(y), 0, sinf(y), 0,
-         0,       1, 0,       0,
-        -sinf(y), 0, cosf(y), 0,
-         0,       0, 0,       1
+        ptr[0], ptr[1], ptr[2], 0,
+        ptr[3], ptr[4], ptr[5], 0,
+        ptr[6], ptr[7], ptr[8], 0,
+        0,      0,      0,      1
     );
+    //return rotateZ(z) * rotateY(y) * rotateX(x);
 }
 Matrix4x4 Matrix4x4::translate(Vector3 v) { return translate(v.x, v.y, v.z); }
 Matrix4x4 Matrix4x4::scale(Vector3 v) { return scale(v.x, v.y, v.z); }
