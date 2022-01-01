@@ -1,7 +1,7 @@
 #include <unordered_map>
 #include <Galaxy/Assets/assets.hpp>
 #include <Galaxy/OS/defines.hpp>
-#ifdef OS_MAC
+#if OS_MAC
     #include <filesystem>
 #endif
 
@@ -12,8 +12,6 @@
 const char *get_resource_path_platform();
 const char *get_bundle_identifier();
 extern const char *gameName;
-
-//std::unordered_map<std::string, AssetRef<>>;
 
 std::string Assets::resource_path()
 { return std::string(get_resource_path_platform()); }
@@ -46,7 +44,6 @@ FileContent::~FileContent()
 FileContent Assets::file_contents(const char *path, bool assertOnFail)
 {
     auto stream = std::ifstream(path, std::ios::binary | std::ios::ate);
-    //assert(stream.good());
     if (!stream.good())
     {
         if (assertOnFail) assert(false);
@@ -76,11 +73,7 @@ AssetRef<T>::AssetRef(T *asset, const std::string &ipath) : path(ipath)
 {
     data = asset;
     refCount = new unsigned short(1);
-    //loadedAssets[&path] = this;
-    //if (loadedAssets->count(&path))
-    //{
-    //    printf("error_a\n");
-    //}
+
     loadedAssets->insert(std::make_pair(path, WeakAssetRef<T> { .data=data, .refCount=refCount }));
 }
 template<typename T>
@@ -90,7 +83,6 @@ AssetRef<T>::~AssetRef()
     --(*refCount);
     if ((*refCount) == 0)
     {
-        //if (data) // check if there is an asset or if it is a null asset
         if (loadedAssets)
             loadedAssets->erase(path);
         delete data;
