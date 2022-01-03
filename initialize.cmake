@@ -26,6 +26,9 @@ set(ENGINE_SRC
     src/Math/quaternion.cpp
     src/Math/time.cpp
 
+    src/Networking/client.cpp
+    src/Networking/server.cpp
+
     src/Scene/scene_parser.cpp
     src/Scene/scene.cpp
 

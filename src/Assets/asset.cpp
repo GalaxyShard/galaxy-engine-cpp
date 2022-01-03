@@ -57,6 +57,7 @@ FileContent Assets::file_contents(const char *path, bool assertOnFail)
 
     assert(stream.good());
     strcat(contents, ""); // add null terminator
+    //contents[length] = '\0';
     return {length+1, contents};
 }
 FileContent Assets::file_contents(const std::string &path, bool assertOnFail)

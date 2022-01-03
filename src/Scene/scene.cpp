@@ -5,16 +5,25 @@
 #include <Galaxy/UI/group.hpp>
 
 Scene *Scene::activeScene;
-std::unordered_map<std::string, std::pair<void(*)(), Event>> Scene::sceneEvents;
+
+struct SceneInfo
+{
+    void(*createCallback)();
+    Event onInit;
+    Event onDestroy;
+};
+//std::unordered_map<std::string, std::pair<void(*)(), Event>> Scene::sceneEvents;
+std::unordered_map<std::string, SceneInfo> Scene::sceneEvents;
 Scene::Scene(std::string name) : name(name)
 {
     activeScene = this;
     if (sceneEvents.count(name))
     {
-        auto const [create, init] = sceneEvents[name];
-        if (create) create();
+        //auto const [create, init] = sceneEvents[name];
+        SceneInfo &info = sceneEvents[name];
+        if (info.createCallback) info.createCallback();
 
-        init.fire();
+        info.onInit.fire();
     }
 }
 template<typename T>
@@ -33,6 +42,8 @@ Scene::~Scene()
     delete_vector(imgInstances);
     delete_vector(textInstances);
     delete_vector(groupInstances);
+
+    sceneEvents[name].onDestroy.fire();
 }
 template<typename T>
 static void remove(T *data, std::vector<T*> &instances)
@@ -72,9 +83,16 @@ void Scene::remove_inst(UIGroup *data)
 }
 void Scene::on_init(std::string name, void(*func)())
 {
-    sceneEvents[name].second.signal->connect_int(func);
+    sceneEvents[name].onInit.signal->connect_int(func);
+    //sceneEvents[name].second.signal->connect_int(func);
 }
 void Scene::set_create_callback(std::string name, void(*func)())
 {
-    sceneEvents[name].first = func;
+    sceneEvents[name].createCallback = func;
+    //sceneEvents[name].
+    //sceneEvents[name].first = func;
+}
+void Scene::on_destroy(std::string name, void(*func)())
+{
+    sceneEvents[name].onDestroy.signal->connect_int(func);
 }

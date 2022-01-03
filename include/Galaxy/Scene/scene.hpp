@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <typeindex>
 class Object;
 class UIImage;
 class UIText;
@@ -10,6 +11,24 @@ class Mesh;
 class Texture;
 class Material;
 class Event;
+
+#define ADD_SCENE_COMPONENT(sceneName, comp) \
+    static std::unique_ptr<comp> comp##_inst; \
+    static void comp##_clean() { comp##_inst=0; } \
+    static void comp##_init() { \
+        Scene::on_init(sceneName, []() { comp##_inst=std::make_unique<comp>(); }); \
+        Scene::on_destroy(sceneName, comp##_clean); \
+    } \
+    FIRST_INIT_FUNC(comp##_init) \
+    CLEANUP_FUNC(comp##_clean);
+
+struct SceneInfo;
+//struct SceneInfo
+//{
+//    void(*createCallback)();
+//    Event onInit;
+//    Event onDestroy;
+//};
 
 class Scene
 {
@@ -22,8 +41,12 @@ private:
     std::vector<UIText*> textInstances;
     std::vector<UIGroup*> groupInstances;
 
-    static std::unordered_map<std::string, std::pair<void(*)(), Event>> sceneEvents;
-    
+    std::unordered_map<std::type_index, void*> components;
+    //std::tuple<void(*)(), Event, Event> a;
+    //static std::unordered_map<std::string, std::pair<void(*)(), Event>> sceneEvents;
+    //static std::unordered_map<std::string, std::tuple<void(*)(), Event, Event>> sceneEvents;
+    static std::unordered_map<std::string, SceneInfo> sceneEvents;
+
     void remove_inst(Object *data);
     void remove_inst(UIImage *data);
     void remove_inst(UIText *data);
@@ -44,6 +67,21 @@ public:
     static void on_init(std::string name, void(*func)());
     /* Sets up the scene, creates all of the proper UI, etc */
     static void set_create_callback(std::string name, void(*func)());
+    /* Fired when the destructor is called */
+    static void on_destroy(std::string name, void(*func)());
+
+    template<typename T>
+    T get_component()
+    {
+        return components[std::type_index(typeid(T))];
+    }
+    template<typename T>
+    void add_component(T *data)
+    {
+        if (components.count(std::type_index(typeid(T))))
+            assert(false);
+        components[std::type_index(typeid(T))] = data;
+    }
 
     Scene(std::string name);
     ~Scene();

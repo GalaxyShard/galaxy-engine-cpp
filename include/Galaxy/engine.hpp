@@ -8,6 +8,8 @@
 #include "Math/matrix.hpp"
 #include "Math/time.hpp"
 
+#include "Networking/networking.hpp"
+
 #include "Renderer/mesh.hpp"
 #include "Renderer/shader.hpp"
 #include "Renderer/renderer.hpp"

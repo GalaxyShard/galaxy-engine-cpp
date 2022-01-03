@@ -11,7 +11,8 @@
 #include "uiobject.hpp"
 #include <iostream>
 //static Shader *textShader;
-static std::unique_ptr<Shader> textShader;
+//static std::unique_ptr<Shader> textShader;
+static AssetRef<Shader> textShader;
 Shader *UIText::shader() { return textShader.get(); }
 
 UIText::UIText(std::string text, Font *font) : text(text), font(font)
@@ -180,6 +181,7 @@ Vector2 UIText::calc_world_pos()
 static void init()
 {
     //textShader = new Shader(Assets::gasset_path()+"/shaders/text.shader");
-    textShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/text.shader");
+    //textShader = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/text.shader");
+    textShader = Shader::load(Assets::gasset_path()+SHADER_FOLDER+"/text.shader");
 }
 INIT_FUNC(init);
