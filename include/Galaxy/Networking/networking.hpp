@@ -5,6 +5,7 @@
 #include <thread>
 #include <deque>
 #include <mutex>
+#include <atomic>
 #include <Galaxy/event.hpp>
 //class Listener;
 
@@ -70,7 +71,6 @@ private:
 
     friend class Client;
 public:
-    // TODO: cleanup in destructor instead of shutdown, that way when the app exits everything works
     static bool start(unsigned short port);
     static void shutdown();
 
@@ -87,11 +87,12 @@ private:
     std::unordered_map<std::string, void(*)(NetworkReader)> rpcs;
     int serverConn = -1, shutdownPipe = -1;
 
-    std::thread clientThread;
-    std::mutex queueMutex, connMutex;
+    std::unique_ptr<std::thread> clientThread;
+    std::mutex queueMutex, connMutex, shutdownMutex;
     std::deque<std::string> queuedMessages;
 
     std::unique_ptr<Listener> preRenderConn;
+    bool shuttingDown=0;
 
     Client() = default;
     static void client_thread();

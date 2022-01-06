@@ -125,7 +125,6 @@ void UIText::build_mesh()
         //    continue;
         //}
 //
-        // TODO: apply width and height
         // Everything is relative to font size
         // xOffset is the offset from the xAdvance for each character
         // yOffset is the offset from the top of the line for each character

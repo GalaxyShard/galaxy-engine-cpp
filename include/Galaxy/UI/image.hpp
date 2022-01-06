@@ -45,6 +45,7 @@ public:
     void(*onClick)() = 0;
 
     static UIImage *get_held(int id);
+    static UIImage *get_held();
     bool is_within(Vector2 pos);
     Vector2 calc_world_pos();
 

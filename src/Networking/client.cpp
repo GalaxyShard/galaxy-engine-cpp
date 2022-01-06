@@ -4,17 +4,24 @@
 std::unique_ptr<Client> Client::inst;
 void Client::pre_render()
 {
-    auto lock = std::lock_guard(inst->queueMutex);
-    while(inst->queuedMessages.size())
     {
-        std::string &msg = inst->queuedMessages[0];
-        unsigned long index = msg.find('\0');
-        std::string func = msg.substr(0, index); // dont add 1 to skip null terminator
-        
+        auto lock = std::lock_guard(inst->queueMutex);
+        while(inst->queuedMessages.size())
+        {
+            std::string &msg = inst->queuedMessages[0];
+            unsigned long index = msg.find('\0');
+            std::string func = msg.substr(0, index); // dont add 1 to skip null terminator
+            
 
-        if (inst->rpcs.count(func))
-            inst->rpcs[func](NetworkReader(msg.substr(index+1))); // add 1 to index to skip null terminator
-        inst->queuedMessages.pop_front();
+            if (inst->rpcs.count(func))
+                inst->rpcs[func](NetworkReader(msg.substr(index+1))); // add 1 to index to skip null terminator
+            inst->queuedMessages.pop_front();
+        }
+    }
+    auto lock = std::lock_guard(inst->shutdownMutex);
+    if (inst->shuttingDown)
+    {
+        shutdown();
     }
 }
 void Client::client_thread()
@@ -50,10 +57,11 @@ void Client::client_thread()
         }
         if (descriptors[connIndex].revents & POLLHUP)
         {
+            if (inst->shuttingDown)
+                return;
             printf("Server closed connection\n");
-            // TODO: shutdown needs to be on main thread
-            //shutdown();
-            return;
+            auto lock = std::lock_guard(inst->shutdownMutex);
+            inst->shuttingDown = 1;
         }
         else if (descriptors[connIndex].revents & POLLIN)
         {
@@ -89,7 +97,8 @@ bool Client::start(const char *ip, unsigned short port)
     if (connect(inst->serverConn, info.ai_addr, info.ai_addrlen)==-1)
         return 0;
     
-    inst->clientThread = std::thread(client_thread);
+    //inst->clientThread = std::thread(client_thread);
+    inst->clientThread = std::make_unique<std::thread>(client_thread);
 
     freeaddrinfo(&info);
     inst->preRenderConn = Renderer::pre_render().connect(&pre_render);
@@ -110,7 +119,8 @@ void Client::shutdown()
         return;
     {
         char val=1;
-        write(inst->shutdownPipe, &val, 1);
+        if (write(inst->shutdownPipe, &val, 1) == -1)
+            assert(false);
         close(inst->shutdownPipe);
     }
     {
@@ -121,7 +131,8 @@ void Client::shutdown()
             inst->serverConn = -1;
         }
     }
-    inst->clientThread.join();
+    if (inst->clientThread && inst->clientThread->joinable())
+        inst->clientThread->join();
     inst = 0;
 }
 void Client::register_rpc(std::string name, void(*func)(NetworkReader))

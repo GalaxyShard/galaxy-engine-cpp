@@ -1,5 +1,6 @@
 #include "internalnet.hpp"
 #include <Galaxy/Math/vector.hpp>
+#include <Galaxy/init.hpp>
 
 addrinfo* get_addr_list(const char *ip, unsigned short port)
 {
@@ -15,7 +16,7 @@ addrinfo* get_addr_list(const char *ip, unsigned short port)
     if (status != 0)
     {
         fprintf(stderr, "addrinfo error %d: %s\n", status, gai_strerror(status));
-        exit(1);
+        assert(false);
     }
     return linkedList;
 }
@@ -28,9 +29,21 @@ int check_socket(int status)
     }
     return status;
 }
+// In case some platform doesnt use these values
+static_assert(sizeof(int) == 4);
+static_assert(sizeof(short) == 2);
+static_assert(sizeof(long long) == 8);
+static_assert(sizeof(float) == 4);
+static_assert(sizeof(double) == 8);
 
 template<>
-char NetworkReader::read<char>()
+unsigned char NetworkReader::read<unsigned char>()
+{
+    nextIndex += 1;
+    return buffer[nextIndex-1];
+}
+template<>
+signed char NetworkReader::read<signed char>()
 {
     nextIndex += 1;
     return buffer[nextIndex-1];
@@ -38,24 +51,57 @@ char NetworkReader::read<char>()
 template<>
 float NetworkReader::read<float>()
 {
-    // todo: optimize for IEEE instead of ASCII
-    std::string val;
-    while(1)
+    // IEEE-754
+    static_assert(std::numeric_limits<float>::is_iec559);
+    
+    auto b0 = read<unsigned char>();
+    auto b1 = read<unsigned char>();
+    auto b2 = read<unsigned char>();
+    auto b3 = read<unsigned char>();
+
+    unsigned char rawBytes[4] = {b0,b1,b2,b3};
+    int one = 1;
+    if (*(unsigned char*)&one == 1)
     {
-        if (buffer[nextIndex] == '\0')
-            break;
-        val.push_back(buffer[nextIndex]);
-        ++nextIndex;
+        std::swap(rawBytes[0], rawBytes[3]);
+        std::swap(rawBytes[1], rawBytes[2]);
     }
-    // for some reason this wouldnt work, even though it is the equivalent to the above
-    //for (;buffer[nextIndex]=='\0';++nextIndex)
+    return *(float*)rawBytes;
+
+    //// bytes are left to right
+    //unsigned char b0 = read<unsigned char>();
+    //unsigned char b1 = read<unsigned char>();
+    //unsigned char b2 = read<unsigned char>();
+    //unsigned char b3 = read<unsigned char>();
+
+    //unsigned char sign = (b0 & 0b10000000) >> 7;
+    //unsigned char exponent = ((b0 & 0b01111111) << 1) | ((b1 & 0b10000000) >> 7);
+    //unsigned char fraction[3] = {b1,b2,b3};
+
+    //float fractionSum=0;
+    //for (int i = 1; i <= 23; ++i)
     //{
-    //    val.push_back(buffer[nextIndex]);
+    //    if (fraction[i/8] & (0b10000000>>(i%8)))
+    //        fractionSum += powf(2, -i);
     //}
-    ++nextIndex; // skip past \0
-    return std::stof(val);
-    //nextIndex += 1;
-    //return buffer[nextIndex-1];
+    //if (sign)
+    //    return -powf(2, (float)exponent-127) * (1 + fractionSum);
+    //else
+    //    return powf(2, (float)exponent-127) * (1 + fractionSum);
+    //return (float)(sign ^ 0b00000001) * -powf(2, (float)exponent-127) * (1 + fractionSum);
+    // val = (1-sign) * pow(2, E-127) * (1 + (pow(2, -i)))
+
+    // ASCII
+    //std::string val;
+    //while(1)
+    //{
+    //    if (buffer[nextIndex] == '\0')
+    //        break;
+    //    val.push_back(buffer[nextIndex]);
+    //    ++nextIndex;
+    //}
+    //++nextIndex; // skip past \0
+    //return std::stof(val);
 }
 template<>
 Vector3 NetworkReader::read<Vector3>()
@@ -68,7 +114,12 @@ Vector3 NetworkReader::read<Vector3>()
 
 
 template<>
-void NetworkWriter::write<char>(char data)
+void NetworkWriter::write<signed char>(signed char data)
+{
+    buffer.push_back(data);
+}
+template<>
+void NetworkWriter::write<unsigned char>(unsigned char data)
 {
     buffer.push_back(data);
 }
@@ -76,8 +127,29 @@ void NetworkWriter::write<char>(char data)
 template<>
 void NetworkWriter::write<float>(float data)
 {
-    // todo: optimize for IEEE
-    buffer.append(std::to_string(data)+'\0');
+    // IEEE-754
+    static_assert(std::numeric_limits<float>::is_iec559);
+    unsigned char *rawBytes;
+    rawBytes = (unsigned char*)&data;
+
+    int one = 1;
+    if (*(unsigned char*)&one == 1)
+    {
+        std::swap(rawBytes[0], rawBytes[3]);
+        std::swap(rawBytes[1], rawBytes[2]);
+    }
+    buffer.append(std::string((char*)rawBytes, 4));
+
+    //unsigned char bytes[4] = {0,0,0,0};
+    // solve for sign, exponent, and data bit
+    // val = (1-sign) * pow(2, E-127) * (1 + (pow(2, -i)))
+    //if (data < 0)
+    //    bytes[0] = 0b10000000;
+    //log2f()
+    //buffer.append(std::string((char*)bytes, 4));
+
+    // ASCII
+    //buffer.append(std::to_string(data)+'\0');
 }
 template<>
 void NetworkWriter::write<Vector3>(Vector3 data)
@@ -86,3 +158,10 @@ void NetworkWriter::write<Vector3>(Vector3 data)
     write(data.y);
     write(data.z);
 }
+
+static void clean()
+{
+    Client::shutdown();
+    Server::shutdown();
+}
+CLEANUP_FUNC(clean);

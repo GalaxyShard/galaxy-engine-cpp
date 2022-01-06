@@ -77,7 +77,6 @@ void Server::server_thread()
                 int bytesRead = recv(client.fd, buffer, bufferSize, 0);
                 check_socket(bytesRead);
 
-                // TODO clear queue
                 auto lock = std::lock_guard(inst->queueMutex);
                 inst->queuedMessages.push_back(std::string(buffer, bytesRead));
             }

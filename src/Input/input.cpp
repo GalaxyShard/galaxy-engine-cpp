@@ -25,6 +25,8 @@ struct InputData
 
 //extern UIImage *currentHeldImg;
 extern std::unique_ptr<UIImage*[]> heldImages;
+extern int lastTouchID;
+
 
 Vector2 Input::mousePos = Vector2(-1,-1);//, Input::mouseDelta;
 auto onTouchEvent = std::make_unique<EventT<TouchData>>();
@@ -63,26 +65,21 @@ namespace
         
         onRebindFinish = nullptr;
     }
-    //bool pos_in_image(Vector2 pos, UIImage *img)
-    //{
-    //    return is_within(pos, img->calc_world_pos(), img->scale*Renderer::reverseAspect);
-    //}
     UIImage *image_in_pos(Vector2 pos)
     {
         const auto &raycastables = UIImage::get_raycastables();
         for (int i = raycastables.size()-1; i >= 0; --i)
         {
             UIImage *img = raycastables[i];
-            //if (pos_in_image(pos, img))
             if (img->is_within(pos))
                 return img;
         }
         return nullptr;
     }
-    // update to fix for mobile
     void process_click(int touchID, bool action, int mods, Vector2 pos)
     {
         const auto &raycastables = UIImage::get_raycastables();
+        lastTouchID = touchID;
         if (action)
         {
             UIImage *img = image_in_pos(pos);
@@ -91,36 +88,21 @@ namespace
                 heldImages[touchID] = img;
                 if (img->onTouchDown) img->onTouchDown();
             }
-            //for (int i = raycastables.size()-1; i >= 0; --i)
-            //{
-            //    UIImage *img = raycastables[i];
-//
-            //    if (is_within(pos, img->calc_world_pos(), img->scale*Renderer::reverseAspect))
-            //    {
-            //        currentHeldImg = img;
-            //        if (img->onTouchDown) img->onTouchDown();
-            //        break;
-            //    }
-            //}
         }
-        //else if (currentHeldImg)
         else if (heldImages[touchID])
         {
-            //UIImage *&img = currentHeldImg;
             UIImage *&img = heldImages[touchID];
             if (img->onTouchUp) img->onTouchUp();
             
             // check incase image was deleted inside onTouchUp
             if (img && img->onClick)
             {
-                //if (is_within(pos, img->calc_world_pos(), img->scale*Renderer::reverseAspect))
                 if (img->is_within(pos))
                 {
                     img->onClick();
                 }
             }
             heldImages[touchID] = nullptr;
-            //currentHeldImg = nullptr;
         }
     }
     void process_cursor(float x, float y)
@@ -129,9 +111,6 @@ namespace
         // mousePos is converted, -1 is bottom left, pos is -1~1
         // will be updated when outside of window as long as window is focused
         Input::mousePos = Vector2(x / Renderer::screenWidth, 1.f-(y / Renderer::screenHeight))*2-1;
-        //Input::mousePos = Input::mousePos*Renderer::reverseAspect;
-        // Implement hover events here?
-        //printf("%f, %f\n", Input::mousePos.x, Input::mousePos.y);
     }
 #if OS_MOBILE
     bool touch_callback(GLFMDisplay*, int touch, GLFMTouchPhase phase, double x, double y)
@@ -273,6 +252,12 @@ static void init()
     glfwSetKeyCallback(window, &key_callback);
     glfwSetMouseButtonCallback(window, &mouse_callback);
     glfwSetCursorPosCallback(window, &cursor_callback);
+    glfwSetWindowFocusCallback(window, [](GLFWwindow *window, int)
+    {
+        double x,y;
+        glfwGetCursorPos(window, &x, &y);
+        cursor_callback(0, x, y);
+    });
 #endif
 }
 INTERNAL_INIT_FUNC(init);
