@@ -43,6 +43,7 @@ void Client::client_thread()
         if (eventCount == -1)
         {
             printf("error %d occured while polling%s\n", errno, strerror(errno));
+            //continue;
             assert(false);
             //shutdown();
             //return;
@@ -89,18 +90,37 @@ bool Client::start(const char *ip, unsigned short port)
     inst = std::unique_ptr<Client>(new Client());
 
     addrinfo *list = get_addr_list(NULL, port);
-    addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
+    //addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
+    //
+    //if ((inst->serverConn = socket(info.ai_family, info.ai_socktype, info.ai_protocol))==-1)
+    //    return 0;
+//
+    //if (connect(inst->serverConn, info.ai_addr, info.ai_addrlen)==-1)
+    //    return 0;
     
-    if ((inst->serverConn = socket(info.ai_family, info.ai_socktype, info.ai_protocol))==-1)
+    bool errored=0;
+    for (addrinfo *info = list; info!=0; info = info->ai_next)
+    {
+        if ((inst->serverConn = socket(info->ai_family, info->ai_socktype, info->ai_protocol))==-1)
+        {
+            if (!info->ai_next) errored = 1;
+            continue;
+        }
+        if (connect(inst->serverConn, info->ai_addr, info->ai_addrlen)==-1)
+        {
+            if (!info->ai_next) errored = 1;
+            close(inst->serverConn);
+            continue;
+        }
+    }
+    freeaddrinfo(list);
+    if (errored)
+    {
+        inst = 0;
         return 0;
-
-    if (connect(inst->serverConn, info.ai_addr, info.ai_addrlen)==-1)
-        return 0;
+    }
     
-    //inst->clientThread = std::thread(client_thread);
     inst->clientThread = std::make_unique<std::thread>(client_thread);
-
-    freeaddrinfo(&info);
     inst->preRenderConn = Renderer::pre_render().connect(&pre_render);
     return 1;
 }
@@ -119,8 +139,9 @@ void Client::shutdown()
         return;
     {
         char val=1;
-        if (write(inst->shutdownPipe, &val, 1) == -1)
-            assert(false);
+        write(inst->shutdownPipe, &val, 1);
+        //if (write(inst->shutdownPipe, &val, 1) == -1)
+            //assert(false);
         close(inst->shutdownPipe);
     }
     {

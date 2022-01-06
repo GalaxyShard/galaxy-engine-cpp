@@ -90,23 +90,59 @@ bool Server::start(unsigned short port)
     
     inst = std::unique_ptr<Server>(new Server());
     addrinfo *list = get_addr_list(NULL, port);
-    addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
+    //addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
 
-    if ((inst->listener = socket(info.ai_family, info.ai_socktype, info.ai_protocol))==-1)
-        return 0;
-    
+
+    bool errored=0;
+    for (addrinfo *info = list; info!=0; info = info->ai_next)
     {
+        if ((inst->listener = socket(info->ai_family, info->ai_socktype, info->ai_protocol))==-1)
+        {
+            if (!info->ai_next) errored = 1;
+            continue;
+        }
         int yes = 1;
         if (setsockopt(inst->listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes))==-1)
-            return 0;
+        {
+            if (!info->ai_next) errored = 1;
+            continue;
+        }
+        if (bind(inst->listener, info->ai_addr, info->ai_addrlen)==-1)
+        {
+            if (!info->ai_next) errored = 1;
+            close(inst->listener);
+            continue;
+        }
     }
-    if (bind(inst->listener, info.ai_addr, info.ai_addrlen)==-1)
+    //if ((inst->listener = socket(info.ai_family, info.ai_socktype, info.ai_protocol))==-1)
+    //    return 0;
+    //
+    //{
+    //    int yes = 1;
+    //    if (setsockopt(inst->listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes))==-1)
+    //        return 0;
+    //}
+    //if (bind(inst->listener, info.ai_addr, info.ai_addrlen)==-1)
+    //    return 0;
+//
+    //if ((listen(inst->listener, 5))==-1)
+    //    return 0;
+    //freeaddrinfo(&info); // memory leak if there is an error
+    
+    freeaddrinfo(list);
+    if (errored)
+    {
+        inst = 0;
         return 0;
+    }
 
     if ((listen(inst->listener, 5))==-1)
+    {
+        close(inst->listener);
+        inst = 0;
         return 0;
+    }
 
-    freeaddrinfo(&info);
     inst->serverThread = std::thread(server_thread);
     inst->preRenderConn = Renderer::pre_render().connect(&pre_render);
     return 1;

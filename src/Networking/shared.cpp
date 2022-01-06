@@ -25,7 +25,7 @@ int check_socket(int status)
     if (status == -1)
     {
         fprintf(stderr, "socket error %d: %s\n", errno, strerror(errno));
-        assert(false);
+        //assert(false);
     }
     return status;
 }
