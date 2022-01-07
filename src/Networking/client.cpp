@@ -89,7 +89,7 @@ bool Client::start(const char *ip, unsigned short port)
     
     inst = std::unique_ptr<Client>(new Client());
 
-    addrinfo *list = get_addr_list(NULL, port);
+    addrinfo *list = get_addr_list(ip, port);
     //addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
     //
     //if ((inst->serverConn = socket(info.ai_family, info.ai_socktype, info.ai_protocol))==-1)
@@ -126,11 +126,16 @@ bool Client::start(const char *ip, unsigned short port)
 }
 bool Client::start_as_host()
 {
-    if (inst)
+    if (inst || !Server::is_active())
         return 0;
     
     inst = std::unique_ptr<Client>(new Client());
     inst->serverConn = HOST_FD;
+
+    NetworkWriter writer;
+    writer.write<unsigned char>(CLIENT_JOIN);
+    writer.write<int>(HOST_FD);
+    Server::inst->internalMsgs.push_back(writer.get_buffer());
     return 1;
 }
 void Client::shutdown()
@@ -154,6 +159,12 @@ void Client::shutdown()
     }
     if (inst->clientThread && inst->clientThread->joinable())
         inst->clientThread->join();
+    
+
+    NetworkWriter writer;
+    writer.write<unsigned char>(CLIENT_LEAVE);
+    writer.write<int>(HOST_FD);
+    Server::inst->internalMsgs.push_back(writer.get_buffer());
     inst = 0;
 }
 void Client::register_rpc(std::string name, void(*func)(NetworkReader))

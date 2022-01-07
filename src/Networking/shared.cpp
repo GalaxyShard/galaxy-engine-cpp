@@ -49,6 +49,32 @@ signed char NetworkReader::read<signed char>()
     return buffer[nextIndex-1];
 }
 template<>
+int NetworkReader::read<int>()
+{
+    int val = *(int*)&buffer[nextIndex];
+    nextIndex += 4;
+    return ntohs(val);
+}
+template<>
+std::string NetworkReader::read<std::string>()
+{
+    //size_t length = buffer.find('\0', nextIndex)-nextIndex;
+    //int startIndex = nextIndex;
+    //nextIndex += ;
+    //return buffer.substr(, );
+
+    unsigned short length = *(unsigned short*)&buffer[nextIndex];
+    length = ntohs(length);
+    nextIndex += length+2;
+    return buffer.substr(nextIndex-length, length);
+
+    //int length = 0, lastIndex = nextIndex;
+    //for (int i = nextIndex; buffer[i] != '\0'; ++i, ++length);
+    //nextIndex += length+1;
+    //return buffer.substr(lastIndex, length);
+}
+
+template<>
 float NetworkReader::read<float>()
 {
     // IEEE-754
@@ -73,11 +99,11 @@ float NetworkReader::read<float>()
     //unsigned char b1 = read<unsigned char>();
     //unsigned char b2 = read<unsigned char>();
     //unsigned char b3 = read<unsigned char>();
-
+//
     //unsigned char sign = (b0 & 0b10000000) >> 7;
     //unsigned char exponent = ((b0 & 0b01111111) << 1) | ((b1 & 0b10000000) >> 7);
     //unsigned char fraction[3] = {b1,b2,b3};
-
+//
     //float fractionSum=0;
     //for (int i = 1; i <= 23; ++i)
     //{
@@ -90,18 +116,6 @@ float NetworkReader::read<float>()
     //    return powf(2, (float)exponent-127) * (1 + fractionSum);
     //return (float)(sign ^ 0b00000001) * -powf(2, (float)exponent-127) * (1 + fractionSum);
     // val = (1-sign) * pow(2, E-127) * (1 + (pow(2, -i)))
-
-    // ASCII
-    //std::string val;
-    //while(1)
-    //{
-    //    if (buffer[nextIndex] == '\0')
-    //        break;
-    //    val.push_back(buffer[nextIndex]);
-    //    ++nextIndex;
-    //}
-    //++nextIndex; // skip past \0
-    //return std::stof(val);
 }
 template<>
 Vector3 NetworkReader::read<Vector3>()
@@ -122,6 +136,18 @@ template<>
 void NetworkWriter::write<unsigned char>(unsigned char data)
 {
     buffer.push_back(data);
+}
+template<>
+void NetworkWriter::write<int>(int data)
+{
+    buffer += htons(data);
+}
+template<>
+void NetworkWriter::write<std::string>(std::string data)
+{
+    unsigned short length = (unsigned short)data.size();
+    length = htons(length);
+    buffer += (*(char*)&length) + data;
 }
 
 template<>
@@ -147,9 +173,6 @@ void NetworkWriter::write<float>(float data)
     //    bytes[0] = 0b10000000;
     //log2f()
     //buffer.append(std::string((char*)bytes, 4));
-
-    // ASCII
-    //buffer.append(std::to_string(data)+'\0');
 }
 template<>
 void NetworkWriter::write<Vector3>(Vector3 data)

@@ -1,20 +1,45 @@
 #include "internalnet.hpp"
 #include <Galaxy/Renderer/renderer.hpp>
 
+//enum MsgFlags { CLIENT_JOIN=1<<0, CLIENT_LEAVE=1<<1 };
+
 std::unique_ptr<Server> Server::inst;
 void Server::pre_render()
 {
-    auto lock = std::lock_guard(inst->queueMutex);
-    while(inst->queuedMessages.size())
     {
-        std::string &msg = inst->queuedMessages[0];
-        unsigned long index = msg.find('\0');
-        std::string func = msg.substr(0, index); // dont add 1 to skip null terminator
-        
+        auto lock = std::lock_guard(inst->clientMutex);
+        while (inst->internalMsgs.size())
+        {
+            NetworkReader reader = NetworkReader(inst->internalMsgs[0]);
+            unsigned char msg = reader.read<unsigned char>();
+            int fd = reader.read<int>();
 
-        if (inst->rpcs.count(func))
-            inst->rpcs[func](NetworkReader(msg.substr(index+1))); // add 1 to index to skip null terminator
-        inst->queuedMessages.pop_front();
+            if (msg == CLIENT_JOIN)
+            {
+                if (inst->joinCallback)
+                    inst->joinCallback(Connection(fd));
+            }
+            else if (msg == CLIENT_LEAVE)
+            {
+                if (inst->leaveCallback)
+                    inst->leaveCallback(Connection(fd));
+            }
+            inst->internalMsgs.pop_front();
+        }
+    }
+    {
+        auto lock = std::lock_guard(inst->queueMutex);
+        while(inst->queuedMessages.size())
+        {
+            std::string &msg = inst->queuedMessages[0];
+            unsigned long index = msg.find('\0');
+            std::string func = msg.substr(0, index); // dont add 1 to skip null terminator
+            
+
+            if (inst->rpcs.count(func))
+                inst->rpcs[func](NetworkReader(msg.substr(index+1))); // add 1 to index to skip null terminator
+            inst->queuedMessages.pop_front();
+        }
     }
 }
 void Server::server_thread()
@@ -42,7 +67,7 @@ void Server::server_thread()
         
         if (descriptors[1].revents & POLLIN)
         {
-            printf("Exit\n");
+            printf("Server Exit\n");
             close(descriptors[1].fd); // pipe reader
             return;
         }
@@ -59,6 +84,14 @@ void Server::server_thread()
             {
                 auto lock = std::lock_guard(inst->clientMutex);
                 inst->clients.push_back(Connection(clientFD));
+
+                NetworkWriter writer;
+                writer.write<unsigned char>(CLIENT_JOIN);
+                writer.write<int>(clientFD);
+                inst->internalMsgs.push_back(writer.get_buffer());
+                //inst->msgFlags &= CLIENT_JOIN;
+                //if (inst->joinCallback)
+                //    inst->joinCallback(inst->clients.back());
             }
         }
         for (int i = 2; i < descriptors.size(); ++i)
@@ -67,8 +100,27 @@ void Server::server_thread()
             if (client.revents & POLLHUP)
             {
                 printf("Client disconnected\n");
+                int clientFD = descriptors[i].fd;
                 descriptors.erase(descriptors.begin()+i);
                 --i;
+                int index = -1;
+                for (int i = 0; i < inst->clients.size(); ++i)
+                {
+                    if (inst->clients[i].fd == clientFD)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+                close(clientFD);
+                //if (inst->leaveCallback)
+                //    inst->leaveCallback(inst->clients[index]);
+                inst->clients.erase(inst->clients.begin()+index);
+
+                NetworkWriter writer;
+                writer.write<unsigned char>(CLIENT_LEAVE);
+                writer.write<int>(clientFD);
+                inst->internalMsgs.push_back(writer.get_buffer());
             }
             else if (client.revents & POLLIN)
             {
@@ -188,6 +240,14 @@ void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
         long bytesSent = ::send(conn.fd, buffer.c_str(), buffer.size(), 0);
         check_socket(bytesSent);
     }
+}
+void Server::set_join_callback(ClientStatusCallback func)
+{
+    inst->joinCallback = func;
+}
+void Server::set_leave_callback(ClientStatusCallback func)
+{
+    inst->leaveCallback = func;
 }
 void Server::register_rpc(std::string name, void(*func)(NetworkReader))
 {

@@ -51,7 +51,10 @@ private:
     friend class Client;
     Connection() { }
     Connection(int fd) : fd(fd) { }
+public:
+    int getID() const { return fd; }
 };
+typedef void(*ClientStatusCallback)(const Connection&);
 class Server
 {
 private:
@@ -65,12 +68,21 @@ private:
     std::deque<std::string> queuedMessages;
     std::unique_ptr<Listener> preRenderConn;
 
+    ClientStatusCallback joinCallback;
+    ClientStatusCallback leaveCallback;
+
+    //unsigned char msgFlags = 0;
+    std::deque<std::string> internalMsgs;
+
     Server() = default;
     static void server_thread();
     static void pre_render();
 
     friend class Client;
 public:
+    static void set_join_callback(ClientStatusCallback func);
+    static void set_leave_callback(ClientStatusCallback func);
+
     static bool start(unsigned short port);
     static void shutdown();
 

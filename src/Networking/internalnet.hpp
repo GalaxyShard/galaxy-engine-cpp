@@ -7,6 +7,8 @@
 #include <poll.h>
 #include <thread>
 
+enum MsgState { CLIENT_JOIN, CLIENT_LEAVE };
+
 constexpr static int HOST_FD = -2;
 addrinfo* get_addr_list(const char *ip, unsigned short port);
 int check_socket(int status);
