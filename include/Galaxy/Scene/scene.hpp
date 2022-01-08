@@ -13,14 +13,19 @@ class Material;
 class Event;
 
 #define ADD_SCENE_COMPONENT(sceneName, comp) \
-    static std::unique_ptr<comp> comp##_inst; \
-    static void comp##_clean() { comp##_inst=0; } \
     static void comp##_init() { \
-        Scene::on_init(sceneName, []() { comp##_inst=std::make_unique<comp>(); }); \
-        Scene::on_destroy(sceneName, comp##_clean); \
+        Scene::on_init(sceneName, []() { Scene::activeScene->add_component<comp>(); }); \
     } \
-    FIRST_INIT_FUNC(comp##_init) \
-    CLEANUP_FUNC(comp##_clean);
+    FIRST_INIT_FUNC(comp##_init)
+//#define ADD_SCENE_COMPONENT(sceneName, comp) \
+//    static std::unique_ptr<comp> comp##_inst; \
+//    static void comp##_clean() { comp##_inst=0; } \
+//    static void comp##_init() { \
+//        Scene::on_init(sceneName, []() { comp##_inst=std::make_unique<comp>(); }); \
+//        Scene::on_destroy(sceneName, comp##_clean); \
+//    } \
+//    FIRST_INIT_FUNC(comp##_init) \
+//    CLEANUP_FUNC(comp##_clean);
 
 struct SceneInfo;
 //struct SceneInfo
@@ -29,7 +34,11 @@ struct SceneInfo;
 //    Event onInit;
 //    Event onDestroy;
 //};
-
+struct SceneComponent
+{
+    void *data;
+    void (*destructor)(void *);
+};
 class Scene
 {
 private:
@@ -41,7 +50,7 @@ private:
     std::vector<UIText*> textInstances;
     std::vector<UIGroup*> groupInstances;
 
-    std::unordered_map<std::type_index, void*> components;
+    std::unordered_map<std::type_index, SceneComponent> components;
     //std::tuple<void(*)(), Event, Event> a;
     //static std::unordered_map<std::string, std::pair<void(*)(), Event>> sceneEvents;
     //static std::unordered_map<std::string, std::tuple<void(*)(), Event, Event>> sceneEvents;
@@ -71,16 +80,24 @@ public:
     static void on_destroy(std::string name, void(*func)());
 
     template<typename T>
-    T get_component()
+    T* get_component()
     {
-        return components[std::type_index(typeid(T))];
+        return (T*)components[std::type_index(typeid(T))].data;
     }
     template<typename T>
-    void add_component(T *data)
+    //void add_component(T *data)
+    void add_component()
     {
-        if (components.count(std::type_index(typeid(T))))
+        auto type = std::type_index(typeid(T));
+        if (components.count(type))
             assert(false);
-        components[std::type_index(typeid(T))] = data;
+        components[type].data = new T();
+        //components[type].data = data;
+        components[type].destructor = [](void *data)
+        {
+            delete (T*)data;
+            //((T*)data)->~T();
+        };
     }
 
     Scene(std::string name);

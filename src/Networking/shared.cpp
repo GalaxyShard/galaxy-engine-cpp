@@ -53,7 +53,7 @@ int NetworkReader::read<int>()
 {
     int val = *(int*)&buffer[nextIndex];
     nextIndex += 4;
-    return ntohs(val);
+    return ntohl(val);
 }
 template<>
 std::string NetworkReader::read<std::string>()
@@ -140,7 +140,9 @@ void NetworkWriter::write<unsigned char>(unsigned char data)
 template<>
 void NetworkWriter::write<int>(int data)
 {
-    buffer += htons(data);
+    //buffer += htonl(data);
+    int bigEndian = htonl(data);
+    buffer.append((char*)&bigEndian, sizeof(int));
 }
 template<>
 void NetworkWriter::write<std::string>(std::string data)

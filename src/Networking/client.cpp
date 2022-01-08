@@ -12,6 +12,7 @@ void Client::pre_render()
             unsigned long index = msg.find('\0');
             std::string func = msg.substr(0, index); // dont add 1 to skip null terminator
             
+            //printf("Recieving msg (client): %s\n", func.c_str());
 
             if (inst->rpcs.count(func))
                 inst->rpcs[func](NetworkReader(msg.substr(index+1))); // add 1 to index to skip null terminator
@@ -37,6 +38,7 @@ void Client::client_thread()
         descriptors.push_back({.events=POLLIN, .fd=shutdownReader});
     }
     descriptors.push_back({.events=POLLIN|POLLHUP, .fd=inst->serverConn});
+    inst->isActive = 1;
     while(1)
     {
         int eventCount = poll(descriptors.data(), descriptors.size(), -1);
@@ -84,7 +86,7 @@ void Client::client_thread()
 }
 bool Client::start(const char *ip, unsigned short port)
 {
-    if (inst)
+    if (inst.get())
         return 0;
     
     inst = std::unique_ptr<Client>(new Client());
@@ -126,7 +128,7 @@ bool Client::start(const char *ip, unsigned short port)
 }
 bool Client::start_as_host()
 {
-    if (inst || !Server::is_active())
+    if (inst.get() || !Server::inst.get())
         return 0;
     
     inst = std::unique_ptr<Client>(new Client());
@@ -136,12 +138,15 @@ bool Client::start_as_host()
     writer.write<unsigned char>(CLIENT_JOIN);
     writer.write<int>(HOST_FD);
     Server::inst->internalMsgs.push_back(writer.get_buffer());
+    inst->isActive = 1;
+    Server::inst->clients.push_back(HOST_FD);
     return 1;
 }
 void Client::shutdown()
 {
-    if (!is_active())
+    if (!inst.get())
         return;
+    inst->isActive = 0;
     {
         char val=1;
         write(inst->shutdownPipe, &val, 1);
@@ -160,16 +165,28 @@ void Client::shutdown()
     if (inst->clientThread && inst->clientThread->joinable())
         inst->clientThread->join();
     
-
-    NetworkWriter writer;
-    writer.write<unsigned char>(CLIENT_LEAVE);
-    writer.write<int>(HOST_FD);
-    Server::inst->internalMsgs.push_back(writer.get_buffer());
+    if (Server::inst.get())
+    {
+        NetworkWriter writer;
+        writer.write<unsigned char>(CLIENT_LEAVE);
+        writer.write<int>(HOST_FD);
+        Server::inst->internalMsgs.push_back(writer.get_buffer());
+        auto &clients = Server::inst->clients;
+        for (int i = 0; i < clients.size(); ++i)
+        {
+            if (clients[i].fd == HOST_FD)
+            {
+                clients.erase(clients.begin()+i);
+                break;
+            }
+        }
+        //Server::inst->clients.push_back(HOST_FD);
+    }
     inst = 0;
 }
 void Client::register_rpc(std::string name, void(*func)(NetworkReader))
 {
-    if (!is_active())
+    if (!inst.get())
     {
         fprintf(stderr, "Error: rpcs must be registered after starting client\n");
         return;
@@ -178,15 +195,15 @@ void Client::register_rpc(std::string name, void(*func)(NetworkReader))
 }
 void Client::send(const char *msg, const NetworkWriter &data)
 {
-    if (!is_active())
+    if (!inst.get())
     {
         fprintf(stderr, "Error: send can only be called after starting client\n");
         return;
     }
-    if (Server::is_active())
+    if (Server::inst.get())
     {
         // directly run function if host
-        Server::inst->rpcs[msg](NetworkReader(data.get_buffer()));
+        Server::inst->rpcs[msg](NetworkReader(data.get_buffer()), Connection(HOST_FD));
     }
     else
     {
@@ -197,5 +214,5 @@ void Client::send(const char *msg, const NetworkWriter &data)
 }
 bool Client::is_active()
 {
-    return inst.get();
+    return inst.get() && inst->isActive;
 }

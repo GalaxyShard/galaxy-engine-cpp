@@ -37,6 +37,12 @@ void delete_vector(std::vector<T*> &vector)
 }
 Scene::~Scene()
 {
+    for (auto &[id, comp] : components)
+    {
+        comp.destructor(comp.data);
+        //delete comp.data;
+    }
+    components.clear();
     destroyingScene = 1;
     delete_vector(objInstances);
     delete_vector(imgInstances);

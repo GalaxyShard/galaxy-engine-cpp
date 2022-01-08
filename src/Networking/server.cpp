@@ -7,13 +7,14 @@ std::unique_ptr<Server> Server::inst;
 void Server::pre_render()
 {
     {
-        auto lock = std::lock_guard(inst->clientMutex);
+        //auto lock = std::lock_guard(inst->clientMutex);
         while (inst->internalMsgs.size())
         {
             NetworkReader reader = NetworkReader(inst->internalMsgs[0]);
             unsigned char msg = reader.read<unsigned char>();
             int fd = reader.read<int>();
 
+            printf("Client %s\n", msg == CLIENT_JOIN ? "joined" : "left");
             if (msg == CLIENT_JOIN)
             {
                 if (inst->joinCallback)
@@ -29,15 +30,17 @@ void Server::pre_render()
     }
     {
         auto lock = std::lock_guard(inst->queueMutex);
-        while(inst->queuedMessages.size())
+        while (inst->queuedMessages.size())
         {
             std::string &msg = inst->queuedMessages[0];
-            unsigned long index = msg.find('\0');
-            std::string func = msg.substr(0, index); // dont add 1 to skip null terminator
-            
+            int connID = *(int *)&msg[0];
+            unsigned long index = msg.find('\0', sizeof(connID));
+            std::string func = msg.substr(sizeof(connID), index - sizeof(connID));
+
+            //printf("Recieving msg (server): %s\n", func.c_str());
 
             if (inst->rpcs.count(func))
-                inst->rpcs[func](NetworkReader(msg.substr(index+1))); // add 1 to index to skip null terminator
+                inst->rpcs[func](NetworkReader(msg.substr(index+1)), Connection(connID)); // add 1 to index to skip null terminator
             inst->queuedMessages.pop_front();
         }
     }
@@ -45,17 +48,18 @@ void Server::pre_render()
 void Server::server_thread()
 {
     std::vector<pollfd> descriptors;
-    descriptors.push_back({.events=POLLIN, .fd=inst->listener});
+    descriptors.push_back({.events = POLLIN, .fd = inst->listener});
 
     {
         int pipeFD[2];
         check_socket(pipe(pipeFD));
-        
+
         int shutdownReader = pipeFD[0];
         inst->shutdownPipe = pipeFD[1];
-        descriptors.push_back({.events=POLLIN, .fd=shutdownReader});
+        descriptors.push_back({.events = POLLIN, .fd = shutdownReader});
     }
-    while(1)
+    inst->isActive = 1;
+    while (1)
     {
         int eventCount = poll(descriptors.data(), descriptors.size(), -1);
         if (eventCount == -1)
@@ -63,8 +67,9 @@ void Server::server_thread()
             printf("error %d occured while polling%s\n", errno, strerror(errno));
             assert(false);
         }
-        if (eventCount < 1) continue;
-        
+        if (eventCount < 1)
+            continue;
+
         if (descriptors[1].revents & POLLIN)
         {
             printf("Server Exit\n");
@@ -75,12 +80,10 @@ void Server::server_thread()
         {
             sockaddr_storage clientAddr;
             socklen_t clientAddrSize = sizeof(clientAddr);
-            int clientFD = accept(inst->listener, (sockaddr*)&clientAddr, &clientAddrSize);
+            int clientFD = accept(inst->listener, (sockaddr *)&clientAddr, &clientAddrSize);
 
-            descriptors.push_back({
-                .fd = clientFD,
-                .events = POLLIN|POLLHUP
-            });
+            descriptors.push_back({.fd = clientFD,
+                                   .events = POLLIN | POLLHUP});
             {
                 auto lock = std::lock_guard(inst->clientMutex);
                 inst->clients.push_back(Connection(clientFD));
@@ -100,8 +103,9 @@ void Server::server_thread()
             if (client.revents & POLLHUP)
             {
                 printf("Client disconnected\n");
+                auto lock = std::lock_guard(inst->clientMutex);
                 int clientFD = descriptors[i].fd;
-                descriptors.erase(descriptors.begin()+i);
+                descriptors.erase(descriptors.begin() + i);
                 --i;
                 int index = -1;
                 for (int i = 0; i < inst->clients.size(); ++i)
@@ -115,7 +119,7 @@ void Server::server_thread()
                 close(clientFD);
                 //if (inst->leaveCallback)
                 //    inst->leaveCallback(inst->clients[index]);
-                inst->clients.erase(inst->clients.begin()+index);
+                inst->clients.erase(inst->clients.begin() + index);
 
                 NetworkWriter writer;
                 writer.write<unsigned char>(CLIENT_LEAVE);
@@ -130,7 +134,7 @@ void Server::server_thread()
                 check_socket(bytesRead);
 
                 auto lock = std::lock_guard(inst->queueMutex);
-                inst->queuedMessages.push_back(std::string(buffer, bytesRead));
+                inst->queuedMessages.push_back(std::string((const char *)&client.fd, 4) + std::string(buffer, bytesRead));
             }
         }
     }
@@ -139,29 +143,31 @@ bool Server::start(unsigned short port)
 {
     if (inst)
         return 0;
-    
+
     inst = std::unique_ptr<Server>(new Server());
     addrinfo *list = get_addr_list(NULL, port);
     //addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
 
-
-    bool errored=0;
-    for (addrinfo *info = list; info!=0; info = info->ai_next)
+    bool errored = 0;
+    for (addrinfo *info = list; info != 0; info = info->ai_next)
     {
-        if ((inst->listener = socket(info->ai_family, info->ai_socktype, info->ai_protocol))==-1)
+        if ((inst->listener = socket(info->ai_family, info->ai_socktype, info->ai_protocol)) == -1)
         {
-            if (!info->ai_next) errored = 1;
+            if (!info->ai_next)
+                errored = 1;
             continue;
         }
         int yes = 1;
-        if (setsockopt(inst->listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes))==-1)
+        if (setsockopt(inst->listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
         {
-            if (!info->ai_next) errored = 1;
+            if (!info->ai_next)
+                errored = 1;
             continue;
         }
-        if (bind(inst->listener, info->ai_addr, info->ai_addrlen)==-1)
+        if (bind(inst->listener, info->ai_addr, info->ai_addrlen) == -1)
         {
-            if (!info->ai_next) errored = 1;
+            if (!info->ai_next)
+                errored = 1;
             close(inst->listener);
             continue;
         }
@@ -176,11 +182,11 @@ bool Server::start(unsigned short port)
     //}
     //if (bind(inst->listener, info.ai_addr, info.ai_addrlen)==-1)
     //    return 0;
-//
+    //
     //if ((listen(inst->listener, 5))==-1)
     //    return 0;
     //freeaddrinfo(&info); // memory leak if there is an error
-    
+
     freeaddrinfo(list);
     if (errored)
     {
@@ -188,7 +194,7 @@ bool Server::start(unsigned short port)
         return 0;
     }
 
-    if ((listen(inst->listener, 5))==-1)
+    if ((listen(inst->listener, 5)) == -1)
     {
         close(inst->listener);
         inst = 0;
@@ -203,32 +209,41 @@ void Server::shutdown()
 {
     if (!inst)
         return;
-    
-    int val=1;
+    inst->isActive = 0;
+
+    int val = 1;
     write(inst->shutdownPipe, &val, 4);
     close(inst->shutdownPipe);
     close(inst->listener);
     {
         auto lock = std::lock_guard(inst->clientMutex);
-        for (Connection conn : inst->clients) close(conn.fd);
+        for (Connection conn : inst->clients)
+            if (conn.fd != HOST_FD)
+                close(conn.fd);
+        
+        inst->clients.clear();
     }
     inst->serverThread.join();
+    pre_render(); // Handle messages
     inst = 0;
 }
 void Server::send_all(const char *msg, const NetworkWriter &data)
 {
-    for(Connection conn : inst->clients)
+    auto lock = std::lock_guard(inst->clientMutex);
+    for (Connection conn : inst->clients)
     {
         send(conn, msg, data);
     }
 }
 void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
 {
-    if (!is_active())
+    if (!inst.get())
     {
         fprintf(stderr, "Error: send must be called after starting server\n");
         return;
     }
+    //printf("Sending msg: %s", msg);
+    //auto lock = std::lock_guard(inst->clientMutex);
     if (conn.fd == HOST_FD)
     {
         // directly run the function
@@ -236,10 +251,27 @@ void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
     }
     else
     {
-        std::string buffer = std::string(msg)+'\0'+data.get_buffer();
+        std::string buffer = std::string(msg) + '\0' + data.get_buffer();
         long bytesSent = ::send(conn.fd, buffer.c_str(), buffer.size(), 0);
         check_socket(bytesSent);
+        //if (bytesSent==-1)
+        //{
+        //    fprintf(stderr, "socket error %d: %s\n", errno, strerror(errno));
+        //}
     }
+}
+const std::vector<Connection> &Server::get_clients()
+{
+    if (!inst.get())
+    {
+        fprintf(stderr, "Error: Server must be active to get clients\n");
+
+        //return;
+    }
+    auto lock = std::lock_guard(inst->clientMutex);
+    return inst->clients;
+    //return 0;
+    //return std::vector<Connection>();
 }
 void Server::set_join_callback(ClientStatusCallback func)
 {
@@ -249,9 +281,9 @@ void Server::set_leave_callback(ClientStatusCallback func)
 {
     inst->leaveCallback = func;
 }
-void Server::register_rpc(std::string name, void(*func)(NetworkReader))
+void Server::register_rpc(std::string name, void (*func)(NetworkReader, Connection))
 {
-    if (!is_active())
+    if (!inst.get())
     {
         fprintf(stderr, "Error: rpcs must be registered after starting server\n");
         return;
@@ -260,5 +292,5 @@ void Server::register_rpc(std::string name, void(*func)(NetworkReader))
 }
 bool Server::is_active()
 {
-    return inst.get();
+    return inst.get() && inst->isActive;
 }

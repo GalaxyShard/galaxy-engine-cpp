@@ -60,7 +60,7 @@ class Server
 private:
     static std::unique_ptr<Server> inst;
     std::vector<Connection> clients;
-    std::unordered_map<std::string, void(*)(NetworkReader)> rpcs;
+    std::unordered_map<std::string, void(*)(NetworkReader, Connection)> rpcs;
     int listener = -1, shutdownPipe = -1;
 
     std::thread serverThread;
@@ -73,6 +73,7 @@ private:
 
     //unsigned char msgFlags = 0;
     std::deque<std::string> internalMsgs;
+    bool isActive = 0;
 
     Server() = default;
     static void server_thread();
@@ -80,6 +81,7 @@ private:
 
     friend class Client;
 public:
+    static const std::vector<Connection>& get_clients();
     static void set_join_callback(ClientStatusCallback func);
     static void set_leave_callback(ClientStatusCallback func);
 
@@ -88,7 +90,7 @@ public:
 
     static void send_all(const char *msg, const NetworkWriter &data);
     static void send(Connection conn, const char *msg, const NetworkWriter &data);
-    static void register_rpc(std::string name, void(*func)(NetworkReader));
+    static void register_rpc(std::string name, void(*func)(NetworkReader, Connection));
 
     static bool is_active();
 };
@@ -105,6 +107,7 @@ private:
 
     std::unique_ptr<Listener> preRenderConn;
     bool shuttingDown=0;
+    bool isActive = 0;
 
     Client() = default;
     static void client_thread();
