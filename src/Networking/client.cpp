@@ -142,16 +142,24 @@ bool Client::start_as_host()
     Server::inst->clients.push_back(HOST_FD);
     return 1;
 }
+void Client::set_shutdown_callback(void(*func)())
+{
+    if (!inst.get())
+    {
+        fprintf(stderr, "Error: shutdown callback set before starting client\n");
+        return;
+    }
+    inst->shutdownCallback = func;
+}
 void Client::shutdown()
 {
     if (!inst.get())
         return;
+    inst->shutdownCallback();
     inst->isActive = 0;
     {
         char val=1;
         write(inst->shutdownPipe, &val, 1);
-        //if (write(inst->shutdownPipe, &val, 1) == -1)
-            //assert(false);
         close(inst->shutdownPipe);
     }
     {
@@ -180,7 +188,6 @@ void Client::shutdown()
                 break;
             }
         }
-        //Server::inst->clients.push_back(HOST_FD);
     }
     inst = 0;
 }
@@ -188,7 +195,7 @@ void Client::register_rpc(std::string name, void(*func)(NetworkReader))
 {
     if (!inst.get())
     {
-        fprintf(stderr, "Error: rpcs must be registered after starting client\n");
+        fprintf(stderr, "Error: rpc registered before starting client\n");
         return;
     }
     inst->rpcs[name] = func;

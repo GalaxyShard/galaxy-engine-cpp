@@ -106,6 +106,7 @@ private:
     std::deque<std::string> queuedMessages;
 
     std::unique_ptr<Listener> preRenderConn;
+    void(*shutdownCallback)();
     bool shuttingDown=0;
     bool isActive = 0;
 
@@ -122,6 +123,7 @@ public:
     static bool start_as_host();
     static bool start(const char *ip, unsigned short port);
     static void shutdown();
+    static void set_shutdown_callback(void(*func)());
 
     static void register_rpc(std::string name, void(*func)(NetworkReader));
     static void send(const char *msg, const NetworkWriter &data);
