@@ -8,7 +8,6 @@
 #include "Math/matrix.hpp"
 #include "Math/time.hpp"
 
-#include "Networking/networking.hpp"
 
 #include "Renderer/mesh.hpp"
 #include "Renderer/shader.hpp"
@@ -21,6 +20,8 @@
 #include "UI/text.hpp"
 #include "UI/group.hpp"
 
+#include "Physics/physics.hpp"
+#include "Networking/networking.hpp"
 #include "Input/input.hpp"
 #include "Assets/assets.hpp"
 #include "OS/defines.hpp"
