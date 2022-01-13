@@ -28,6 +28,7 @@ struct Vector2
     operator Vector3() const;
     operator Vector4() const;
 
+    static float dot(const Vector2 &a, const Vector2 &b);
     float sqr_magnitude() const;
     float magnitude() const;
 

@@ -26,34 +26,12 @@ DEFINE_OP(/);
 #undef DEFINE_OP
 #undef DEFINE_OP_BASE
 
-// Float operators
-//Vector3 Vector3::operator+(const float &v2)
-//{
-//    return Vector3(x + v2, y + v2, z + v2);
-//}
-//Vector3 Vector3::operator-(const float &v2)
-//{
-//    return Vector3(x - v2, y - v2, z - v2);
-//}
-//Vector3 Vector3::operator*(const float &v2)
-//{
-//    return Vector3(x * v2, y * v2, z * v2);
-//}
-//Vector3 Vector3::operator/(const float &v2)
-//{
-//    return Vector3(x / v2, y / v2, z / v2);
-//}
-
-// Vector operators
-//Vector3 Vector3::operator+(const Vector3 &v2)
-//{
-//    return Vector3(x + v2.x, y + v2.y, z + v2.z);
-//}
-
 
 Vector3 Vector3::operator-() { return Vector3(-x, -y, -z); }
 bool Vector3::operator ==(const Vector3 &v2) const { return x == v2.x && y == v2.y; }
 
+float Vector3::dot(const Vector3 &a, const Vector3 &b)
+{ return a.x*b.x + a.y*b.y + a.z*b.z; }
 float Vector3::sqr_magnitude() const { return x*x + y*y + z*z; }
 float Vector3::magnitude() const { return std::sqrt(sqr_magnitude()); }
 
