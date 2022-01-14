@@ -24,6 +24,7 @@ class Texture;
 struct Uniform
 {
     enum Type { FLOAT, VEC2, VEC3, VEC4, INT, MAT4x4 };
+    Type type;
     union Value
     {
         float v;
@@ -32,15 +33,29 @@ struct Uniform
         Vector4 v4;
         int i;
         Matrix4x4 m4x4;
+        Value() { memset(this, 0, sizeof(Value)); }
+        Value(float val) { v = val; }
+        Value(Vector2 val) { v2 = val; }
+        Value(Vector3 val) { v3 = val; }
+        Value(Vector4 val) { v4 = val; }
+        Value(int val) { i = val; }
+        Value(Matrix4x4 val) { m4x4 = val; }
+        //~Value(){}
     } value;
-    Type type;
     
-    Uniform(const float &v);
-    Uniform(const Vector2 &v);
-    Uniform(const Vector3 &v);
-    Uniform(const Vector4 &v);
-    Uniform(const int &v);
-    Uniform(const Matrix4x4 &v);
+    Uniform(const Uniform&);
+    Uniform(Uniform&&);
+    Uniform& operator=(const Uniform&);
+    Uniform& operator=(Uniform&&);
+
+    //Uniform(const Value &v);
+    Uniform();
+    Uniform(const float &);
+    Uniform(const Vector2 &);
+    Uniform(const Vector3 &);
+    Uniform(const Vector4 &);
+    Uniform(const int &);
+    Uniform(const Matrix4x4 &);
 };
 class Material
 {

@@ -22,6 +22,9 @@ std::string Assets::asset_path()
 std::string Assets::gasset_path()
 { return resource_path()+"/galaxy_assets"; }
 
+std::string Assets::path() { return asset_path(); }
+std::string Assets::gpath() { return gasset_path(); }
+
 std::string Assets::data_path()
 {
     #if OS_MAC

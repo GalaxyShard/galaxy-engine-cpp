@@ -14,6 +14,7 @@ class CubeCollider : public Collider
 {
 public:
     Vector3 scale = Vector3(1,1,1);
+    Vector3 rotation;
     void fill_params(Object *obj) override;
     bool is_colliding(Collider *other) override;
     

@@ -71,7 +71,8 @@ void Renderer::bind_material(Material *mat)
         auto &val = v.second.value;
         auto &type = v.second.type;
 
-        if (type == Uniform::VEC2) glUniform2fv(i, 1, &val.v2.x);
+        if (type == Uniform::FLOAT) glUniform1f(i, val.v);
+        else if (type == Uniform::VEC2) glUniform2fv(i, 1, &val.v2.x);
         else if (type == Uniform::VEC3) glUniform3fv(i, 1, &val.v3.x);
         else if (type == Uniform::VEC4) glUniform4fv(i, 1, &val.v4.x);
         else if (type == Uniform::INT) glUniform1i(i, val.i);
@@ -94,13 +95,13 @@ void Renderer::draw(Object &obj)
 
     Matrix4x4 model =
         Matrix4x4::translate(obj.position * filteredAspect)
-        * Matrix4x4::rotate(obj.rotation.x, obj.rotation.y, obj.rotation.z)
+        * Matrix4x4::rotate(obj.rotation)
         * Matrix4x4::scale(obj.scale * filteredAspect);
 
 
     // Rotate camera after translating
     // The transpose of a rotation is equal to the inverse
-    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation.x, Camera::main->rotation.y, Camera::main->rotation.z).transpose()
+    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
         * Matrix4x4::translate(-Camera::main->position);
 
     shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);

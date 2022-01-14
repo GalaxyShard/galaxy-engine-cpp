@@ -11,7 +11,8 @@ public:
     static std::unique_ptr<Camera> main;
     
     Vector3 position;
-    Quaternion rotation = Quaternion::identity();
+    Vector3 rotation;
+    //Quaternion rotation = Quaternion::identity();
 
     Matrix4x4 projection = Matrix4x4::identity();
     bool isPerspective = 0;

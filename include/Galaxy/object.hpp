@@ -20,7 +20,8 @@ class Object
         Material *material;
 
         Vector3 position, scale = Vector3(1, 1, 1);
-        Quaternion rotation = Quaternion::identity();
+        Vector3 rotation;
+        //Quaternion rotation = Quaternion::identity();
 
         void render_order(int order) { renderOrder = order; }
         int render_order() { return renderOrder; }

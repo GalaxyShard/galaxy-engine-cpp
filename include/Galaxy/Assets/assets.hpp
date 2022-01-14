@@ -13,6 +13,10 @@ namespace Assets
     std::string resource_path();
     std::string asset_path();
     std::string gasset_path();
+    //std::string path() { return asset_path(); }
+    //std::string gpath() { return gasset_path(); }
+    std::string path();
+    std::string gpath();
 
     std::string data_path();
     FileContent file_contents(const char *path, bool assertOnFail = true);
