@@ -6,15 +6,14 @@ bool within(Vector3 a, Vector3 min, Vector3 max)
         && Math::within(a.y, min.y, max.y)
         && Math::within(a.z, min.z, max.z);
 }
+// doesnt work for some reason, seems to not apply rotation at all
 bool cube0_collides_with(CubeCollider *cube0, CubeCollider *cube1)
 {
     Matrix4x4 inverseRot = Matrix4x4::translate(cube0->pos)
         * Matrix4x4::rotate(cube0->rotation).transpose()
         * Matrix4x4::translate(-cube0->pos);
 
-    //Matrix4x4 inverseRot = Matrix4x4::identity();
-    // rotate second around the first cube, then bounds check each point
-    // doesnt work for some reason, seems to not apply rotation at all
+    // rotate second around the first cube so that one cube is axis-aligned, then bounds check each point
     
     Vector3 thisRadius = cube0->scale*0.5f;
     Vector3 radius = cube1->scale*0.5f;
