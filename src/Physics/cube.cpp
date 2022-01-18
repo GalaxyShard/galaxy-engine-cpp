@@ -1,66 +1,6 @@
 #include <Galaxy/Physics/physics.hpp>
 #include <Galaxy/Math/matrix.hpp>
-bool within(Vector3 a, Vector3 min, Vector3 max)
-{
-    return Math::within(a.x, min.x, max.x)
-        && Math::within(a.y, min.y, max.y)
-        && Math::within(a.z, min.z, max.z);
-}
-// inefficient, sometimes fails at specific angles
-// todo: use seperating axis test
-bool cube0_collides_with(CubeCollider *cube0, CubeCollider *cube1)
-{
-    Matrix4x4 inverseRot = Matrix4x4::translate(cube0->pos)
-        * Matrix4x4::rotate(cube0->rotation).transpose()
-        * Matrix4x4::translate(-cube0->pos);
-    Matrix3x3 rot = Matrix3x3::rotate(cube1->rotation);
-    //Matrix4x4 inverseRot = Matrix4x4::identity();
-
-    // rotate second around the first cube so that one cube is axis-aligned, then bounds check each point
-    
-    Vector3 thisRadius = cube0->scale*0.5f;
-    Vector3 radius = (cube1->scale*0.5f);
-
-    Vector3 min = cube0->pos - thisRadius;
-    Vector3 max = cube0->pos + thisRadius;
-
-    auto process = [&](float x, float y, float z)
-    { return (Vector3)(inverseRot*(cube1->pos + rot*(radius*Vector3(x,y,z)))); };
-
-    Vector3 leftDownClose = process(-1,-1,1);
-    Vector3 rightDownClose = process(1,-1,1);
-    Vector3 leftUpClose = process(-1,1,1);
-    Vector3 rightUpClose = process(1,1,1);
-
-    Vector3 leftDownFar = process(-1,-1,-1);
-    Vector3 rightDownFar = process(1,-1,-1);
-    Vector3 leftUpFar = process(-1,1,-1);
-    Vector3 rightUpFar = process(1,1,-1);
-    //Vector3 leftDownClose = inverseRot*(cube1->pos + rot*(radius*Vector3(-1,-1,1)));
-    //Vector3 rightDownClose = inverseRot*(cube1->pos + rot*(radius*Vector3(1,-1,1)));
-    //Vector3 leftUpClose = inverseRot*(cube1->pos + rot*(radius*Vector3(-1,1,1)));
-    //Vector3 rightUpClose = inverseRot*(cube1->pos + rot*(radius*Vector3(1,1,1)));
-
-    //Vector3 leftDownFar = inverseRot*(cube1->pos + rot*(radius*Vector3(-1,-1,-1)));
-    //Vector3 rightDownFar = inverseRot*(cube1->pos + rot*(radius*Vector3(1,-1,-1)));
-    //Vector3 leftUpFar = inverseRot*(cube1->pos + rot*(radius*Vector3(-1,1,-1)));
-    //Vector3 rightUpFar = inverseRot*(cube1->pos + rot*(radius*Vector3(1,1,-1)));
-    
-    if (within(leftDownClose, min, max)
-        || within(rightDownClose, min, max)
-        || within(leftUpClose, min, max)
-        || within(rightUpClose, min, max)
-
-        || within(leftDownFar, min, max)
-        || within(rightDownFar, min, max)
-        || within(leftUpFar, min, max)
-        || within(rightUpFar, min, max))
-    {
-        return 1;
-    }
-    return 0;
-}
-
+#include "combinations.hpp"
 void CubeCollider::fill_params(Object *obj)
 {
     pos = obj->position;
@@ -70,21 +10,79 @@ void CubeCollider::fill_params(Object *obj)
 bool CubeCollider::is_colliding(Collider *other)
 {
     if (auto cube = dynamic_cast<CubeCollider*>(other))
+    {   
+        Matrix3x3 rot0 = Matrix3x3::rotate(rotation);
+        Matrix3x3 rot1 = Matrix3x3::rotate(cube->rotation);
+
+        Vector3 axes[6]; // normals
+        axes[0] = rot0*Vector3(0,1,0);
+        axes[1] = rot0*Vector3(0,0,-1);
+        axes[2] = rot0*Vector3(1,0,0);
+
+        axes[3] = rot1*Vector3(0,1,0);
+        axes[4] = rot1*Vector3(0,0,-1);
+        axes[5] = rot1*Vector3(1,0,0);
+
+        float minDot[2], maxDot[2];
+        auto fillPoints = [&](std::vector<Vector3> &p, CubeCollider *cube)
+        {
+            Matrix3x3 rot = Matrix3x3::rotate(cube->rotation);
+            Vector3 corner = cube->scale*0.5f;
+            p.push_back(rot*(corner*Vector3(-1,-1,1))+cube->pos);
+            p.push_back(rot*(corner*Vector3(1,-1,1))+cube->pos);
+            p.push_back(rot*(corner*Vector3(-1,1,1))+cube->pos);
+            p.push_back(rot*(corner*Vector3(1,1,1))+cube->pos);
+
+            p.push_back(rot*(corner*Vector3(-1,-1,-1))+cube->pos);
+            p.push_back(rot*(corner*Vector3(1,-1,-1))+cube->pos);
+            p.push_back(rot*(corner*Vector3(-1,1,-1))+cube->pos);
+            p.push_back(rot*(corner*Vector3(1,1,-1))+cube->pos);
+        };
+        std::vector<Vector3> points[2];
+        fillPoints(points[0], this);
+        fillPoints(points[1], cube);
+
+        // Axes
+        for (int i = 0; i < 6; ++i)
+        {
+            // Cube points
+            for (int j = 0; j < 2; ++j)
+            {
+                minDot[j] = Vector3::dot(points[j][0], axes[i]);
+                maxDot[j] = minDot[j];
+                // Projections
+                for (int k = 1; k < points[j].size(); ++k)
+                {
+                    float product = Vector3::dot(points[j][k], axes[i]);
+                    if (minDot[j] > product)
+                    {
+                        minDot[j] = product;
+                    }
+                    if (maxDot[j] < product)
+                    {
+                        maxDot[j] = product;
+                    }
+                }
+            }
+            /*
+            tests
+            <-min0--max0----min1--max1----> 0   correct
+            <-min0--min1----max0--max1----> 1   correct
+            <-min1--max1----min0--max0----> 0   correct
+            <-min1--min0----max1--max0----> 1   correct
+            */
+            // Use projections
+            if ((minDot[1]>maxDot[0])
+                || (minDot[0]>maxDot[1]))
+            {
+                return 0;
+            }
+        }
+        return 1;
+    }
+    if (auto sphere = dynamic_cast<SphereCollider*>(other))
     {
-        return cube0_collides_with(this, cube) || cube0_collides_with(cube, this);
-
-        //Vector3 centerDist = pos - cube->pos;
-        //Vector3 thisClosest = scale/2;
-        //Vector3 otherClosest = cube->scale/2*Vector3(-1,1,1);
-
-        //Vector3 axis = Vector3(1, -1, 0);
-        //axis = axis/axis.magnitude();
-
-        //float centerProj = Vector3::dot(centerDist, axis);
-        //float thisProj = Vector3::dot(thisClosest, axis);
-        //float otherProj = Vector3::dot(otherClosest, axis);
-        //float gap = centerProj - thisProj + otherProj;
-        //return gap <= 0;
+        return sphere_cube_collision(sphere, this);
     }
     fprintf(stderr, "error: collision not implemented\n");
     return 0;

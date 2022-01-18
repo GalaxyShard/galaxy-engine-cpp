@@ -1,7 +1,6 @@
 include(initialize.cmake)
 
 if (CMAKE_SYSTEM_NAME MATCHES "iOS")
-#    set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
@@ -25,17 +24,7 @@ add_definitions(-DGL_SILENCE_DEPRECATION)
 add_definitions(-DGLES_SILENCE_DEPRECATION)
 add_definitions(-DGLFW_INCLUDE_GLCOREARB)
 
-#set(ENGINE_ROOT "${proj_dir}")
-#include("${proj_dir}/include/Galaxy/eheaders.cmake")
-
 if (APPLE)
-    #if (IOS)
-    #    if (${CMAKE_OSX_SYSROOT} MATCHES "(MacOS)+")
-    #        set(CMAKE_OSX_SYSROOT "iphoneos")
-    #    endif()
-    #endif()
-
-    #add_library(engine STATIC ${ENGINE_SRC} ${ENGINE_HEADERS})
     add_library(engine STATIC ${ENGINE_SRC})
     macro(add_fw fwname)
         target_link_libraries(engine "-framework ${fwname}")
@@ -43,19 +32,6 @@ if (APPLE)
 
     if (IOS)
         add_definitions(-fembed-bitcode)
-        #set_target_properties(engine PROPERTIES
-        #    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Galaxy Engine.build/lib" # For Archiving
-        #    XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS "iphoneos iphonesimulator"
-        #    XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 13.0
-        #    XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-        #    XCODE_ATTRIBUTE_CLANG_ENABLE_MODULES YES # Automatically import frameworks
-        #)
-        #set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "")
-        #set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
-        #set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-        #set(CMAKE_FRAMEWORK_PATH )
-        #source_group(src FILES ${ENGINE_SRC})
-        #source_group(include FILES ${ENGINE_HEADERS})
     else()
         add_fw(Cocoa)
         add_fw(IOKit)

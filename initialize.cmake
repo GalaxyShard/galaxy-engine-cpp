@@ -30,6 +30,7 @@ set(ENGINE_SRC
     src/Networking/server.cpp
     src/Networking/shared.cpp
 
+    src/Physics/combinations.cpp
     src/Physics/cube.cpp
     src/Physics/sphere.cpp
 

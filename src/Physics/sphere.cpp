@@ -1,4 +1,5 @@
 #include <Galaxy/Physics/physics.hpp>
+#include "combinations.hpp"
 float sqr(float x) { return x*x; }
 void SphereCollider::fill_params(Object *obj)
 {
@@ -13,10 +14,10 @@ bool SphereCollider::is_colliding(Collider *other)
             return 1;
         return 0;
     }
-    //else if (auto cube = dynamic_cast<CubeCollider*>(other))
-    //{
-    //    return 0;
-    //}
+    else if (auto cube = dynamic_cast<CubeCollider*>(other))
+    {
+        return sphere_cube_collision(this, cube);
+    }
     fprintf(stderr, "error: collision not implemented\n");
     return 0;
 }
