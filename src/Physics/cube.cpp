@@ -72,8 +72,8 @@ bool CubeCollider::is_colliding(Collider *other)
             <-min1--min0----max1--max0----> 1   correct
             */
             // Use projections
-            if ((minDot[1]>maxDot[0])
-                || (minDot[0]>maxDot[1]))
+            if ((minDot[1]>=maxDot[0])
+                || (minDot[0]>=maxDot[1]))
             {
                 return 0;
             }
