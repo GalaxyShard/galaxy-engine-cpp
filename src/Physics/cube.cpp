@@ -7,7 +7,7 @@ void CubeCollider::fill_params(Object *obj)
     rotation = obj->rotation;
     scale = obj->scale;
 }
-bool CubeCollider::is_colliding(Collider *other)
+CollisionData CubeCollider::is_colliding(Collider *other)
 {
     if (auto cube = dynamic_cast<CubeCollider*>(other))
     {   
@@ -24,23 +24,27 @@ bool CubeCollider::is_colliding(Collider *other)
         axes[5] = rot1*Vector3(1,0,0);
 
         float minDot[2], maxDot[2];
-        auto fillPoints = [&](std::vector<Vector3> &p, CubeCollider *cube)
-        {
-            Matrix3x3 rot = Matrix3x3::rotate(cube->rotation);
-            Vector3 corner = cube->scale*0.5f;
-            p.push_back(rot*(corner*Vector3(-1,-1,1))+cube->pos);
-            p.push_back(rot*(corner*Vector3(1,-1,1))+cube->pos);
-            p.push_back(rot*(corner*Vector3(-1,1,1))+cube->pos);
-            p.push_back(rot*(corner*Vector3(1,1,1))+cube->pos);
+        //auto fillPoints = [&](std::vector<Vector3> &p, CubeCollider *cube)
+        //{
+        //    Matrix3x3 rot = Matrix3x3::rotate(cube->rotation);
+        //    Vector3 corner = cube->scale*0.5f;
+        //    p.push_back(rot*(corner*Vector3(-1,-1,1))+cube->pos);
+        //    p.push_back(rot*(corner*Vector3(1,-1,1))+cube->pos);
+        //    p.push_back(rot*(corner*Vector3(-1,1,1))+cube->pos);
+        //    p.push_back(rot*(corner*Vector3(1,1,1))+cube->pos);
+//
+        //    p.push_back(rot*(corner*Vector3(-1,-1,-1))+cube->pos);
+        //    p.push_back(rot*(corner*Vector3(1,-1,-1))+cube->pos);
+        //    p.push_back(rot*(corner*Vector3(-1,1,-1))+cube->pos);
+        //    p.push_back(rot*(corner*Vector3(1,1,-1))+cube->pos);
+        //};
 
-            p.push_back(rot*(corner*Vector3(-1,-1,-1))+cube->pos);
-            p.push_back(rot*(corner*Vector3(1,-1,-1))+cube->pos);
-            p.push_back(rot*(corner*Vector3(-1,1,-1))+cube->pos);
-            p.push_back(rot*(corner*Vector3(1,1,-1))+cube->pos);
-        };
         std::vector<Vector3> points[2];
-        fillPoints(points[0], this);
-        fillPoints(points[1], cube);
+        //fillPoints(points[0], this);
+        //fillPoints(points[1], cube);
+        //std::vector<Vector3> points[2] = {get_points(this), get_points(cube)};
+        points[0] = get_points(this);
+        points[1] = get_points(cube);
 
         // Axes
         for (int i = 0; i < 6; ++i)
@@ -55,35 +59,40 @@ bool CubeCollider::is_colliding(Collider *other)
                 {
                     float product = Vector3::dot(points[j][k], axes[i]);
                     if (minDot[j] > product)
-                    {
                         minDot[j] = product;
-                    }
+                    
                     if (maxDot[j] < product)
-                    {
                         maxDot[j] = product;
-                    }
                 }
             }
             /*
-            tests
-            <-min0--max0----min1--max1----> 0   correct
-            <-min0--min1----max0--max1----> 1   correct
-            <-min1--max1----min0--max0----> 0   correct
-            <-min1--min0----max1--max0----> 1   correct
+                tests
+                <-min0--max0----min1--max1----> 0   correct
+                <-min0--min1----max0--max1----> 1   correct
+                <-min1--max1----min0--max0----> 0   correct
+                <-min1--min0----max1--max0----> 1   correct
             */
             // Use projections
             if ((minDot[1]>=maxDot[0])
                 || (minDot[0]>=maxDot[1]))
             {
-                return 0;
+                //return CollisionData{.penetration=0,.dir=Vector3()};
+                return CollisionData();
+                //return 0;
             }
         }
-        return 1;
+        // TODO: get direction
+        return CollisionData(Vector3(), 1);
+        //return CollisionData{.penetration=1, .dir=Vector3(0,0,0)};
+        //return 1;
     }
     if (auto sphere = dynamic_cast<SphereCollider*>(other))
     {
-        return sphere_cube_collision(sphere, this);
+        auto data = sphere_cube_collision(sphere, this);
+        data.dir = -data.dir;
+        return data;
+        //return sphere_cube_collision(sphere, this);
     }
     fprintf(stderr, "error: collision not implemented\n");
-    return 0;
+    return CollisionData();
 }

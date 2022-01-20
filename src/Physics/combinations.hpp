@@ -1,4 +1,5 @@
 #pragma once
 #include <Galaxy/Physics/physics.hpp>
 
-bool sphere_cube_collision(SphereCollider *sphere, CubeCollider *cube);
+std::vector<Vector3> get_points(CubeCollider *cube);
+CollisionData sphere_cube_collision(SphereCollider *sphere, CubeCollider *cube);
