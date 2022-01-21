@@ -4,10 +4,11 @@
 
 struct CollisionData
 {
-    float penetration=0;
+    //float penetration=0;
     Vector3 dir;
     bool isColliding=0;
-    CollisionData(Vector3 dir, float penetration);
+    //CollisionData(Vector3 dir, float penetration);
+    CollisionData(Vector3 mtv);
     CollisionData();
 };
 

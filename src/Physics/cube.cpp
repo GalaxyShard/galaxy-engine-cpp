@@ -24,28 +24,13 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         axes[5] = rot1*Vector3(1,0,0);
 
         float minDot[2], maxDot[2];
-        //auto fillPoints = [&](std::vector<Vector3> &p, CubeCollider *cube)
-        //{
-        //    Matrix3x3 rot = Matrix3x3::rotate(cube->rotation);
-        //    Vector3 corner = cube->scale*0.5f;
-        //    p.push_back(rot*(corner*Vector3(-1,-1,1))+cube->pos);
-        //    p.push_back(rot*(corner*Vector3(1,-1,1))+cube->pos);
-        //    p.push_back(rot*(corner*Vector3(-1,1,1))+cube->pos);
-        //    p.push_back(rot*(corner*Vector3(1,1,1))+cube->pos);
-//
-        //    p.push_back(rot*(corner*Vector3(-1,-1,-1))+cube->pos);
-        //    p.push_back(rot*(corner*Vector3(1,-1,-1))+cube->pos);
-        //    p.push_back(rot*(corner*Vector3(-1,1,-1))+cube->pos);
-        //    p.push_back(rot*(corner*Vector3(1,1,-1))+cube->pos);
-        //};
-
         std::vector<Vector3> points[2];
-        //fillPoints(points[0], this);
-        //fillPoints(points[1], cube);
-        //std::vector<Vector3> points[2] = {get_points(this), get_points(cube)};
         points[0] = get_points(this);
         points[1] = get_points(cube);
 
+        // direction & length 'this' has to move in order to not collide with 'cube'
+        Vector3 mtv;
+        float mtvMag = 10000000000000.f;
         // Axes
         for (int i = 0; i < 6; ++i)
         {
@@ -76,22 +61,30 @@ CollisionData CubeCollider::is_colliding(Collider *other)
             if ((minDot[1]>=maxDot[0])
                 || (minDot[0]>=maxDot[1]))
             {
-                //return CollisionData{.penetration=0,.dir=Vector3()};
                 return CollisionData();
-                //return 0;
+            }
+            else
+            {
+                float overlap = (maxDot[0] < maxDot[1]) ? (minDot[1]-maxDot[0]) : -(minDot[0]-maxDot[1]);
+                //(minDot[1]-maxDot[0] < 0), (minDot[0]-maxDot[1] < 0)
+                //float newMag = Math::min(abs(minDot[1]-maxDot[0]), abs(minDot[0]-maxDot[1]));
+                //float newMag = minDot[1]-maxDot[0];
+                //float newMag = (() ? minDot[1]-maxDot[0] : minDot[0]-maxDot[1]);
+                if (abs(mtvMag) > abs(overlap))
+                {
+                    mtvMag = overlap;
+                    mtv = axes[i]*(mtvMag);
+                }
             }
         }
         // TODO: get direction
-        return CollisionData(Vector3(), 1);
-        //return CollisionData{.penetration=1, .dir=Vector3(0,0,0)};
-        //return 1;
+        return CollisionData(mtv);
     }
     if (auto sphere = dynamic_cast<SphereCollider*>(other))
     {
         auto data = sphere_cube_collision(sphere, this);
-        data.dir = -data.dir;
+        //data.dir = -data.dir;
         return data;
-        //return sphere_cube_collision(sphere, this);
     }
     fprintf(stderr, "error: collision not implemented\n");
     return CollisionData();

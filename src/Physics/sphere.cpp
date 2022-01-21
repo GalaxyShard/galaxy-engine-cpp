@@ -4,7 +4,7 @@
 static float sqr(float x) { return x*x; }
 void SphereCollider::fill_params(Object *obj)
 {
-    radius = obj->scale.x;
+    radius = obj->scale.x/2;
     pos = obj->position;
 }
 CollisionData SphereCollider::is_colliding(Collider *other)
@@ -16,7 +16,7 @@ CollisionData SphereCollider::is_colliding(Collider *other)
         float totalRadius = radius+sphere->radius;
 
         if (sqrMag <= sqr(totalRadius))
-            return CollisionData(dir, sqrtf(sqrMag)-totalRadius);
+            return CollisionData(dir* (sqrtf(sqrMag)-totalRadius));
             //return CollisionData{.penetration=sqrtf(sqrMag)-totalRadius, .dir=dir};
         return CollisionData();
     }
