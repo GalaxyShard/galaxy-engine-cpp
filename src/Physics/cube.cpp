@@ -25,8 +25,8 @@ CollisionData CubeCollider::is_colliding(Collider *other)
 
         float minDot[2], maxDot[2];
         std::vector<Vector3> points[2];
-        points[0] = get_points(this);
-        points[1] = get_points(cube);
+        get_points(points[0], this);
+        get_points(points[1], cube);
 
         // direction & length 'this' has to move in order to not collide with 'cube'
         Vector3 mtv;
@@ -83,7 +83,7 @@ CollisionData CubeCollider::is_colliding(Collider *other)
     if (auto sphere = dynamic_cast<SphereCollider*>(other))
     {
         auto data = sphere_cube_collision(sphere, this);
-        //data.dir = -data.dir;
+        data.dir = -data.dir;
         return data;
     }
     fprintf(stderr, "error: collision not implemented\n");
