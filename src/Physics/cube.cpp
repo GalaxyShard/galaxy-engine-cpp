@@ -7,6 +7,21 @@ void CubeCollider::fill_params(Object *obj)
     rotation = obj->rotation;
     scale = obj->scale;
 }
+RayResult CubeCollider::is_colliding(const Ray &other)
+{
+    return RayResult();
+    //std::vector<Vector3> points;
+    //get_points(points, this);
+    //float a = Vector3::dot(other.start, other.direction);
+    //float minDot = Vector3::dot(points[0], other.direction);
+    //float maxDot = minDot;
+    //for (int i = 1; i < 8; ++i)
+    //{
+    //    float proj = Vector3::dot(points[i], other.direction);
+    //    if (minDot > proj) minDot = proj;
+    //    if (maxDot < proj) maxDot = proj;
+    //}
+}
 CollisionData CubeCollider::is_colliding(Collider *other)
 {
     if (auto cube = dynamic_cast<CubeCollider*>(other))

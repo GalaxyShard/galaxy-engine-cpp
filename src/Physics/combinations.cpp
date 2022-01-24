@@ -2,6 +2,7 @@
 #include <Galaxy/Math/matrix.hpp>
 static float sqr(float x) { return x*x; }
 
+Ray::Ray(Vector3 start, Vector3 dir) : start(start), dir(dir) { }
 CollisionData::CollisionData(Vector3 mtv) : dir(mtv), isColliding(1) { }
 CollisionData::CollisionData() : dir(), isColliding(0) { }
 void get_local_points(std::vector<Vector3> &p, CubeCollider *cube)

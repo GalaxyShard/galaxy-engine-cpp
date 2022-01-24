@@ -32,6 +32,13 @@ bool Vector3::operator ==(const Vector3 &v2) const { return x == v2.x && y == v2
 
 float Vector3::dot(const Vector3 &a, const Vector3 &b)
 { return a.x*b.x + a.y*b.y + a.z*b.z; }
+Vector3 Vector3::cross(const Vector3 &a, const Vector3 &b)
+{
+    return Vector3(
+        a.y*b.z - a.z*b.y,
+        a.z*b.x - a.x*b.z,
+        a.x*b.y - a.y*b.x);
+}
 float Vector3::sqr_magnitude() const { return x*x + y*y + z*z; }
 float Vector3::magnitude() const { return std::sqrt(sqr_magnitude()); }
 
