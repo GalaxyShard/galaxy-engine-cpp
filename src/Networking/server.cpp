@@ -1,13 +1,10 @@
 #include "internalnet.hpp"
 #include <Galaxy/Renderer/renderer.hpp>
 
-//enum MsgFlags { CLIENT_JOIN=1<<0, CLIENT_LEAVE=1<<1 };
-
 std::unique_ptr<Server> Server::inst;
-void Server::pre_render()
+void Server::process_messages()
 {
     {
-        //auto lock = std::lock_guard(inst->clientMutex);
         while (inst->internalMsgs.size())
         {
             NetworkReader reader = NetworkReader(inst->internalMsgs[0]);
@@ -35,9 +32,18 @@ void Server::pre_render()
             std::string &msg = inst->queuedMessages[0];
             int connID = *(int *)&msg[0];
             unsigned long index = msg.find('\0', sizeof(connID));
+            if (index == std::string::npos)
+            {
+                /*
+                    connID is guarenteed to be correct, even though
+                    message was corrupt, because it is applied on the
+                    server right before queueing message
+                */
+                fprintf(stderr, "Message \"%s\" from client %d was corrupted\n", msg.c_str(), connID);
+                inst->queuedMessages.pop_front();
+                continue;
+            }
             std::string func = msg.substr(sizeof(connID), index - sizeof(connID));
-
-            //printf("Recieving msg (server): %s\n", func.c_str());
 
             if (inst->rpcs.count(func))
                 inst->rpcs[func](NetworkReader(msg.substr(index+1)), Connection(connID)); // add 1 to index to skip null terminator
@@ -92,9 +98,6 @@ void Server::server_thread()
                 writer.write<unsigned char>(CLIENT_JOIN);
                 writer.write<int>(clientFD);
                 inst->internalMsgs.push_back(writer.get_buffer());
-                //inst->msgFlags &= CLIENT_JOIN;
-                //if (inst->joinCallback)
-                //    inst->joinCallback(inst->clients.back());
             }
         }
         for (int i = 2; i < descriptors.size(); ++i)
@@ -146,7 +149,6 @@ bool Server::start(unsigned short port)
 
     inst = std::unique_ptr<Server>(new Server());
     addrinfo *list = get_addr_list(NULL, port);
-    //addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
 
     bool errored = 0;
     for (addrinfo *info = list; info != 0; info = info->ai_next)
@@ -172,21 +174,6 @@ bool Server::start(unsigned short port)
             continue;
         }
     }
-    //if ((inst->listener = socket(info.ai_family, info.ai_socktype, info.ai_protocol))==-1)
-    //    return 0;
-    //
-    //{
-    //    int yes = 1;
-    //    if (setsockopt(inst->listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes))==-1)
-    //        return 0;
-    //}
-    //if (bind(inst->listener, info.ai_addr, info.ai_addrlen)==-1)
-    //    return 0;
-    //
-    //if ((listen(inst->listener, 5))==-1)
-    //    return 0;
-    //freeaddrinfo(&info); // memory leak if there is an error
-
     freeaddrinfo(list);
     if (errored)
     {
@@ -202,7 +189,7 @@ bool Server::start(unsigned short port)
     }
 
     inst->serverThread = std::thread(server_thread);
-    inst->preRenderConn = Renderer::pre_render().connect(&pre_render);
+    inst->preRenderConn = Renderer::pre_render().connect(&process_messages);
     return 1;
 }
 void Server::shutdown()
@@ -224,7 +211,7 @@ void Server::shutdown()
         inst->clients.clear();
     }
     inst->serverThread.join();
-    pre_render(); // Handle messages
+    process_messages();
     inst = 0;
 }
 void Server::send_all(const char *msg, const NetworkWriter &data)
@@ -239,11 +226,9 @@ void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
 {
     if (!inst.get())
     {
-        fprintf(stderr, "Error: send must be called after starting server\n");
+        fprintf(stderr, "Error: send called before starting server\n");
         return;
     }
-    //printf("Sending msg: %s", msg);
-    //auto lock = std::lock_guard(inst->clientMutex);
     if (conn.fd == HOST_FD)
     {
         // directly run the function
@@ -254,10 +239,6 @@ void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
         std::string buffer = std::string(msg) + '\0' + data.get_buffer();
         long bytesSent = ::send(conn.fd, buffer.c_str(), buffer.size(), 0);
         check_socket(bytesSent);
-        //if (bytesSent==-1)
-        //{
-        //    fprintf(stderr, "socket error %d: %s\n", errno, strerror(errno));
-        //}
     }
 }
 const std::vector<Connection> &Server::get_clients()
@@ -265,13 +246,9 @@ const std::vector<Connection> &Server::get_clients()
     if (!inst.get())
     {
         fprintf(stderr, "Error: Server must be active to get clients\n");
-
-        //return;
     }
     auto lock = std::lock_guard(inst->clientMutex);
     return inst->clients;
-    //return 0;
-    //return std::vector<Connection>();
 }
 void Server::set_join_callback(ClientStatusCallback func)
 {
@@ -285,7 +262,7 @@ void Server::register_rpc(std::string name, void (*func)(NetworkReader, Connecti
 {
     if (!inst.get())
     {
-        fprintf(stderr, "Error: rpcs must be registered after starting server\n");
+        fprintf(stderr, "Error: rpc registered before starting server\n");
         return;
     }
     inst->rpcs[name] = func;

@@ -129,9 +129,7 @@ private:
      multiplying matrices is done through calculating the dot product of each row and column,
      first the dot of each column of y and the first row of x, then repeat with the next row of x
      
-     dot product is |x| * |y|
-     or more efficiently,
-     x[0]*y[0] + x[1]*y[1] + x[2]*y[2]
+     dot product is x[0]*y[0] + x[1]*y[1] + x[2]*y[2]
 
      the identity matrix, I, is similar to reduced echolen form,
           all diagonal entries are ones, everything else is a zero. 'I' can have any size, eg 4x4, 3x3

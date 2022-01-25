@@ -10,10 +10,14 @@ void Client::pre_render()
         {
             std::string &msg = inst->queuedMessages[0];
             unsigned long index = msg.find('\0');
-            std::string func = msg.substr(0, index); // dont add 1 to skip null terminator
+            if (index == std::string::npos)
+            {
+                fprintf(stderr, "Message \"%s\" from server was corrupted\n", msg.c_str());
+                inst->queuedMessages.pop_front();
+                continue;
+            }
+            std::string func = msg.substr(0, index); // dont add 1 to exclude null terminator
             
-            //printf("Recieving msg (client): %s\n", func.c_str());
-
             if (inst->rpcs.count(func))
                 inst->rpcs[func](NetworkReader(msg.substr(index+1))); // add 1 to index to skip null terminator
             inst->queuedMessages.pop_front();
@@ -25,14 +29,46 @@ void Client::pre_render()
         shutdown();
     }
 }
-void Client::client_thread()
+void Client::client_thread(const char *ip, unsigned short port)
 {
+    {
+        addrinfo *list = get_addr_list(ip, port);
+        
+        bool errored=0;
+        for (addrinfo *info = list; info!=0; info = info->ai_next)
+        {
+            if ((inst->serverConn = socket(info->ai_family, info->ai_socktype, info->ai_protocol))==-1)
+            {
+                if (!info->ai_next) errored = 1;
+                continue;
+            }
+            if (connect(inst->serverConn, info->ai_addr, info->ai_addrlen)==-1)
+            {
+                if (!info->ai_next) errored = 1;
+                close(inst->serverConn);
+                continue;
+            }
+        }
+        freeaddrinfo(list);
+        if (errored)
+        {
+            auto lock = std::lock_guard(inst->shutdownMutex);
+            inst->shuttingDown = 1;
+            inst->errorCode = GENERAL;
+            return;
+        }
+    }
     std::vector<pollfd> descriptors;
     const int readerIndex = 0, connIndex = 1;
     {
         int pipeFD[2];
         if (pipe(pipeFD)==-1)
-            assert(false); // todo: replace this
+        {
+            auto lock = std::lock_guard(inst->shutdownMutex);
+            inst->shuttingDown = 1;
+            inst->errorCode = GENERAL;
+            return;
+        }
         int shutdownReader = pipeFD[0];
         inst->shutdownPipe = pipeFD[1];
         descriptors.push_back({.events=POLLIN, .fd=shutdownReader});
@@ -44,9 +80,14 @@ void Client::client_thread()
         int eventCount = poll(descriptors.data(), descriptors.size(), -1);
         if (eventCount == -1)
         {
-            printf("error %d occured while polling%s\n", errno, strerror(errno));
+            fprintf(stderr, "error %d occured while polling%s\n", errno, strerror(errno));
+            
+            auto lock = std::lock_guard(inst->shutdownMutex);
+            inst->shuttingDown = 1;
+            inst->errorCode = GENERAL;
+            return;
             //continue;
-            assert(false);
+            //assert(false);
             //shutdown();
             //return;
         }
@@ -91,38 +132,31 @@ bool Client::start(const char *ip, unsigned short port)
     
     inst = std::unique_ptr<Client>(new Client());
 
-    addrinfo *list = get_addr_list(ip, port);
-    //addrinfo &info = *list; // todo: use a loop instead and break on success or nullptr
+    //addrinfo *list = get_addr_list(ip, port);
     //
-    //if ((inst->serverConn = socket(info.ai_family, info.ai_socktype, info.ai_protocol))==-1)
+    //bool errored=0;
+    //for (addrinfo *info = list; info!=0; info = info->ai_next)
+    //{
+    //    if ((inst->serverConn = socket(info->ai_family, info->ai_socktype, info->ai_protocol))==-1)
+    //    {
+    //        if (!info->ai_next) errored = 1;
+    //        continue;
+    //    }
+    //    if (connect(inst->serverConn, info->ai_addr, info->ai_addrlen)==-1)
+    //    {
+    //        if (!info->ai_next) errored = 1;
+    //        close(inst->serverConn);
+    //        continue;
+    //    }
+    //}
+    //freeaddrinfo(list);
+    //if (errored)
+    //{
+    //    inst = 0;
     //    return 0;
-//
-    //if (connect(inst->serverConn, info.ai_addr, info.ai_addrlen)==-1)
-    //    return 0;
+    //}
     
-    bool errored=0;
-    for (addrinfo *info = list; info!=0; info = info->ai_next)
-    {
-        if ((inst->serverConn = socket(info->ai_family, info->ai_socktype, info->ai_protocol))==-1)
-        {
-            if (!info->ai_next) errored = 1;
-            continue;
-        }
-        if (connect(inst->serverConn, info->ai_addr, info->ai_addrlen)==-1)
-        {
-            if (!info->ai_next) errored = 1;
-            close(inst->serverConn);
-            continue;
-        }
-    }
-    freeaddrinfo(list);
-    if (errored)
-    {
-        inst = 0;
-        return 0;
-    }
-    
-    inst->clientThread = std::make_unique<std::thread>(client_thread);
+    inst->clientThread = std::make_unique<std::thread>(client_thread, ip, port);
     inst->preRenderConn = Renderer::pre_render().connect(&pre_render);
     return 1;
 }
@@ -134,6 +168,7 @@ bool Client::start_as_host()
     inst = std::unique_ptr<Client>(new Client());
     inst->serverConn = HOST_FD;
 
+    // Fake a message to the server
     NetworkWriter writer;
     writer.write<unsigned char>(CLIENT_JOIN);
     writer.write<int>(HOST_FD);
@@ -150,6 +185,15 @@ void Client::set_shutdown_callback(void(*func)())
         return;
     }
     inst->shutdownCallback = func;
+}
+void Client::set_error_callback(void(*func)())
+{
+    if (!inst.get())
+    {
+        fprintf(stderr, "Error: error callback set before starting client\n");
+        return;
+    }
+    inst->errorCallback = func;
 }
 void Client::shutdown()
 {

@@ -81,10 +81,6 @@ CollisionData CubeCollider::is_colliding(Collider *other)
             else
             {
                 float overlap = (maxDot[0] < maxDot[1]) ? (minDot[1]-maxDot[0]) : -(minDot[0]-maxDot[1]);
-                //(minDot[1]-maxDot[0] < 0), (minDot[0]-maxDot[1] < 0)
-                //float newMag = Math::min(abs(minDot[1]-maxDot[0]), abs(minDot[0]-maxDot[1]));
-                //float newMag = minDot[1]-maxDot[0];
-                //float newMag = (() ? minDot[1]-maxDot[0] : minDot[0]-maxDot[1]);
                 if (abs(mtvMag) > abs(overlap))
                 {
                     mtvMag = overlap;
@@ -92,7 +88,6 @@ CollisionData CubeCollider::is_colliding(Collider *other)
                 }
             }
         }
-        // TODO: get direction
         return CollisionData(mtv);
     }
     if (auto sphere = dynamic_cast<SphereCollider*>(other))

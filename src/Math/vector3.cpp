@@ -29,7 +29,29 @@ DEFINE_OP(/);
 
 Vector3 Vector3::operator-() { return Vector3(-x, -y, -z); }
 bool Vector3::operator ==(const Vector3 &v2) const { return x == v2.x && y == v2.y; }
+/*
+    graph: https://www.desmos.com/calculator/bgesi0457d
+       /|
+      / |
+     /  |
+    /___|____
+      p   <- right angle
+    or
+        /
+       /\  <- right angle
+    p /  \
+     /____\
+    divide the dot product by the ||vector|| with the right angle (the one you are projecting on)
+    to get the length of the projection on that vector
 
+    in collision system there is no division bc the vector being projected on is a unit vector
+        dot(a,b) == ||p||*||b||
+        ||b|| == 1
+        ||p|| == dot(a,b)*1
+        ||p|| == dot(a,b)
+
+    similar to sqr_magnitude vs magnitude
+*/
 float Vector3::dot(const Vector3 &a, const Vector3 &b)
 { return a.x*b.x + a.y*b.y + a.z*b.z; }
 Vector3 Vector3::cross(const Vector3 &a, const Vector3 &b)
@@ -42,7 +64,7 @@ Vector3 Vector3::cross(const Vector3 &a, const Vector3 &b)
 float Vector3::sqr_magnitude() const { return x*x + y*y + z*z; }
 float Vector3::magnitude() const { return std::sqrt(sqr_magnitude()); }
 
-Vector3 Vector3::unit() { return (*this) / magnitude(); }
+Vector3 Vector3::unit() const { return (*this) / magnitude(); }
 
 Vector3 Vector3::lerp(const Vector3 &a, const Vector3 &b, float t)
 {

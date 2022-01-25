@@ -2,6 +2,8 @@
 #include <Galaxy/Math/matrix.hpp>
 static float sqr(float x) { return x*x; }
 
+RayResult::RayResult(Vector3 pos, Vector3 normal, float dist)
+    : pos(pos), normal(normal), dist(dist) { }
 Ray::Ray(Vector3 start, Vector3 dir) : start(start), dir(dir) { }
 CollisionData::CollisionData(Vector3 mtv) : dir(mtv), isColliding(1) { }
 CollisionData::CollisionData() : dir(), isColliding(0) { }

@@ -25,8 +25,6 @@ public:
     const std::string& get_buffer() const { return buffer; }
 
     NetworkReader(std::string buffer) : buffer(buffer) {}
-    //template<>
-    //char NetworkReader::read<char>();
 };
 class NetworkWriter
 {
@@ -77,7 +75,7 @@ private:
 
     Server() = default;
     static void server_thread();
-    static void pre_render();
+    static void process_messages();
 
     friend class Client;
 public:
@@ -96,6 +94,8 @@ public:
 };
 class Client
 {
+public:
+    enum ErrorCode : short { NONE, GENERAL };
 private:
     static std::unique_ptr<Client> inst;
     std::unordered_map<std::string, void(*)(NetworkReader)> rpcs;
@@ -107,11 +107,14 @@ private:
 
     std::unique_ptr<Listener> preRenderConn;
     void(*shutdownCallback)();
+    void(*errorCallback)();
     bool shuttingDown=0;
+    ErrorCode errorCode = NONE;
     bool isActive = 0;
 
     Client() = default;
-    static void client_thread();
+    static void client_thread(const char *ip, unsigned short port);
+    //static void client_thread();
     static void pre_render();
 
     friend class Server;
@@ -124,6 +127,7 @@ public:
     static bool start(const char *ip, unsigned short port);
     static void shutdown();
     static void set_shutdown_callback(void(*func)());
+    static void set_error_callback(void(*func)());
 
     static void register_rpc(std::string name, void(*func)(NetworkReader));
     static void send(const char *msg, const NetworkWriter &data);

@@ -75,7 +75,7 @@ struct Vector3
     float sqr_magnitude() const;
     float magnitude() const;
     //void normalize();
-    Vector3 unit();
+    Vector3 unit() const;
 
     static float dot(const Vector3 &a, const Vector3 &b);
     static Vector3 cross(const Vector3 &a, const Vector3 &b);

@@ -19,7 +19,9 @@ struct RayResult
     float dist = 0;
     Object *object = 0;
     Vector3 normal;
-    Vector3 position;
+    Vector3 pos;
+    RayResult() = default;
+    RayResult(Vector3 pos, Vector3 normal, float dist);
 };
 
 // possibly rename Collider classes to ColliderData,
