@@ -20,6 +20,7 @@ struct RayResult
     Object *object = 0;
     Vector3 normal;
     Vector3 pos;
+    bool collided=0;
     RayResult() = default;
     RayResult(Vector3 pos, Vector3 normal, float dist);
 };

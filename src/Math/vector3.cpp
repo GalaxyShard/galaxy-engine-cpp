@@ -27,7 +27,7 @@ DEFINE_OP(/);
 #undef DEFINE_OP_BASE
 
 
-Vector3 Vector3::operator-() { return Vector3(-x, -y, -z); }
+Vector3 Vector3::operator-() const { return Vector3(-x, -y, -z); }
 bool Vector3::operator ==(const Vector3 &v2) const { return x == v2.x && y == v2.y; }
 /*
     graph: https://www.desmos.com/calculator/bgesi0457d

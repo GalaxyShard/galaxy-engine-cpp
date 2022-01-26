@@ -11,20 +11,23 @@ RayResult SphereCollider::is_colliding(const Ray &other)
 {
     // source: https://gamedev.stackexchange.com/questions/20815/most-efficient-bounding-sphere-vs-ray-collision-algorithms?rq=1
     Vector3 sphereToRay = other.start - pos;
-    if (sphereToRay.sqr_magnitude() < sqr(radius))
-        return RayResult(other.start, Vector3(), 0); // ray is inside
     Vector3 dir = other.dir.unit();
+    if (sphereToRay.sqr_magnitude() < sqr(radius))
+        return RayResult(other.start, -dir, 0); // ray is inside
 
     float proj = Vector3::dot(sphereToRay, dir);
     if (proj >= 0)
         return RayResult(); // ray starts past sphere
     
-    //Vector3 projVec = dir*proj;
-    //Vector3 ;
-    //if ((sphereToRay - projVec).sqr_magnitude() < sqr(radius))
-    //{
-    //    return RayResult(, , );
-    //}
+    Vector3 projVec = dir*proj;
+    Vector3 closestToSphere = (sphereToRay - projVec);
+    if (closestToSphere.sqr_magnitude() < sqr(radius))
+    {
+        //shortestOnRay.magnitude();
+        Vector3 hitPoint = pos + closestToSphere - (dir * (radius + closestToSphere.magnitude()));
+        Vector3 normal = (hitPoint - pos) / radius;
+        return RayResult(hitPoint, normal, (hitPoint - other.start).magnitude());
+    }
     return RayResult();
 }
 CollisionData SphereCollider::is_colliding(Collider *other)
