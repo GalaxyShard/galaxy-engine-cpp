@@ -37,6 +37,7 @@ RayResult CubeCollider::is_colliding(const Ray &other)
     Vector3 intersection = other.dir*tMin+other.start;
     
     Vector3 normal;
+    // doesnt work, should be local intersection point and not the ray direction
     Vector3 absDir = Vector3(abs(dir.x), abs(dir.y), abs(dir.z));
     if (absDir.x > absDir.y)
     {
