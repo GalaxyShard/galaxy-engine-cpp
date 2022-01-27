@@ -9,7 +9,33 @@ void CubeCollider::fill_params(Object *obj)
 }
 RayResult CubeCollider::is_colliding(const Ray &other)
 {
-    return RayResult();
+    // Axis-align box by rotating the ray around it
+    Matrix4x4 inverseRot = Matrix4x4::translate(pos) * Matrix4x4::rotate(rotation).transpose() * Matrix4x4::translate(-pos);
+    Vector3 start = inverseRot * other.start;
+    Vector3 dir = inverseRot * other.dir;
+
+    Vector3 inverseDir = Vector3(1,1,1) / dir;
+    Vector3 cubeMax = scale*0.5f + pos;
+    Vector3 cubeMin = -scale*0.5f + pos;
+
+//
+    Vector3 rayToMin = (cubeMin - start)*inverseDir;
+    Vector3 rayToMax = (cubeMax - start)*inverseDir;
+    using Math::max;
+    using Math::min;
+    float tMin = max(max(min(rayToMin.x, rayToMax.x), min(rayToMin.y, rayToMax.y)), min(rayToMin.z, rayToMax.z));
+    float tMax = min(min(max(rayToMin.x, rayToMax.x), max(rayToMin.y, rayToMax.y)), max(rayToMin.z, rayToMax.z));
+
+    // Ray is past cube
+    if (tMax < 0)
+        return RayResult();
+    
+    if (tMin > tMax)
+        return RayResult();
+    
+    // todo: calculate normal, test if intersection is correct
+    Vector3 intersection = other.dir*tMin+other.start;
+    return RayResult(intersection, Vector3(), tMin);
     //std::vector<Vector3> points;
     //get_points(points, this);
     //float a = Vector3::dot(other.start, other.direction);
@@ -45,7 +71,7 @@ CollisionData CubeCollider::is_colliding(Collider *other)
 
         // direction & length 'this' has to move in order to not collide with 'cube'
         Vector3 mtv;
-        float mtvMag = 10000000000000.f;
+        float mtvMag = Math::INF;
         // Axes
         for (int i = 0; i < 6; ++i)
         {
