@@ -38,32 +38,34 @@ RayResult CubeCollider::is_colliding(const Ray &other)
     
     Vector3 normal;
     // doesnt work, should be local intersection point and not the ray direction
-    Vector3 absDir = Vector3(abs(dir.x), abs(dir.y), abs(dir.z));
-    if (absDir.x > absDir.y)
+//     Vector3 absDir = Vector3(abs(dir.x), abs(dir.y), abs(dir.z));
+    Vector3 localIntersection = dir*tMin+start - pos;
+    Vector3 absPoint = Vector3(abs(localIntersection.x), abs(localIntersection.y), abs(localIntersection.z));
+    if (absPoint.x > absPoint.y)
     {
-        if (absDir.x > absDir.z)
+        if (absPoint.x > absPoint.z)
         {
             // left/right
-            if (dir.x > 0) normal = Vector3(1,0,0);
+            if (localIntersection.x > 0) normal = Vector3(1,0,0);
             else normal = Vector3(-1,0,0);
         }
         else
         {
             // forward/back
-            if (dir.z > 0) normal = Vector3(0,0,1);
+            if (localIntersection.z > 0) normal = Vector3(0,0,1);
             else normal = Vector3(0,0,-1);
         }
     }
-    else if (absDir.y > absDir.z)
+    else if (absPoint.y > absPoint.z)
     {
         // top/bottom
-        if (dir.y > 0) normal = Vector3(0,1,0);
+        if (localIntersection.y > 0) normal = Vector3(0,1,0);
         else normal = Vector3(0,-1,0);
     }
     else
     {
         // forward/back
-        if (dir.z > 0) normal = Vector3(0,0,1);
+        if (localIntersection.z > 0) normal = Vector3(0,0,1);
         else normal = Vector3(0,0,-1);
     }
     normal = Matrix3x3::rotate(rotation)*normal;
