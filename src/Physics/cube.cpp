@@ -1,6 +1,7 @@
 #include <Galaxy/Physics/physics.hpp>
 #include <Galaxy/Math/matrix.hpp>
 #include "combinations.hpp"
+#include <cmath>
 void CubeCollider::fill_params(Object *obj)
 {
     pos = obj->position;
@@ -18,7 +19,6 @@ RayResult CubeCollider::is_colliding(const Ray &other)
     Vector3 cubeMax = scale*0.5f + pos;
     Vector3 cubeMin = -scale*0.5f + pos;
 
-//
     Vector3 rayToMin = (cubeMin - start)*inverseDir;
     Vector3 rayToMax = (cubeMax - start)*inverseDir;
     using Math::max;
@@ -33,20 +33,40 @@ RayResult CubeCollider::is_colliding(const Ray &other)
     if (tMin > tMax)
         return RayResult();
     
-    // todo: calculate normal, test if intersection is correct
+    // todo: test normal & intersection, may not be correct
     Vector3 intersection = other.dir*tMin+other.start;
-    return RayResult(intersection, Vector3(), tMin);
-    //std::vector<Vector3> points;
-    //get_points(points, this);
-    //float a = Vector3::dot(other.start, other.direction);
-    //float minDot = Vector3::dot(points[0], other.direction);
-    //float maxDot = minDot;
-    //for (int i = 1; i < 8; ++i)
-    //{
-    //    float proj = Vector3::dot(points[i], other.direction);
-    //    if (minDot > proj) minDot = proj;
-    //    if (maxDot < proj) maxDot = proj;
-    //}
+    
+    Vector3 normal;
+    Vector3 absDir = Vector3(abs(dir.x), abs(dir.y), abs(dir.z));
+    if (absDir.x > absDir.y)
+    {
+        if (absDir.x > absDir.z)
+        {
+            // left/right
+            if (dir.x > 0) normal = Vector3(1,0,0);
+            else normal = Vector3(-1,0,0);
+        }
+        else
+        {
+            // forward/back
+            if (dir.z > 0) normal = Vector3(0,0,1);
+            else normal = Vector3(0,0,-1);
+        }
+    }
+    else if (absDir.y > absDir.z)
+    {
+        // top/bottom
+        if (dir.y > 0) normal = Vector3(0,1,0);
+        else normal = Vector3(0,-1,0);
+    }
+    else
+    {
+        // forward/back
+        if (dir.z > 0) normal = Vector3(0,0,1);
+        else normal = Vector3(0,0,-1);
+    }
+    normal = Matrix3x3::rotate(rotation)*normal;
+    return RayResult(intersection, normal, tMin);
 }
 CollisionData CubeCollider::is_colliding(Collider *other)
 {
