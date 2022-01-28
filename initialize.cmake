@@ -32,6 +32,7 @@ set(ENGINE_SRC
 
     src/Physics/combinations.cpp
     src/Physics/cube.cpp
+    src/Physics/rigidbody.cpp
     src/Physics/sphere.cpp
 
     src/Scene/scene_parser.cpp

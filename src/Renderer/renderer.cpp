@@ -17,6 +17,8 @@
 #include <Galaxy/UI/text.hpp>
 #include <Galaxy/UI/group.hpp>
 
+#include <Galaxy/Physics/physics.hpp>
+
 namespace
 {
     void init()
@@ -25,19 +27,17 @@ namespace
         #if OS_MOBILE
             glfmGetDisplaySize(glfmDisplay, &w, &h);
         #else
-            //glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
             glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
         #endif
         Renderer::fix_aspect(w, h);
 
-        // probably should apply aspect ratio to projection
         Camera::main->projection = Matrix4x4::ortho(-1.f, 1.f, -1.f, 1.f, -100000.f, 100000.f, 0);
     }
     INTERNAL_INIT_FUNC(init);
 
-    //Event *preRender = new Event();
-    //Event *postRender = new Event();
     auto preRender = std::make_unique<Event>();
+    //auto duringSimulation = std::make_unique<Event>();
+    auto postSimulation = std::make_unique<Event>();
     auto postRender = std::make_unique<Event>();
 }
 int Renderer::screenWidth, Renderer::screenHeight;
@@ -185,9 +185,16 @@ void Renderer::clear()
 }
 void Renderer::draw_all(bool fireEvents)
 {
-    if (fireEvents) preRender->fire();
+    if (fireEvents)
+    {
+        preRender->fire();
+        if (Physics::autoSimulate)
+            Physics::simulate();
+        //duringSimulation->fire();
+        
+        postSimulation->fire();
+    }
 
-    //auto objectsCopy = *Object::allObjects;
     if (Camera::main->isPerspective)
     {
         GLCall(glEnable(GL_DEPTH_TEST));
@@ -207,16 +214,9 @@ void Renderer::draw_all(bool fireEvents)
     }
     for (Object *obj : *Object::allObjects) draw(*obj);
 
-// glfwSetRefreshCallback for resizing
 /*
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
-    glDepthMask(true) required for depth, enabled by default?
-
-    Enable backface culling
 */
-    GLCall(glEnable(GL_CULL_FACE));
-    GLCall(glCullFace(GL_BACK));
-    GLCall(glFrontFace(GL_CCW)); // clockwise vertex ordering
     GLCall(glClear(GL_DEPTH_BUFFER_BIT));
     GLCall(glDisable(GL_DEPTH_TEST));
     
@@ -240,4 +240,6 @@ void Renderer::draw_all(bool fireEvents)
     if (fireEvents) postRender->fire();
 }
 Signal &Renderer::pre_render() { return *preRender->signal; }
+//Signal &Renderer::during_simulation() { return *duringSimulation->signal; }
+Signal &Renderer::post_simulation() { return *postSimulation->signal; }
 Signal &Renderer::post_render() { return *postRender->signal; }

@@ -32,8 +32,6 @@ PS4: GNM (low level), GNMX (high level)
 
 extern const char *gameName;
 
-//inline void swapBuffers() { glfmSwapBuffers(glfmWindow); }
-
 #if OS_MOBILE
 #define SWAP_BUFFERS() glfmSwapBuffers(glfmDisplay);
 
@@ -42,7 +40,8 @@ static GLFWwindow *window;
 #define SWAP_BUFFERS() glfwSwapBuffers(window);
 static bool init_glfw()
 {
-    glfwSetErrorCallback([](int code, const char *err){ 
+    glfwSetErrorCallback([](int code, const char *err)
+    {
         std::cout << "an error occured: " << code << " " << err;
     });
     if (!glfwInit()) return 0;
@@ -51,7 +50,6 @@ static bool init_glfw()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // disable legacy opengl
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    //const int windowWidth = 1920*0.5, windowHeight = 1080*0.5;
     const int windowWidth = 600, windowHeight = 600;
     window = glfwCreateWindow(windowWidth, windowHeight, gameName, nullptr, nullptr);
     if (!window)
@@ -60,14 +58,8 @@ static bool init_glfw()
         return 0;
     }
     glfwMakeContextCurrent(window);
-    //glfwSetWindowRefreshCallback(window, [](GLFWwindow*)
-    //{
-    //    Renderer::draw_all(1);
-    //    glfwSwapBuffers(window);
-    //});
     glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height)
     {
-        //GLCall(glViewport(0, 0, width, height));
         Renderer::fix_aspect(width, height);
         Renderer::draw_all(1);
         glfwSwapBuffers(window);
@@ -78,22 +70,8 @@ static bool init_glfw()
 #endif
 static void redraw()
 {
-    //static Vector2 lastMousePos;
     Renderer::clear();
     Time::update_delta();
-
-    //Input::mouseDelta = Input::mousePos - lastMousePos;
-    //lastMousePos = Input::mousePos;
-    //static int frames = 0;
-    //static double lastTime = Time::get();
-    //++frames;
-    //if (Time::get() - lastTime > 1.0)
-    //{
-    //    printf("FPS: %d\n", frames);
-    //    frames = 0;
-    //    lastTime = Time::get();
-    //}
-
 
     Renderer::draw_all(true);
 
@@ -121,6 +99,10 @@ void initialize()
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GLCall(glEnable(GL_BLEND));
     GLCall(glDepthFunc(GL_LEQUAL));
+
+    GLCall(glEnable(GL_CULL_FACE));
+    GLCall(glCullFace(GL_BACK));
+    GLCall(glFrontFace(GL_CCW)); // counter clockwise vertex ordering
 
 #if OS_MOBILE
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)

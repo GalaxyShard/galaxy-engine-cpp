@@ -2,8 +2,6 @@
 #include <Galaxy/Math/vector.hpp>
 class UIImage;
 class UIText;
-//class Event;
-//class EventListener;
 class Signal;
 class Object;
 class Material;
@@ -18,6 +16,8 @@ class Renderer
         static Vector2 aspectRatio, reverseAspect;
 
         static Signal& pre_render();
+        //static Signal& during_simulation();
+        static Signal& post_simulation();
         static Signal& post_render();
 
         // internal
