@@ -3,7 +3,8 @@
 int Signal::connect_int(empty_func func)
 {
     int id = nextID;
-    listeners.insert(std::make_pair(id, func));
+    listeners.insert(std::make_pair(id, EmptyFunc{.capture=std::unique_ptr<CaptureBase>((CaptureBase*)new NoCapture(func))}));
+    //listeners.insert(std::make_pair(id, func));
     ++nextID;
     return id;
 }
@@ -20,9 +21,10 @@ void Event::fire() const
     for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
     signal->eraseQueue.clear();
     
-    for (auto pair : signal->listeners)
+    for (auto &&[id, listener] : signal->listeners)
     {
-        pair.second();
+        if (listener.inst) listener.memberLambda(listener.inst, listener.capture.get());
+        else ((Signal::NoCapture*)listener.capture.get())->func();
     }
 }
 Listener::Listener() { }
@@ -39,13 +41,3 @@ void Listener::disconnect()
         id = -1;
     }
 }
-//EventListener::EventListener(std::shared_ptr<Signal> &isignal, empty_func func)
-//{
-//    signal = isignal;
-//    eventID = isignal->connect(func);
-//}
-//void EventListener::disconnect()
-//{
-//    //if (auto sig = signal.lock()) sig->listeners.erase(eventID);
-//    if (auto sig = signal.lock()) sig->disconnect(eventID);
-//}
