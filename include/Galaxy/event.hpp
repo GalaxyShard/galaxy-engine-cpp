@@ -1,30 +1,26 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-typedef void (*empty_func)();
 struct Listener;
+class EmptyClass{};
+
 class Signal final
 {
 private:
-    class CaptureBase {  };
-    class NoCapture : public CaptureBase
-    {
-    public:
-        void (*func)();
-        NoCapture(void (*func)()) : func(func) {  }
-    };
-    template<typename T>
-    class CaptureT : public CaptureBase
-    {
-    public:
-        void (T::*func)();
-        CaptureT(void (T::*func)()) : func(func) {  }
-    };
+    typedef void (*empty_func)();
+    typedef void (EmptyClass::*empty_member)();
     struct EmptyFunc
     {
         void *inst=0;
-        std::unique_ptr<CaptureBase> capture;
-        void(*memberLambda)(void *inst, CaptureBase *member);
+        union
+        {
+            empty_func voidFunc;
+            struct
+            {
+                empty_member classFunc;
+                void (*memberLambda)(void *inst, empty_member classFunc);
+            };
+        };
     };
     std::unordered_map<int, EmptyFunc> listeners;
     std::vector<int> eraseQueue;
@@ -39,8 +35,10 @@ public:
         int id = nextID;
         typedef void(T::*member_func)();
         listeners.insert(std::make_pair(id, EmptyFunc{
-            .capture = std::unique_ptr<CaptureBase>((CaptureBase*)new CaptureT<T>(func)),
-            .memberLambda=[](void *inst, CaptureBase *capture) { (((T*)inst)->*(((CaptureT<T>*)capture)->func))(); },
+            .classFunc = reinterpret_cast<empty_member>(func),
+            .memberLambda=[](void *inst, empty_member classFunc)
+            { (((T*)inst)->*(reinterpret_cast<member_func>(classFunc)))(); },
+
             .inst=inst
         }));
         ++nextID;
@@ -48,7 +46,7 @@ public:
     }
     void disconnect_int(int id);
     std::unique_ptr<Listener> connect(empty_func func);
-        
+
     template <typename T>
     std::unique_ptr<Listener> connect(T *inst, void(T::*func)())
     {
@@ -90,28 +88,21 @@ template<typename T>
 class SignalT final
 {
 private:
-    class CaptureBase {  };
-    class NoCapture : public CaptureBase
-    {
-    public:
-        void (*func)(T data);
-        NoCapture(void (*func)(T data)) : func(func) {  }
-    };
-    template<typename U>
-    class CaptureT : public CaptureBase
-    {
-    public:
-        void (U::*func)(T data);
-        CaptureT(void (U::*func)(T data)) : func(func) {  }
-    };
+    typedef void (*signal_func)(T data);
+    typedef void (EmptyClass::*signal_member)(T data);
     struct SignalFunc
     {
         void *inst=0;
-        std::unique_ptr<CaptureBase> capture;
-        void(*memberLambda)(void *inst, CaptureBase *member, T data);
+        union
+        {
+            signal_func voidFunc;
+            struct
+            {
+                signal_member classFunc;
+                void (*memberLambda)(void *inst, signal_member classFunc, T data);
+            };
+        };
     };
-//private:
-    typedef void (*signal_func)(T data);
     int nextID = 0;
     std::unordered_map<int, SignalFunc> listeners;
     std::vector<int> eraseQueue;

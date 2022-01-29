@@ -3,7 +3,7 @@ template<typename T>
 int SignalT<T>::connect_int(SignalT<T>::signal_func func)
 {
     int id = nextID;
-    listeners.insert(std::make_pair(id, SignalFunc{.capture=std::make_unique<NoCapture>(func)}));
+    listeners.insert(std::make_pair(id, SignalFunc{.voidFunc=func}));
     ++nextID;
     return id;
 }
@@ -14,8 +14,9 @@ int SignalT<T>::connect_int(U *inst, void(U::*func)(T data))
     int id = nextID;
     typedef void(U::*member_func)(T data);
     listeners.insert(std::make_pair(id, SignalFunc{
-        .capture = std::unique_ptr<CaptureBase>((CaptureBase*)new CaptureT<U>(func)),
-        .memberLambda=[](void *inst, CaptureBase *capture, T data) { (((U*)inst)->*(((CaptureT<U>*)capture)->func))(data); },
+        .classFunc=reinterpret_cast<signal_member>(func),
+        .memberLambda=[](void *inst, signal_member classFunc, T data)
+        { (((U*)inst)->*(reinterpret_cast<member_func>(classFunc)))(data); },
         .inst=inst
     }));
     ++nextID;
@@ -42,14 +43,10 @@ void EventT<T>::fire(T data) const
 {
     for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
     signal->eraseQueue.clear();
-    
-    typedef void(*signal_func)(T);
-    using NoCapture = typename SignalT<T>::NoCapture;
-    //typedef SignalT<T>::NoCapture NoCapture;
     for (auto &&[id, listener] : signal->listeners)
     {
-        if (listener.inst) listener.memberLambda(listener.inst, listener.capture.get(), data);
-        else ((NoCapture*)listener.capture.get())->func(data);
+        if (listener.inst) listener.memberLambda(listener.inst, listener.classFunc, data);
+        else listener.voidFunc(data);
     }
 }
 

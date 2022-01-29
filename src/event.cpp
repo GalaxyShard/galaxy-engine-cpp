@@ -3,8 +3,7 @@
 int Signal::connect_int(empty_func func)
 {
     int id = nextID;
-    listeners.insert(std::make_pair(id, EmptyFunc{.capture=std::unique_ptr<CaptureBase>((CaptureBase*)new NoCapture(func))}));
-    //listeners.insert(std::make_pair(id, func));
+    listeners.insert(std::make_pair(id, EmptyFunc{.voidFunc = func}));
     ++nextID;
     return id;
 }
@@ -23,8 +22,8 @@ void Event::fire() const
     
     for (auto &&[id, listener] : signal->listeners)
     {
-        if (listener.inst) listener.memberLambda(listener.inst, listener.capture.get());
-        else ((Signal::NoCapture*)listener.capture.get())->func();
+        if (listener.inst) listener.memberLambda(listener.inst, listener.classFunc);
+        else listener.voidFunc();
     }
 }
 Listener::Listener() { }
