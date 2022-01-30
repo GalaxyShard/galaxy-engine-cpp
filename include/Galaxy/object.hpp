@@ -56,10 +56,13 @@ public:
     template<typename T>
     T* get_component()
     {
+        static_assert(std::is_base_of<ObjComponent, T>::value, "Class must be an ObjComponent");
         for (int i = 0; i < components.size(); ++i)
         {
-            if (typeid(components[i].get()) == typeid(T))
-                return components[i].get();
+            if (T *component = dynamic_cast<T*>(components[i].get()))
+                return component;
+            //if (typeid(components[i].get()) == typeid(T))
+            //    return components[i].get();
         }
         return 0;
     }

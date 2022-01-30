@@ -39,7 +39,7 @@ CollisionData sphere_cube_collision(SphereCollider *sphere, CubeCollider *cube)
     for (int i = 0; i < 3; ++i)
         closest[i] = Math::clamp(localSpherePos[i], -cubeRadius[i], cubeRadius[i]);
 
-    float sphereRadius = sphere->obj->scale.x;
+    float sphereRadius = sphere->obj->scale.x*0.5f;
     Vector3 offset = localSpherePos - closest;
     if (offset.sqr_magnitude() < sqr(sphereRadius))
     {

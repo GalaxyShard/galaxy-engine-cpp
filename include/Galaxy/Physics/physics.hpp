@@ -1,6 +1,7 @@
 #pragma once
 #include <Galaxy/Math/vector.hpp>
 #include <Galaxy/object.hpp>
+#include <unordered_map>
 
 struct Ray;
 class Physics
@@ -13,6 +14,8 @@ public:
 class Rigidbody : public ObjComponent
 {
 private:
+    static std::vector<Rigidbody*> allRigidbodies;
+    int id;
     friend class Physics;
 public:
     Vector3 velocity;
@@ -21,8 +24,8 @@ public:
     float angularDrag = 0.01;
     bool freezeRotation = 1;
     
-    Rigidbody() = default;
-    ~Rigidbody() override = default;
+    Rigidbody();
+    ~Rigidbody() override;
 
     void add_force(Vector3 force);
     void add_acceleration(Vector3 acceleration);
@@ -58,19 +61,19 @@ struct RayResult
 };
 class Collider : public ObjComponent
 {
+private:
+    static std::vector<Collider*> allColliders;
+    int id;
+    friend class Physics;
 public:
-    //Vector3 pos;
-    
-    //virtual void fill_params(Object *obj) = 0;
+    Collider();
+    ~Collider() override;
     virtual CollisionData is_colliding(Collider *other) = 0;
     virtual RayResult is_colliding(const Ray &other) = 0;
 };
 class CubeCollider : public Collider
 {
 public:
-    //Vector3 scale = Vector3(1,1,1);
-    //Vector3 rotation;
-    //void fill_params(Object *obj) override;
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;
     
@@ -78,8 +81,6 @@ public:
 class SphereCollider : public Collider
 {
 public:
-    //float radius = 0;
-    //void fill_params(Object *obj) override;
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;
 };

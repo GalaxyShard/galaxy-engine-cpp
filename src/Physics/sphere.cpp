@@ -2,15 +2,10 @@
 #include "combinations.hpp"
 #include <cmath>
 static float sqr(float x) { return x*x; }
-//void SphereCollider::fill_params(Object *obj)
-//{
-//    radius = obj->scale.x/2;
-//    pos = obj->position;
-//}
 RayResult SphereCollider::is_colliding(const Ray &other)
 {
     // source: https://gamedev.stackexchange.com/questions/20815/most-efficient-bounding-sphere-vs-ray-collision-algorithms?rq=1
-    float radius = obj->scale.x;
+    float radius = obj->scale.x*0.5f;
     Vector3 sphereToRay = other.start - obj->position;
     Vector3 dir = other.dir.unit();
     if (sphereToRay.sqr_magnitude() < sqr(radius))
@@ -24,7 +19,6 @@ RayResult SphereCollider::is_colliding(const Ray &other)
     Vector3 closestToSphere = (sphereToRay - projVec);
     if (closestToSphere.sqr_magnitude() < sqr(radius))
     {
-        //shortestOnRay.magnitude();
         Vector3 hitPoint = obj->position + closestToSphere - (dir * (radius + closestToSphere.magnitude()));
         Vector3 normal = (hitPoint - obj->position) / radius;
         return RayResult(hitPoint, normal, (hitPoint - other.start).magnitude());
@@ -35,8 +29,8 @@ CollisionData SphereCollider::is_colliding(Collider *other)
 {
     if (auto sphere = dynamic_cast<SphereCollider*>(other))
     {
-        float radius = obj->scale.x;
-        float otherRadius = sphere->obj->scale.x;
+        float radius = obj->scale.x*0.5f;
+        float otherRadius = sphere->obj->scale.x*0.5f;
 
         Vector3 dir = (obj->position - sphere->obj->position);
         float sqrMag = dir.sqr_magnitude();

@@ -2,12 +2,6 @@
 #include <Galaxy/Math/matrix.hpp>
 #include "combinations.hpp"
 #include <cmath>
-//void CubeCollider::fill_params(Object *obj)
-//{
-//    pos = obj->position;
-//    rotation = obj->rotation;
-//    scale = obj->scale;
-//}
 RayResult CubeCollider::is_colliding(const Ray &other)
 {
     // Axis-align box by rotating the ray around it
