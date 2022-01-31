@@ -11,12 +11,30 @@ void Physics::simulate()
     float delta = Time::get() - lastTime;
     if (delta > maxDelta) delta = maxDelta;
     lastTime = Time::get();
+/*
+    https://www.toptal.com/game/video-game-physics-part-i-an-introduction-to-rigid-body-dynamics
+    Moment of Inertia Tensor
+
+    Solid sphere
+    i = 0.4*mass*sqr(radius)
+    [i, 0, 0]
+    [0, i, 0]
+    [0, 0, i]
+
+    Solid cube
+    [mass/12*(sqr(h) + sqr(d), 0,                         0]
+    [0,                        mass/12*(sqr(w) + sqr(d)), 0]
+    [0,                        0,                         mass/12*(sqr(w) + sqr(h))]
+
+*/
     
     // Simulate rigidbodies
     for (Rigidbody *&body : Rigidbody::allRigidbodies)
     {
         Collider *collider = body->obj->get_component<Collider>();
         body->obj->position += body->velocity * delta;
+        if (!body->freezeRotation)
+            body->obj->rotation += body->angularVelocity;
         
         if (!collider)
             continue;
@@ -29,11 +47,10 @@ void Physics::simulate()
             if (data.isColliding)
             {
                 body->obj->position += data.dir;
-                //body->velocity += data.dir;
-                //body->velocity = Vector3(0,0,0);
+                // temporary workaround for gravity
+                if (data.dir.y > 0)
+                    body->velocity.y = -0.1f;
             }
-            //else
-            //    printf("Not colliding with %s\n", typeid(*other).name());
         }
     }
 }
@@ -67,7 +84,8 @@ Collider::~Collider()
 
 void Rigidbody::add_force(Vector3 force)
 {
-    velocity += force * mass;
+    //velocity += force * mass;
+    velocity += force / mass;
 }
 void Rigidbody::add_acceleration(Vector3 acceleration)
 {

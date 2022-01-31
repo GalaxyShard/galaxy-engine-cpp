@@ -18,7 +18,7 @@ private:
     int id;
     friend class Physics;
 public:
-    Vector3 velocity;
+    Vector3 velocity, angularVelocity;
     float mass = 1;
     float drag = 0.01;
     float angularDrag = 0.01;
