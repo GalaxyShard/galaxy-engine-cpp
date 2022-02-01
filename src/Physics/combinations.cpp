@@ -9,6 +9,18 @@ Ray::Ray(Vector3 start, Vector3 dir) : start(start), dir(dir) { }
 CollisionData::CollisionData(Vector3 mtv) : dir(mtv), isColliding(1) { }
 CollisionData::CollisionData() : dir(), isColliding(0) { }
 
+bool Collider::aabb_test(Collider *other)
+{
+    //if ((other->aabbMin.x >= aabbMax.x) || (aabbMin.x >= other->aabbMax.x))
+    //    return 0;
+    //if ((other->aabbMin.y >= aabbMax.y) || (aabbMin.y >= other->aabbMax.y))
+    //    return 0;
+    //return 1;
+
+    // Equivalent to above (todo: test)
+    return !(((other->aabbMin.x >= aabbMax.x) || (aabbMin.x >= other->aabbMax.x))
+        && ((other->aabbMin.y >= aabbMax.y) || (aabbMin.y >= other->aabbMax.y)));
+}
 void get_local_points(std::vector<Vector3> &p, CubeCollider *cube)
 {
     Matrix3x3 rot = Matrix3x3::rotate(cube->obj->rotation);

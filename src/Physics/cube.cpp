@@ -15,8 +15,7 @@ RayResult CubeCollider::is_colliding(const Ray &other)
 
     Vector3 rayToMin = (cubeMin - start)*inverseDir;
     Vector3 rayToMax = (cubeMax - start)*inverseDir;
-    using Math::max;
-    using Math::min;
+    using std::max; using std::min;
     float tMin = max(max(min(rayToMin.x, rayToMax.x), min(rayToMin.y, rayToMax.y)), min(rayToMin.z, rayToMax.z));
     float tMax = min(min(max(rayToMin.x, rayToMax.x), max(rayToMin.y, rayToMax.y)), max(rayToMin.z, rayToMax.z));
 
@@ -64,6 +63,13 @@ RayResult CubeCollider::is_colliding(const Ray &other)
 }
 CollisionData CubeCollider::is_colliding(Collider *other)
 {
+    //if (refreshAABB)
+    //    fix_bounding_box();
+    //if (other->refresh_aabb())
+    //    other->fix_bounding_box();
+    //if (!aabb_test(other))
+    //    return CollisionData();
+
     if (auto cube = dynamic_cast<CubeCollider*>(other))
     {   
         Matrix3x3 rot0 = Matrix3x3::rotate(obj->rotation);
@@ -138,4 +144,23 @@ CollisionData CubeCollider::is_colliding(Collider *other)
     }
     fprintf(stderr, "error: collision not implemented\n");
     return CollisionData();
+}
+void CubeCollider::fix_bounding_box()
+{
+    std::vector<Vector3> points;
+    get_points(points, this);
+    aabbMin = Vector3();
+    aabbMax = Vector3();
+    for (int i = 0; i < points.size(); ++i)
+    {
+        Vector3 &point = points[i];
+        using std::min; using std::max;
+        aabbMin.x = min(point.x, aabbMin.x);
+        aabbMin.y = min(point.y, aabbMin.y);
+        aabbMin.z = min(point.z, aabbMin.z);
+
+        aabbMax.x = max(point.x, aabbMax.x);
+        aabbMax.y = max(point.y, aabbMax.y);
+        aabbMax.z = max(point.z, aabbMax.z);
+    }
 }

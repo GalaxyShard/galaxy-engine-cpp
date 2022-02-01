@@ -27,6 +27,13 @@ RayResult SphereCollider::is_colliding(const Ray &other)
 }
 CollisionData SphereCollider::is_colliding(Collider *other)
 {
+    //if (refreshAABB)
+    //    fix_bounding_box();
+    //if (other->refresh_aabb())
+    //    other->fix_bounding_box();
+    //if (!aabb_test(other))
+    //    return CollisionData();
+
     if (auto sphere = dynamic_cast<SphereCollider*>(other))
     {
         float radius = obj->scale.x*0.5f;
@@ -46,4 +53,10 @@ CollisionData SphereCollider::is_colliding(Collider *other)
     }
     fprintf(stderr, "error: collision not implemented\n");
     return CollisionData();
+}
+void SphereCollider::fix_bounding_box()
+{
+    float radius = obj->scale.x*0.5;
+    aabbMin = obj->position - radius;
+    aabbMax = obj->position + radius;
 }

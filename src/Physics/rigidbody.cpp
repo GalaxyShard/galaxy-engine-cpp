@@ -46,10 +46,14 @@ void Physics::simulate()
             CollisionData data = collider->is_colliding(other);
             if (data.isColliding)
             {
+                if (Rigidbody *otherRB = other->obj->get_component<Rigidbody>())
+                {
+                    //otherRB->velocity += ;
+                }
                 body->obj->position += data.dir;
                 // temporary workaround for gravity
-                if (data.dir.y > 0)
-                    body->velocity.y = -0.1f;
+                //if (data.dir.y > 0)
+                    //body->velocity.y = -0.1f;
             }
         }
     }
@@ -84,7 +88,6 @@ Collider::~Collider()
 
 void Rigidbody::add_force(Vector3 force)
 {
-    //velocity += force * mass;
     velocity += force / mass;
 }
 void Rigidbody::add_acceleration(Vector3 acceleration)

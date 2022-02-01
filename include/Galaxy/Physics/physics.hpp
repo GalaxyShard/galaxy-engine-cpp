@@ -64,23 +64,31 @@ class Collider : public ObjComponent
 private:
     static std::vector<Collider*> allColliders;
     int id;
+
     friend class Physics;
+protected:
+    Vector3 aabbMin, aabbMax;
+    bool refreshAABB = 1;
 public:
     Collider();
     ~Collider() override;
+    bool aabb_test(Collider *other);
+    inline bool refresh_aabb() { return refreshAABB; }
     virtual CollisionData is_colliding(Collider *other) = 0;
     virtual RayResult is_colliding(const Ray &other) = 0;
+    virtual void fix_bounding_box() = 0;
 };
 class CubeCollider : public Collider
 {
 public:
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;
-    
+    void fix_bounding_box() override;
 };
 class SphereCollider : public Collider
 {
 public:
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;
+    void fix_bounding_box() override;
 };
