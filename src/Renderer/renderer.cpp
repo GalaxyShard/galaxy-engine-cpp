@@ -188,8 +188,8 @@ void Renderer::draw_all(bool fireEvents)
     if (fireEvents)
     {
         preRender->fire();
-        if (Physics::autoSimulate)
-            Physics::simulate();
+        //if (Physics::autoSimulate)
+        Physics::simulate();
         //duringSimulation->fire();
         
         postSimulation->fire();

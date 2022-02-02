@@ -7,7 +7,7 @@ struct Ray;
 class Physics
 {
 public:
-    static bool autoSimulate;
+    //static bool autoSimulate;
     static void raycast(const Ray &ray);
     static void simulate();
 };
@@ -69,26 +69,48 @@ private:
 protected:
     Vector3 aabbMin, aabbMax;
     bool refreshAABB = 1;
+    Vector3 _pos;
 public:
+    Vector3 pos();
+    //void pos(Vector3);
+
     Collider();
     ~Collider() override;
     bool aabb_test(Collider *other);
-    inline bool refresh_aabb() { return refreshAABB; }
+    inline bool needs_refresh() { return refreshAABB; }
     virtual CollisionData is_colliding(Collider *other) = 0;
     virtual RayResult is_colliding(const Ray &other) = 0;
     virtual void fix_bounding_box() = 0;
+    virtual void refresh() = 0;
 };
 class CubeCollider : public Collider
 {
+private:
+    Vector3 _scale;
+    Vector3 _rotation;
 public:
+    //CubeCollider();
+    Vector3 scale();
+    Vector3 rotation();
+    //void scale(Vector3);
+    //void rotation(Vector3);
+
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;
     void fix_bounding_box() override;
+    void refresh() override;
 };
 class SphereCollider : public Collider
 {
+private:
+    float _radius=0.5;
 public:
+    //SphereCollider();
+    float radius();
+    //void radius(float);
+
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;
     void fix_bounding_box() override;
+    void refresh() override;
 };

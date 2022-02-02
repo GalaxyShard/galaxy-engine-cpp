@@ -2,16 +2,27 @@
 #include <Galaxy/Math/matrix.hpp>
 #include "combinations.hpp"
 #include <cmath>
+//CubeCollider::CubeCollider()
+//{
+//    refresh();
+//}
+Vector3 CubeCollider::scale() { return _scale; }
+Vector3 CubeCollider::rotation() { return _rotation; }
+//void CubeCollider::scale(Vector3 scale) { refreshAABB = 1; _scale=scale; }
+//void CubeCollider::rotation(Vector3 rotation) { refreshAABB = 1; _rotation=rotation; }
 RayResult CubeCollider::is_colliding(const Ray &other)
 {
     // Axis-align box by rotating the ray around it
-    Matrix4x4 inverseRot = Matrix4x4::translate(obj->position) * Matrix4x4::rotate(obj->rotation).transpose() * Matrix4x4::translate(-obj->position);
+    //Matrix4x4 inverseRot = Matrix4x4::translate(obj->position) * Matrix4x4::rotate(obj->rotation).transpose() * Matrix4x4::translate(-obj->position);
+    Matrix4x4 inverseRot = Matrix4x4::translate(_pos) * Matrix4x4::rotate(_rotation).transpose() * Matrix4x4::translate(-_pos);
     Vector3 start = inverseRot * other.start;
     Vector3 dir = inverseRot * other.dir;
 
     Vector3 inverseDir = Vector3(1,1,1) / dir;
-    Vector3 cubeMax = obj->scale*0.5f + obj->position;
-    Vector3 cubeMin = -obj->scale*0.5f + obj->position;
+    Vector3 cubeMax = _scale*0.5f + _pos;
+    Vector3 cubeMin = -_scale*0.5f + _pos;
+    //Vector3 cubeMax = obj->scale*0.5f + obj->position;
+    //Vector3 cubeMin = -obj->scale*0.5f + obj->position;
 
     Vector3 rayToMin = (cubeMin - start)*inverseDir;
     Vector3 rayToMax = (cubeMax - start)*inverseDir;
@@ -29,7 +40,8 @@ RayResult CubeCollider::is_colliding(const Ray &other)
     Vector3 intersection = other.dir*tMin+other.start;
     
     Vector3 normal;
-    Vector3 localIntersection = (dir*tMin+start - obj->position)/obj->scale;
+    //Vector3 localIntersection = (dir*tMin+start - obj->position)/obj->scale;
+    Vector3 localIntersection = (dir*tMin+start - _pos)/_scale;
     Vector3 absPoint = Vector3(abs(localIntersection.x), abs(localIntersection.y), abs(localIntersection.z));
     if (absPoint.x > absPoint.y)
     {
@@ -58,22 +70,25 @@ RayResult CubeCollider::is_colliding(const Ray &other)
         if (localIntersection.z > 0) normal = Vector3(0,0,1);
         else normal = Vector3(0,0,-1);
     }
-    normal = Matrix3x3::rotate(obj->rotation)*normal;
+    //normal = Matrix3x3::rotate(obj->rotation)*normal;
+    normal = Matrix3x3::rotate(_rotation)*normal;
     return RayResult(intersection, normal, tMin);
 }
 CollisionData CubeCollider::is_colliding(Collider *other)
 {
-    //if (refreshAABB)
-    //    fix_bounding_box();
-    //if (other->refresh_aabb())
-    //    other->fix_bounding_box();
-    //if (!aabb_test(other))
-    //    return CollisionData();
+    if (refreshAABB)
+        fix_bounding_box();
+    if (other->needs_refresh())
+        other->fix_bounding_box();
+    if (!aabb_test(other))
+        return CollisionData();
 
     if (auto cube = dynamic_cast<CubeCollider*>(other))
     {   
-        Matrix3x3 rot0 = Matrix3x3::rotate(obj->rotation);
-        Matrix3x3 rot1 = Matrix3x3::rotate(cube->obj->rotation);
+        Matrix3x3 rot0 = Matrix3x3::rotate(_rotation);
+        Matrix3x3 rot1 = Matrix3x3::rotate(cube->_rotation);
+        //Matrix3x3 rot0 = Matrix3x3::rotate(obj->rotation);
+        //Matrix3x3 rot1 = Matrix3x3::rotate(cube->obj->rotation);
 
         Vector3 axes[6]; // normals
         axes[0] = rot0*Vector3(0,1,0);
@@ -147,6 +162,10 @@ CollisionData CubeCollider::is_colliding(Collider *other)
 }
 void CubeCollider::fix_bounding_box()
 {
+    _pos = obj->position;
+    _scale = obj->scale;
+    _rotation = obj->rotation;
+
     std::vector<Vector3> points;
     get_points(points, this);
     aabbMin = Vector3();
@@ -163,4 +182,9 @@ void CubeCollider::fix_bounding_box()
         aabbMax.y = max(point.y, aabbMax.y);
         aabbMax.z = max(point.z, aabbMax.z);
     }
+    refreshAABB = 0;
+}
+void CubeCollider::refresh()
+{
+    refreshAABB = 1;
 }

@@ -52,8 +52,8 @@ void Physics::simulate()
                 }
                 body->obj->position += data.dir;
                 // temporary workaround for gravity
-                //if (data.dir.y > 0)
-                    //body->velocity.y = -0.1f;
+                if (data.dir.y > 0)
+                    body->velocity.y = -0.1f;
             }
         }
     }
