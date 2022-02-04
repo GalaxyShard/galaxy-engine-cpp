@@ -5,7 +5,8 @@
 #include <Galaxy/Scene/scene.hpp>
 #include <internalinit.hpp>
 
-std::unique_ptr<UIGroup> UIGroup::aspectRatio, UIGroup::safeArea;
+auto UIGroup::aspectRatio = std::make_unique<UIGroup>();
+auto UIGroup::safeArea = std::make_unique<UIGroup>();
 
 Vector2 UIGroup::world_pos()
 {
@@ -27,9 +28,3 @@ UIGroup::~UIGroup()
 {
     if (scene) scene->remove_inst(this);
 }
-static void init()
-{
-    UIGroup::aspectRatio = std::make_unique<UIGroup>();
-    UIGroup::safeArea = std::make_unique<UIGroup>();
-}  
-INTERNAL_INIT_FUNC(init);
