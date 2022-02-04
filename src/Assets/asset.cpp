@@ -8,6 +8,7 @@
 #include <Galaxy/Renderer/mesh.hpp>
 #include <Galaxy/Renderer/texture.hpp>
 #include <Galaxy/Renderer/shader.hpp>
+#include <Galaxy/Audio/audio.hpp>
 
 const char *get_resource_path_platform();
 const char *get_bundle_identifier();
@@ -16,14 +17,11 @@ extern const char *gameName;
 std::string Assets::resource_path()
 { return std::string(get_resource_path_platform()); }
 
-std::string Assets::asset_path()
+std::string Assets::path()
 { return resource_path()+"/assets"; }
 
-std::string Assets::gasset_path()
+std::string Assets::gpath()
 { return resource_path()+"/galaxy_assets"; }
-
-std::string Assets::path() { return asset_path(); }
-std::string Assets::gpath() { return gasset_path(); }
 
 std::string Assets::data_path()
 {
@@ -59,8 +57,8 @@ FileContent Assets::file_contents(const char *path, bool assertOnFail)
     stream.read(contents, length);
 
     assert(stream.good());
-    strcat(contents, ""); // add null terminator
-    //contents[length] = '\0';
+    //strcat(contents, ""); // add null terminator
+    contents[length] = '\0';
     return {length+1, contents};
 }
 FileContent Assets::file_contents(const std::string &path, bool assertOnFail)
@@ -166,3 +164,4 @@ AssetRef<T> AssetRef<T>::get_loaded(const std::string &path)
 template class AssetRef<Mesh>;
 template class AssetRef<Shader>;
 template class AssetRef<Texture>;
+template class AssetRef<AudioData>;

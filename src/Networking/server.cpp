@@ -120,8 +120,6 @@ void Server::server_thread()
                     }
                 }
                 close(clientFD);
-                //if (inst->leaveCallback)
-                //    inst->leaveCallback(inst->clients[index]);
                 inst->clients.erase(inst->clients.begin() + index);
 
                 NetworkWriter writer;

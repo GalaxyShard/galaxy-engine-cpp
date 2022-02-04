@@ -86,10 +86,6 @@ void Client::client_thread(const char *ip, unsigned short port)
             inst->shuttingDown = 1;
             inst->errorCode = GENERAL;
             return;
-            //continue;
-            //assert(false);
-            //shutdown();
-            //return;
         }
         if (eventCount < 1) continue;
         
@@ -131,30 +127,6 @@ bool Client::start(const char *ip, unsigned short port)
         return 0;
     
     inst = std::unique_ptr<Client>(new Client());
-
-    //addrinfo *list = get_addr_list(ip, port);
-    //
-    //bool errored=0;
-    //for (addrinfo *info = list; info!=0; info = info->ai_next)
-    //{
-    //    if ((inst->serverConn = socket(info->ai_family, info->ai_socktype, info->ai_protocol))==-1)
-    //    {
-    //        if (!info->ai_next) errored = 1;
-    //        continue;
-    //    }
-    //    if (connect(inst->serverConn, info->ai_addr, info->ai_addrlen)==-1)
-    //    {
-    //        if (!info->ai_next) errored = 1;
-    //        close(inst->serverConn);
-    //        continue;
-    //    }
-    //}
-    //freeaddrinfo(list);
-    //if (errored)
-    //{
-    //    inst = 0;
-    //    return 0;
-    //}
     
     inst->clientThread = std::make_unique<std::thread>(client_thread, ip, port);
     inst->preRenderConn = Renderer::pre_render().connect(&pre_render);

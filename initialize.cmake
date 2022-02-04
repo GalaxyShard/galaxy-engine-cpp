@@ -1,21 +1,9 @@
 
 set(ENGINE_SRC
-    src/UI/font.cpp
-    src/UI/group.cpp
-    src/UI/image.cpp
-    src/UI/text.cpp
-    src/UI/uiobject.cpp
-
-    src/Renderer/vertexbuffer.cpp
-    src/Renderer/mesh.cpp
-    src/Renderer/vertexlayout.cpp
-    src/Renderer/camera.cpp
-    src/Renderer/vertexarray.cpp
-    src/Renderer/texture.cpp
-    src/Renderer/shader.cpp
-    src/Renderer/material.cpp
-    src/Renderer/indexbuffer.cpp
-    src/Renderer/renderer.cpp
+    src/Assets/asset.cpp
+    src/Audio/audio.cpp
+    src/External/stb_image_init.cpp
+    src/Input/input.cpp
 
     src/Math/vector4.cpp
     src/Math/vector3.cpp
@@ -35,13 +23,25 @@ set(ENGINE_SRC
     src/Physics/rigidbody.cpp
     src/Physics/sphere.cpp
 
+    src/Renderer/vertexbuffer.cpp
+    src/Renderer/mesh.cpp
+    src/Renderer/vertexlayout.cpp
+    src/Renderer/camera.cpp
+    src/Renderer/vertexarray.cpp
+    src/Renderer/texture.cpp
+    src/Renderer/shader.cpp
+    src/Renderer/material.cpp
+    src/Renderer/indexbuffer.cpp
+    src/Renderer/renderer.cpp
+
     src/Scene/scene_parser.cpp
     src/Scene/scene.cpp
 
-    src/External/stb_image_init.cpp
-
-    src/Input/input.cpp
-    src/Assets/asset.cpp
+    src/UI/font.cpp
+    src/UI/group.cpp
+    src/UI/image.cpp
+    src/UI/text.cpp
+    src/UI/uiobject.cpp
 
     src/object.cpp
     src/engine.cpp

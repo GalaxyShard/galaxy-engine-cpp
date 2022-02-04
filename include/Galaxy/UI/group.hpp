@@ -1,5 +1,4 @@
 #pragma once
-//#include <vector>
 #include <memory>
 #include <Galaxy/Math/vector.hpp>
 class UIImage;
@@ -9,8 +8,6 @@ class Scene;
 class UIGroup
 {
 private:
-    // no need for references from UIGroup
-    //std::vector<UIImage*> images, text;
     Scene *scene;
 public:
     static std::unique_ptr<UIGroup> aspectRatio, safeArea;

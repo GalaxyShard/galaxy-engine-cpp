@@ -25,7 +25,6 @@ int check_socket(int status)
     if (status == -1)
     {
         fprintf(stderr, "socket error %d: %s\n", errno, strerror(errno));
-        //assert(false);
     }
     return status;
 }
@@ -58,20 +57,10 @@ int NetworkReader::read<int>()
 template<>
 std::string NetworkReader::read<std::string>()
 {
-    //size_t length = buffer.find('\0', nextIndex)-nextIndex;
-    //int startIndex = nextIndex;
-    //nextIndex += ;
-    //return buffer.substr(, );
-
     unsigned short length = *(unsigned short*)&buffer[nextIndex];
     length = ntohs(length);
     nextIndex += length+2;
     return buffer.substr(nextIndex-length, length);
-
-    //int length = 0, lastIndex = nextIndex;
-    //for (int i = nextIndex; buffer[i] != '\0'; ++i, ++length);
-    //nextIndex += length+1;
-    //return buffer.substr(lastIndex, length);
 }
 
 template<>
@@ -140,7 +129,6 @@ void NetworkWriter::write<unsigned char>(unsigned char data)
 template<>
 void NetworkWriter::write<int>(int data)
 {
-    //buffer += htonl(data);
     int bigEndian = htonl(data);
     buffer.append((char*)&bigEndian, sizeof(int));
 }
@@ -167,14 +155,6 @@ void NetworkWriter::write<float>(float data)
         std::swap(rawBytes[1], rawBytes[2]);
     }
     buffer.append(std::string((char*)rawBytes, 4));
-
-    //unsigned char bytes[4] = {0,0,0,0};
-    // solve for sign, exponent, and data bit
-    // val = (1-sign) * pow(2, E-127) * (1 + (pow(2, -i)))
-    //if (data < 0)
-    //    bytes[0] = 0b10000000;
-    //log2f()
-    //buffer.append(std::string((char*)bytes, 4));
 }
 template<>
 void NetworkWriter::write<Vector3>(Vector3 data)

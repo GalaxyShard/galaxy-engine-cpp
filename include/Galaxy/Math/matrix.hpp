@@ -53,7 +53,6 @@ struct Matrix3x3
 
     static Matrix3x3 rotate(float x, float y, float z);
     static Matrix3x3 rotate(Vector3 v);
-    //static Matrix3x3 rotate_around(Vector3 point, Vector3 angles);
 
     static Matrix3x3 identity();
     Matrix3x3 transpose() const;

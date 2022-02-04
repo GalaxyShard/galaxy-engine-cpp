@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-//#include <debug.hpp>
 class Buffer
 {
 protected:
@@ -66,11 +65,6 @@ public:
 };
 class VertexArray : public Buffer
 {
-private:
-    //#ifdef OS_MOBILE
-    //IndexBuffer *ibuffer;
-    //VertexBuffer *vbuffer;
-    //#endif
 public:
     VertexArray();
     ~VertexArray();

@@ -7,8 +7,6 @@
 
 #include <iostream>
 #include <debug.hpp>
-//#include <sys/socket.h>
-
 /*
 Rendering APIs
 

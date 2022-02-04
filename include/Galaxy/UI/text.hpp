@@ -3,7 +3,6 @@
 #include <vector>
 #include <Galaxy/UI/font.hpp>
 #include <Galaxy/Renderer/mesh.hpp>
-//class Font;
 class Shader;
 class Scene;
 class UIGroup;
@@ -30,7 +29,6 @@ public:
     ~UIText();
 
     Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
-    //bool keepInBounds=0; // remove this for group
 
     // not implemented
     bool wrap = 0;
@@ -40,7 +38,7 @@ public:
 
     inline int get_render_order() { return renderOrder; }
     void set_render_order(int order);
-    // Should be called when text, scale, pivot, or font is changed
+    // Should be called when text is changed
     void refresh();
 
     Vector2 calc_world_pos();

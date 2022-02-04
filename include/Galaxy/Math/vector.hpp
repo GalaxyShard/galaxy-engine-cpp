@@ -1,7 +1,5 @@
 #pragma once
 #include "gmath.hpp"
-//#include <ostream>
-//class ostream;
 #include <iosfwd>
 
 struct Vector2;
@@ -74,13 +72,11 @@ struct Vector3
 
     float sqr_magnitude() const;
     float magnitude() const;
-    //void normalize();
     Vector3 unit() const;
 
     static float dot(const Vector3 &a, const Vector3 &b);
     static Vector3 cross(const Vector3 &a, const Vector3 &b);
     static Vector3 lerp(const Vector3 &a, const Vector3 &b, float t);
-    //Vector3 cross() const;
 
     static Vector3 move_towards(Vector3 pos, Vector3 goal, float speed);
 

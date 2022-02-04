@@ -2,14 +2,13 @@
 #include <Galaxy/Renderer/texture.hpp>
 #include <Galaxy/event.hpp>
 #include <vector>
-//#include "uiobject.hpp"
 
 class Shader;
 class Mesh;
 class Scene;
 class UIGroup;
 
-class UIImage// : public UIObject
+class UIImage
 {
 private:
     static std::unique_ptr<std::vector<UIImage *>> images;
@@ -32,8 +31,6 @@ public:
     UIGroup *group = 0;
     Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
     Vector4 tint = Vector4(1, 1, 1, 1);
-
-    //bool keepInBounds = 0;
 
     // onTouchDown is called on left click if the cursor is over the image
     void(*onTouchDown)() = 0;

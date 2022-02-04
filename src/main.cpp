@@ -1,7 +1,6 @@
 #include <debug.hpp>
 #ifdef DEBUG
 #include <unordered_map>
-//#include <OpenGL/gl3.h>
 std::unordered_map<int, const char*> glErrorStringMap =
 {
     {GL_INVALID_ENUM, "Invalid enum"},
@@ -18,7 +17,6 @@ GLFMDisplay *glfmDisplay;
 void glfmMain(GLFMDisplay *display)
 {
     glfmDisplay = display;
-    //glfmSetMultitouchEnabled(display, 1);
     glfmSetSurfaceCreatedFunc(display, [](GLFMDisplay*, int, int) { initialize(); });
     glfmSetMultitouchEnabled(display, true);
     glfmSetDisplayConfig(display,

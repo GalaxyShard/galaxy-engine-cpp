@@ -72,9 +72,8 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
         switch (c0)
         {
         case '#': continue;
-        case 'o': assert(false); // multiple meshes not supported
-        //case 'o': continue; // combine all objects into one model for now
-        
+        case 'o': throw("Multiple meshes not supported");
+
         case 'v':
         {
             const char &c1 = line[1];
@@ -129,8 +128,6 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
                             mesh->verts[vertIndex].texCoord = texCoords[uvIndex];
                         }
                     }
-                    //auto norm = vert_tex_norm[2];
-                    //if (!norm.empty()) mesh->normals.push_back(std::stoi(norm)-1);
                 }
             }
 

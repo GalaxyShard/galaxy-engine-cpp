@@ -48,7 +48,6 @@ void Physics::simulate()
             {
                 if (Rigidbody *otherRB = other->obj->get_component<Rigidbody>())
                 {
-                    //otherRB->velocity += ;
                 }
                 body->obj->position += data.dir;
                 // temporary workaround for gravity

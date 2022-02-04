@@ -38,6 +38,5 @@ class Mesh
         Mesh(const Mesh&) = delete;
         void operator=(const Mesh&) = delete;
 
-        //static Mesh* from_obj(const std::string &path);
         static AssetRef<Mesh> from_obj(const std::string &path);
 };

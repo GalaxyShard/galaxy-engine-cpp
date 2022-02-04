@@ -2,7 +2,6 @@
 #include <debug.hpp>
 #include <internalinit.hpp>
 #include <Renderer/buffer.hpp>
-//#include <Renderer/internal.hpp>
 #include <UI/uiobject.hpp>
 
 #include <Galaxy/event.hpp>
@@ -36,7 +35,6 @@ namespace
     INTERNAL_INIT_FUNC(init);
 
     auto preRender = std::make_unique<Event>();
-    //auto duringSimulation = std::make_unique<Event>();
     auto postSimulation = std::make_unique<Event>();
     auto postRender = std::make_unique<Event>();
 }
@@ -78,6 +76,7 @@ void Renderer::bind_material(Material *mat)
         else if (type == Uniform::INT) glUniform1i(i, val.i);
         else if (type == Uniform::MAT4x4) glUniformMatrix4fv(i, 1, false, val.m4x4.transpose().value_ptr());
         else assert(false); // Case not implemented
+        //else throw("bind_material: Case not implemented");
         assert(gl_check_errors());
     }
 
@@ -147,12 +146,6 @@ void Renderer::draw(UIText &text)
     float charSize = Math::min(text.scale.x/text.text.size()*2.5f, text.scale.y);
     float textWidth = charSize*text.text.size()/2.5f;
 
-    //Vector2 filteredRatio = text.keepInBounds ? reverseAspect : Vector2(1,1);
-
-    //Vector2 world_pos = text.calc_world_pos()
-    //    + (text.scale/2*Vector2(text.pivot.x, text.pivot.y))*reverseAspect
-    //    + (Vector2(-textWidth, charSize)/2)*reverseAspect
-    //    + (Vector2(-textWidth, -charSize)/2*text.pivot)*reverseAspect;
     Vector2 world_pos = text.calc_world_pos()
         + (text.scale/2*Vector2(text.pivot.x, text.pivot.y)
         + Vector2(-textWidth, charSize)/2
@@ -188,9 +181,7 @@ void Renderer::draw_all(bool fireEvents)
     if (fireEvents)
     {
         preRender->fire();
-        //if (Physics::autoSimulate)
         Physics::simulate();
-        //duringSimulation->fire();
         
         postSimulation->fire();
     }
@@ -240,6 +231,5 @@ void Renderer::draw_all(bool fireEvents)
     if (fireEvents) postRender->fire();
 }
 Signal &Renderer::pre_render() { return *preRender->signal; }
-//Signal &Renderer::during_simulation() { return *duringSimulation->signal; }
 Signal &Renderer::post_simulation() { return *postSimulation->signal; }
 Signal &Renderer::post_render() { return *postRender->signal; }

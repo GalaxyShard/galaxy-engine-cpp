@@ -76,9 +76,9 @@ bool UIImage::is_within(Vector2 pos)
 }
 static void init()
 {
-    squareMesh = Mesh::from_obj(Assets::gasset_path()+"/models/square.obj");
+    squareMesh = Mesh::from_obj(Assets::gpath()+"/models/square.obj");
 
-    tintShader = Shader::load(Assets::gasset_path()+SHADER_FOLDER+"/tint.shader");
-    colShader = Shader::load(Assets::gasset_path()+SHADER_FOLDER+"/color.shader");
+    tintShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/tint.shader");
+    colShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/color.shader");
 }
 INIT_FUNC(init);

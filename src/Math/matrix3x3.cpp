@@ -56,8 +56,6 @@ Vector3 Matrix3x3::operator*(const Vector3 &vb) const
 // Matrix operators
 Matrix3x3 Matrix3x3::operator*(const Matrix3x3 &vb) const
 {
-    //assert(false);
-    //return 0;
     /*
         0   1   2   3
     0  [00, 01, 02, 03]
@@ -139,9 +137,5 @@ Matrix3x3 Matrix3x3::rotate(float x, float y, float z)
     return rotateZ(z) * rotateY(y) * rotateX(x);
 }
 Matrix3x3 Matrix3x3::rotate(Vector3 v) { return rotate(v.x, v.y, v.z); }
-
-//Matrix3x3 Matrix3x3::rotate_around(Vector3 point, Vector3 v)
-//{ return rotate(v.x, v.y, v.z); }
-
 std::ostream& operator<<(std::ostream &os, const Matrix3x3 &v)
 { return os << v[0] << "\n" << v[1] << "\n" << v[2]; }

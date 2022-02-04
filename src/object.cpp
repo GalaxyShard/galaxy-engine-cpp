@@ -1,4 +1,3 @@
-//#include <GLFW/glfw3.h>
 #include <Galaxy/Scene/scene.hpp>
 #include <Galaxy/object.hpp>
 #include <Galaxy/init.hpp>

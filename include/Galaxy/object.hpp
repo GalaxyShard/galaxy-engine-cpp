@@ -33,7 +33,6 @@ public:
 
     Vector3 position, scale = Vector3(1, 1, 1);
     Vector3 rotation;
-    //Quaternion rotation = Quaternion::identity();
 
     void render_order(int order) { renderOrder = order; }
     int render_order() { return renderOrder; }
@@ -61,8 +60,6 @@ public:
         {
             if (T *component = dynamic_cast<T*>(components[i].get()))
                 return component;
-            //if (typeid(components[i].get()) == typeid(T))
-            //    return components[i].get();
         }
         return 0;
     }

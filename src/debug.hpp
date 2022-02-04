@@ -1,6 +1,4 @@
 #pragma once
-//#include <OpenGL/gl3.h>
-//#include <GLES/gl2.h>
 #include <Galaxy/OS/defines.hpp>
 #if OS_MOBILE
     #include <glfm.h>
@@ -18,7 +16,6 @@ static inline bool gl_check_errors()
     {
         errored = 1;
         printf("GL error: %s\n", glErrorStringMap[e]);
-        //std::cout << "GL error: " << glErrorStringMap[e] << std::endl;
     }
     return !errored;
 }

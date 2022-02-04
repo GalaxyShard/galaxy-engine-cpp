@@ -1,7 +1,6 @@
 #pragma once
 #include "keycodes.hpp"
 #include <Galaxy/Math/vector.hpp>
-//#include <>
 typedef void(*input_callback)(bool pressed);
 class Signal;
 
@@ -25,6 +24,5 @@ namespace Input
     void interactive_rebind(const char *bind, void(*onFinish)());
 
     extern Vector2 mousePos, mouseDelta;
-    //extern Event *onTouchEvent;
     SignalT<TouchData>& touch_changed();
 };

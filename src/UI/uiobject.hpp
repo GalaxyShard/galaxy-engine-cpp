@@ -1,24 +1,12 @@
 #pragma once
 #include <vector>
 
-//class UIObject
-//{
-//private:
-//    std::unique_ptr<std::vector<UIObject*>> uiObjects;
-//    friend class Renderer;
-//protected:
-//    unsigned int rendererID;
-//    int renderOrder = 0;
-//public:
-
-//};
 class UIImage;
 class UIText;
 struct UIObject
 {
     static std::unique_ptr<std::vector<UIObject*>> uiObjects;
     void *data;
-    //int typeID; // possibly use
     enum Type { UIIMAGE, UITEXT } type;
 
     unsigned int &renderer_id();

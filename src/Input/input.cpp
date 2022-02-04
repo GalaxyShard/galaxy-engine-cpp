@@ -1,9 +1,7 @@
 #include <string>
-//#include <Galaxy/init.hpp>
 #include <internalinit.hpp>
 #include <Galaxy/Input/input.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
-//#include <Galaxy/UI/canvas.hpp>
 #include <Galaxy/UI/image.hpp>
 #include <unordered_map>
 
@@ -19,28 +17,14 @@ struct InputData
     InputData(const char *bind, KeyCode key, input_callback callback)
         : bind(bind), key(key), callback(callback) { }
 };
-
-//InputData::InputData(const char *bind, KeyCode key, input_callback callback)
-//    : bind(bind), key(key), callback(callback) { }
-
-//extern UIImage *currentHeldImg;
 extern std::unique_ptr<UIImage*[]> heldImages;
 extern int lastTouchID;
 
 
-Vector2 Input::mousePos = Vector2(-1,-1);//, Input::mouseDelta;
+Vector2 Input::mousePos = Vector2(-1,-1);
 auto onTouchEvent = std::make_unique<EventT<TouchData>>();
 namespace
 {
-    //bool is_within(Vector2 a, Vector2 b, Vector2 scale)
-    //{
-    //    Vector2 radius = scale * 0.5f;
-    //    Vector2 bottomLeft = b-radius;
-    //    Vector2 topRight = b+radius;
-
-    //    return Math::within(a.x, bottomLeft.x, topRight.x) && Math::within(a.y, bottomLeft.y, topRight.y);
-    //}
-
     auto lastTouchState = std::make_unique<std::unordered_map<int, TouchData>>();
     auto callbacks = std::make_unique<std::unordered_multimap<KeyCode, InputData>>();
     auto bindMap = std::make_unique<std::unordered_map<const char*, KeyCode>>();
@@ -160,7 +144,6 @@ namespace
     {
         if (action == GLFW_REPEAT) return;
         isMouseHeld = action;
-        //if (button != MouseCode::LEFT) return; // possibly change
         process_click(0, action, mods, Input::mousePos);
         TouchData data = TouchData {
             .id = 0,

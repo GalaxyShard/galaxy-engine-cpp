@@ -11,10 +11,6 @@ struct FileContent
 namespace Assets
 {
     std::string resource_path();
-    std::string asset_path();
-    std::string gasset_path();
-    //std::string path() { return asset_path(); }
-    //std::string gpath() { return gasset_path(); }
     std::string path();
     std::string gpath();
 
@@ -37,10 +33,6 @@ private:
     T *data = 0;
     unsigned short *refCount = 0;
     std::string path;
-
-    //friend class Mesh;
-    //friend class Texture;
-    //friend class Shader;
 public:
     T* get() { return data; }
     bool valid() { return data && (*refCount) != 0; }

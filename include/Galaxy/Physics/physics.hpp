@@ -7,7 +7,6 @@ struct Ray;
 class Physics
 {
 public:
-    //static bool autoSimulate;
     static void raycast(const Ray &ray);
     static void simulate();
 };
@@ -72,7 +71,6 @@ protected:
     Vector3 _pos;
 public:
     Vector3 pos();
-    //void pos(Vector3);
 
     Collider();
     ~Collider() override;
@@ -89,11 +87,8 @@ private:
     Vector3 _scale;
     Vector3 _rotation;
 public:
-    //CubeCollider();
     Vector3 scale();
     Vector3 rotation();
-    //void scale(Vector3);
-    //void rotation(Vector3);
 
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;
@@ -105,9 +100,7 @@ class SphereCollider : public Collider
 private:
     float _radius=0.5;
 public:
-    //SphereCollider();
     float radius();
-    //void radius(float);
 
     CollisionData is_colliding(Collider *other) override;
     RayResult is_colliding(const Ray &other) override;

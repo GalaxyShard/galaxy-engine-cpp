@@ -72,10 +72,6 @@ AssetRef<Shader> Shader::load(const std::string &path)
 {
     if (AssetRef<Shader>::is_loaded(path))
         return AssetRef<Shader>::get_loaded(path);
-    //if (AssetRef<Shader>::loadedAssets->count(&path))
-    //    return *(*AssetRef<Shader>::loadedAssets)[&path];
-    //Shader *shader = new Shader(path);
-    //return AssetRef(shader, path);
     return AssetRef(new Shader(path), path);
 }
 void Shader::bind() { GLCall(glUseProgram(program)); }
@@ -154,6 +150,6 @@ Shader::~Shader()
 
 static void init()
 {
-    fallback = std::make_unique<Shader>(Assets::gasset_path()+SHADER_FOLDER+"/fallback.shader");
+    fallback = std::make_unique<Shader>(Assets::gpath()+SHADER_FOLDER+"/fallback.shader");
 }
 INTERNAL_INIT_FUNC(init);

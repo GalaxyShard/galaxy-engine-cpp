@@ -36,38 +36,3 @@ DEFINE_OP(/);
 
 Vector4::operator Vector2() const { return Vector2(x, y); }
 Vector4::operator Vector3() const { return Vector3(x, y, z); }
-
-//Vector4 Vector4::operator+(const float &v) const
-//{
-//    return Vector4(this->x+v, this->y+v, this->z+v, this->w+v);
-//}
-//Vector4 Vector4::operator-(const float &v) const
-//{
-//    return Vector4(this->x-v, this->y-v, this->z-v, this->w-v);
-//}
-//Vector4 Vector4::operator*(const float &v) const
-//{
-//    return Vector4(this->x*v, this->y*v, this->z*v, this->w*v);
-//}
-//Vector4 Vector4::operator/(const float &v) const
-//{
-//    return Vector4(this->x/v, this->y/v, this->z/v, this->w/v);
-//}
-
-// Vector operators
-//Vector4 Vector4::operator+(const Vector4 &v)
-//{
-//    return Vector4(this->x+v.x, this->y+v.y, this->z+v.z, this->w+v.w);
-//}
-//Vector4 Vector4::operator-(const Vector4 &v)
-//{
-//    return Vector4(this->x-v.x, this->y-v.y, this->z-v.z, this->w-v.w);
-//}
-//Vector4 Vector4::operator*(const Vector4 &v)
-//{
-//    return Vector4(this->x*v.x, this->y*v.y, this->z*v.z, this->w*v.w);
-//}
-//Vector4 Vector4::operator/(const Vector4 &v)
-//{
-//    return Vector4(this->x/v.x, this->y/v.y, this->z/v.z, this->w/v.w);
-//}

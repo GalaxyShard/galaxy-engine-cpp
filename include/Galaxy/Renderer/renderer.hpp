@@ -16,7 +16,6 @@ class Renderer
         static Vector2 aspectRatio, reverseAspect;
 
         static Signal& pre_render();
-        //static Signal& during_simulation();
         static Signal& post_simulation();
         static Signal& post_render();
 

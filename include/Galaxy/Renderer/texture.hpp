@@ -11,7 +11,6 @@ class Texture
         unsigned int rendererID;
         int width, height, bpp; // bpp: bits per pixel
 
-        //void init_texture(unsigned char *localBuffer, DisplayMode displayMode, unsigned int slot);
         void init_texture(unsigned char *localBuffer, DisplayMode displayMode);
         mutable unsigned int selectedSlot = -1U;
     public:

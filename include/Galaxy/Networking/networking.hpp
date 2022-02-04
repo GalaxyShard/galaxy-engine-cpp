@@ -7,7 +7,6 @@
 #include <mutex>
 #include <atomic>
 #include <Galaxy/event.hpp>
-//class Listener;
 
 class NetworkReader
 {
@@ -69,7 +68,6 @@ private:
     ClientStatusCallback joinCallback;
     ClientStatusCallback leaveCallback;
 
-    //unsigned char msgFlags = 0;
     std::deque<std::string> internalMsgs;
     bool isActive = 0;
 
@@ -114,7 +112,6 @@ private:
 
     Client() = default;
     static void client_thread(const char *ip, unsigned short port);
-    //static void client_thread();
     static void pre_render();
 
     friend class Server;

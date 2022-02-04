@@ -12,14 +12,12 @@ struct SceneInfo
     Event onInit;
     Event onDestroy;
 };
-//std::unordered_map<std::string, std::pair<void(*)(), Event>> Scene::sceneEvents;
 std::unordered_map<std::string, SceneInfo> Scene::sceneEvents;
 Scene::Scene(std::string name) : name(name)
 {
     activeScene = this;
     if (sceneEvents.count(name))
     {
-        //auto const [create, init] = sceneEvents[name];
         SceneInfo &info = sceneEvents[name];
         if (info.createCallback) info.createCallback();
 
@@ -40,7 +38,6 @@ Scene::~Scene()
     for (auto &[id, comp] : components)
     {
         comp.destructor(comp.data);
-        //delete comp.data;
     }
     components.clear();
     destroyingScene = 1;
@@ -90,13 +87,10 @@ void Scene::remove_inst(UIGroup *data)
 void Scene::on_init(std::string name, void(*func)())
 {
     sceneEvents[name].onInit.signal->connect_int(func);
-    //sceneEvents[name].second.signal->connect_int(func);
 }
 void Scene::set_create_callback(std::string name, void(*func)())
 {
     sceneEvents[name].createCallback = func;
-    //sceneEvents[name].
-    //sceneEvents[name].first = func;
 }
 void Scene::on_destroy(std::string name, void(*func)())
 {
