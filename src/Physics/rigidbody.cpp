@@ -3,6 +3,23 @@
 
 std::vector<Rigidbody*> Rigidbody::allRigidbodies;
 std::vector<Collider*> Collider::allColliders;
+RayResult Physics::raycast(const Ray &ray)
+{
+    RayResult result;
+    result.dist = Math::INF;
+    for (Collider *collider : Collider::allColliders)
+    {
+        RayResult next = collider->is_colliding(ray);
+        if (next.collided && next.dist > 0 && next.dist < result.dist)
+        {
+            result = next;
+            result.object = collider->obj;
+        }
+    }
+    if (result.dist == Math::INF)
+        return RayResult();
+    return result;
+}
 void Physics::simulate()
 {
     const float maxDelta = 0.1f;

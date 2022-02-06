@@ -29,7 +29,7 @@ void Mesh::initialize_mesh()
     layout.add_attribute({AttributeType::FLOAT, 2}); // texCoords
     varray->add_layout(layout);
 
-    
+    calculate_bounds();
 }
 Mesh::~Mesh() = default; // for smart ptr
 void Mesh::refresh_mesh()
@@ -37,6 +37,23 @@ void Mesh::refresh_mesh()
     varray->bind();
     vbuffer->update_data(verts.data(), sizeof(Vertex)*verts.size());
     ibuffer->update_data(tris.data(), tris.size());
+}
+void Mesh::calculate_bounds()
+{
+    aabbMin = Vector3(Math::INF, Math::INF, Math::INF);
+    aabbMax = Vector3(Math::NEGINF, Math::NEGINF, Math::NEGINF);
+    using std::min; using std::max;
+    for (int i = 0; i < verts.size(); ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            aabbMin[j] = min(aabbMin[j], verts[i].pos[j]);
+            aabbMax[j] = max(aabbMax[j], verts[i].pos[j]);
+        }
+    }
+}
+void Mesh::calculate_normals()
+{
 }
 static vector<std::string> split_str(const std::string &str, const char c)
 {

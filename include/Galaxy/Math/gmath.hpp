@@ -19,6 +19,7 @@ namespace Math
     float min(float a, float b);
     float max(float a, float b);
     float clamp(float v, float min, float max);
+    inline float sqr(float v) { return v*v; }
 
     template<typename T>
     bool within(T v, T min, T max) { return v >= min && v <= max; }

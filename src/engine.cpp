@@ -56,9 +56,12 @@ static bool init_glfw()
         return 0;
     }
     glfwMakeContextCurrent(window);
-    glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height)
+    glfwSetWindowRefreshCallback(window, [](GLFWwindow* window)
     {
-        Renderer::fix_aspect(width, height);
+        int w, h;
+        glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
+        Time::update_delta();
+        Renderer::fix_aspect(w, h);
         Renderer::draw_all(1);
         glfwSwapBuffers(window);
     });
@@ -68,9 +71,7 @@ static bool init_glfw()
 #endif
 static void redraw()
 {
-    Renderer::clear();
     Time::update_delta();
-
     Renderer::draw_all(true);
 
     SWAP_BUFFERS();

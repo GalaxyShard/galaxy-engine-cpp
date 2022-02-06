@@ -17,7 +17,6 @@
 #include <Galaxy/UI/group.hpp>
 
 #include <Galaxy/Physics/physics.hpp>
-
 namespace
 {
     void init()
@@ -28,9 +27,9 @@ namespace
         #else
             glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
         #endif
-        Renderer::fix_aspect(w, h);
 
         Camera::main->projection = Matrix4x4::ortho(-1.f, 1.f, -1.f, 1.f, -100000.f, 100000.f, 0);
+        Renderer::fix_aspect(w, h);
     }
     INTERNAL_INIT_FUNC(init);
 
@@ -38,6 +37,7 @@ namespace
     auto postSimulation = std::make_unique<Event>();
     auto postRender = std::make_unique<Event>();
 }
+void(*Renderer::fixProjection)();
 int Renderer::screenWidth, Renderer::screenHeight;
 Vector2 Renderer::aspectRatio, Renderer::reverseAspect;
 
@@ -60,6 +60,9 @@ void Renderer::fix_aspect(int w, int h)
 #if OS_MOBILE
     GLCall(glViewport(0, 0, w, h));
 #endif
+    if (fixProjection)
+        fixProjection();
+    
 }
 void Renderer::bind_material(Material *mat)
 {
@@ -189,6 +192,7 @@ void Renderer::draw_all(bool fireEvents)
     if (Camera::main->isPerspective)
     {
         GLCall(glEnable(GL_DEPTH_TEST));
+        GLCall(glDisable(GL_BLEND));
     }
     if (Object::sortObjects)
     {
@@ -203,13 +207,18 @@ void Renderer::draw_all(bool fireEvents)
         }
         Object::sortObjects = 0;
     }
+    clear();
     for (Object *obj : *Object::allObjects) draw(*obj);
 
 /*
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
 */
     GLCall(glClear(GL_DEPTH_BUFFER_BIT));
-    GLCall(glDisable(GL_DEPTH_TEST));
+    if (Camera::main->isPerspective)
+    {
+        GLCall(glDisable(GL_DEPTH_TEST));
+        GLCall(glEnable(GL_BLEND))
+    }
     
     auto &uiObjs = UIObject::uiObjects;
     if (UIObject::sortObjects)

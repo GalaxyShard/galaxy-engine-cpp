@@ -4,10 +4,11 @@
 #include <unordered_map>
 
 struct Ray;
+struct RayResult;
 class Physics
 {
 public:
-    static void raycast(const Ray &ray);
+    static RayResult raycast(const Ray &ray);
     static void simulate();
 };
 class Rigidbody : public ObjComponent

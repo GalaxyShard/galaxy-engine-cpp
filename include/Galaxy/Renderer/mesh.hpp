@@ -27,9 +27,12 @@ class Mesh
     public:
         std::vector<Vertex> verts;
         std::vector<unsigned int> tris;
+        Vector3 aabbMin, aabbMax;
 
         void initialize_mesh();
         void refresh_mesh();
+        void calculate_bounds();
+        void calculate_normals();
 
         Mesh();
         Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris);

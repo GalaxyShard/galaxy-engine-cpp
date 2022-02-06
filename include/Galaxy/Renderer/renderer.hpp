@@ -14,6 +14,7 @@ class Renderer
     public:
         static int screenWidth, screenHeight;
         static Vector2 aspectRatio, reverseAspect;
+        static void(*fixProjection)();
 
         static Signal& pre_render();
         static Signal& post_simulation();
