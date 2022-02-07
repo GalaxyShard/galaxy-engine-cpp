@@ -12,9 +12,10 @@ struct Vertex
 {
     Vector3 pos;
     Vector2 texCoord;
+    Vector3 normal;
     Vertex() { }
     Vertex(float x, float y, float z) : pos(x, y, z) { }
-    Vertex(Vector3 pos, Vector2 texCoord = Vector2()) : pos(pos), texCoord(texCoord) { }
+    Vertex(Vector3 pos, Vector2 texCoord = Vector2(), Vector3 normal = Vector3()) : pos(pos), texCoord(texCoord), normal(normal) { }
 };
 class Mesh
 {

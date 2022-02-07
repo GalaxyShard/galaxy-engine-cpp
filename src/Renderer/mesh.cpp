@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-using std::vector;
+//using std::vector;
 Mesh::Mesh() { } // for smart ptr
-Mesh::Mesh(vector<Vertex> verts, vector<unsigned int> tris) : verts(verts), tris(tris)
+Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris) : verts(verts), tris(tris)
 {
     initialize_mesh();
 }
@@ -27,6 +27,7 @@ void Mesh::initialize_mesh()
     auto layout = VertexLayout();
     layout.add_attribute({AttributeType::FLOAT, 3}); // pos
     layout.add_attribute({AttributeType::FLOAT, 2}); // texCoords
+    layout.add_attribute({AttributeType::FLOAT, 3}); // normals
     varray->add_layout(layout);
 
     calculate_bounds();
@@ -55,9 +56,9 @@ void Mesh::calculate_bounds()
 void Mesh::calculate_normals()
 {
 }
-static vector<std::string> split_str(const std::string &str, const char c)
+static std::vector<std::string> split_str(const std::string &str, const char c)
 {
-    vector<std::string> split;
+    std::vector<std::string> split;
     std::string temp;
     std::stringstream ss = std::stringstream(str);
 
@@ -82,7 +83,17 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
     std::string line;
     int smoothOn = -1;
 
-    vector<Vector2> texCoords;
+    std::vector<Vector2> texCoords;
+    std::vector<Vector3> normals, vertices;
+    //std::vector<int> triangles;
+    struct Face
+    {
+        int triangle[3] = {-1,-1,-1};
+        int uv[3] = {-1,-1,-1};
+        int normal[3] = {-1,-1,-1};
+    };
+    std::vector<Face> faces;
+
     while(std::getline(stream, line))
     {
         const char &c0 = line[0];
@@ -94,10 +105,11 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
         case 'v':
         {
             const char &c1 = line[1];
-            vector<std::string> v = split_str(line, ' ');
+            std::vector<std::string> v = split_str(line, ' ');
             if (c1 == ' ') // vertex
             {
-                mesh->verts.push_back(Vertex(
+                //mesh->verts.push_back(Vertex(
+                vertices.push_back(Vector3(
                     std::stof(v[1]),
                     std::stof(v[2]),
                     std::stof(v[3])));
@@ -109,45 +121,77 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
                     std::stof(v[2])));
             }
             else if (c1 == 'n') // normals
-            {}
+            {
+                normals.push_back(Vector3(
+                    std::stof(v[1]),
+                    std::stof(v[2]),
+                    std::stof(v[3])
+                ));
+            }
             break;
         }
         case 'f': // face
         {
-            vector<std::string> tris = split_str(line, ' ');
+            std::vector<std::string> tris = split_str(line, ' ');
             tris.erase(tris.begin());
-            if (tris.size() > 3)
+            if (tris.size() != 3)
             {
                 // TODO: triangulate
                 assert(false);
             }
+            Face face;
+            int i = 0;
             for (auto str : tris)
             {
-                vector<std::string> vert_tex_norm = split_str(str, '/');
-                // no texcoords or normals, possibly calculate normals automatically
+                std::vector<std::string> vert_tex_norm = split_str(str, '/');
+                // no uvs or normals, possibly calculate normals automatically
                 if (vert_tex_norm.size() == 1)
                 {
-                    mesh->tris.push_back(std::stoi(str)-1);
+                    face.triangle[i] = std::stoi(str)-1;
+                    //mesh->tris.push_back(std::stoi(str)-1);
+                    //triangles.push_back(std::stoi(str)-1);
                 }
                 else
                 {
                     auto vert = vert_tex_norm[0];
                     int vertIndex = std::stoi(vert)-1;
-                    mesh->tris.push_back(vertIndex);
+                    face.triangle[i] = vertIndex;
+                    //mesh->tris.push_back(vertIndex);
+                    //triangles.push_back(vertIndex);
                     
                     auto tex = vert_tex_norm[1];
                     if (!tex.empty())
                     {
                         int uvIndex = std::stoi(tex)-1;
-                        if (mesh->verts[vertIndex].texCoord != texCoords[uvIndex])
-                        {
-                            assert(mesh->verts[vertIndex].texCoord == Vector2(0,0));
-                            mesh->verts[vertIndex].texCoord = texCoords[uvIndex];
-                        }
+                        face.uv[i] = uvIndex;
+                        //if (mesh->verts[vertIndex].texCoord != texCoords[uvIndex])
+                        //{
+                            //assert(mesh->verts[vertIndex].texCoord == Vector2(0,0));
+                            //mesh->verts[vertIndex].texCoord = texCoords[uvIndex];
+                        //}
+                        //mesh->verts[vertIndex].texCoord = texCoords[uvIndex];
+                    }
+                    if (vert_tex_norm.size() < 3)
+                    {
+                        ++i;
+                        continue;
+                    }
+                    auto normal = vert_tex_norm[2];
+                    if (!normal.empty())
+                    {
+                        int normalIndex = std::stoi(normal)-1;
+                        face.normal[i] = normalIndex;
+                        //if (mesh->verts[vertIndex].normal != normal[normalIndex])
+                        //{
+                            //assert(mesh->verts[vertIndex].normal == Vector3(0,0,0));
+                            //mesh->verts[vertIndex].normal = normals[normalIndex];
+                        //}
+                        //mesh->verts[vertIndex].normal = normals[normalIndex];
                     }
                 }
+                ++i;
             }
-
+            faces.push_back(face);
             break;
         }
         case 's': // smoothing
@@ -156,6 +200,24 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
         default:
             break;
         }
+    }
+    int i = 0;
+    for (auto &face : faces)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            Vertex vert = Vertex(vertices[face.triangle[j]]);
+            if (face.uv[j] != -1) vert.texCoord = texCoords[face.uv[j]];
+            if (face.normal[j] != -1) vert.normal = normals[face.normal[j]];
+            int vertIndex = mesh->verts.size();
+            mesh->verts.push_back(vert);
+            mesh->tris.push_back(vertIndex);
+
+            // todo: fix ordering
+            //mesh->tris.push_back(face.triangle[j]);
+            //mesh->tris.push_back(i+j);
+        }
+        ++i;
     }
 }
 AssetRef<Mesh> Mesh::from_obj(const std::string &path)

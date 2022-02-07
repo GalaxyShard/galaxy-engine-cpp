@@ -108,6 +108,7 @@ void Renderer::draw(Object &obj)
         * Matrix4x4::translate(-Camera::main->position);
 
     shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
+    shader.set_uniform_mat4x4("u_model", model);
 
     bind_material(obj.material);
     if (tex)
