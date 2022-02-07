@@ -43,6 +43,7 @@ set(ENGINE_SRC
     src/UI/text.cpp
     src/UI/uiobject.cpp
 
+    src/callback.cpp
     src/object.cpp
     src/engine.cpp
     src/init.cpp

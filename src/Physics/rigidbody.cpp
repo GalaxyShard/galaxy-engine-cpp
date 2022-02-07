@@ -56,6 +56,7 @@ void Physics::simulate()
         if (!collider)
             continue;
         
+        collider->refresh();
         for (Collider *other : Collider::allColliders)
         {
             if (other == collider)
@@ -65,8 +66,13 @@ void Physics::simulate()
             {
                 if (Rigidbody *otherRB = other->obj->get_component<Rigidbody>())
                 {
+                    Vector3 dir = data.dir*0.5;
+                    otherRB->obj->position += -dir;
+                    body->obj->position += dir;
+                    other->refresh();
                 }
-                body->obj->position += data.dir;
+                else body->obj->position += data.dir;
+                collider->refresh();
                 // temporary workaround for gravity
                 if (data.dir.y > 0)
                     body->velocity.y = -0.1f;

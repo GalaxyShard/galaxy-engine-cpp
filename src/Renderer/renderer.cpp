@@ -33,11 +33,11 @@ namespace
     }
     INTERNAL_INIT_FUNC(init);
 
+    auto aspectChanged = std::make_unique<Event>();
     auto preRender = std::make_unique<Event>();
     auto postSimulation = std::make_unique<Event>();
     auto postRender = std::make_unique<Event>();
 }
-void(*Renderer::fixProjection)();
 int Renderer::screenWidth, Renderer::screenHeight;
 Vector2 Renderer::aspectRatio, Renderer::reverseAspect;
 
@@ -60,8 +60,9 @@ void Renderer::fix_aspect(int w, int h)
 #if OS_MOBILE
     GLCall(glViewport(0, 0, w, h));
 #endif
-    if (fixProjection)
-        fixProjection();
+    aspectChanged->fire();
+    //if (aspe)
+    //    aspectRatioChanged();
     
 }
 void Renderer::bind_material(Material *mat)
@@ -239,6 +240,7 @@ void Renderer::draw_all(bool fireEvents)
     }
     if (fireEvents) postRender->fire();
 }
+Signal &Renderer::aspect_ratio_changed() { return *aspectChanged->signal; }
 Signal &Renderer::pre_render() { return *preRender->signal; }
 Signal &Renderer::post_simulation() { return *postSimulation->signal; }
 Signal &Renderer::post_render() { return *postRender->signal; }

@@ -1,28 +1,13 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include <Galaxy/callback.hpp>
 struct Listener;
-class EmptyClass{};
-
 class Signal final
 {
 private:
     typedef void (*empty_func)();
-    typedef void (EmptyClass::*empty_member)();
-    struct EmptyFunc
-    {
-        void *inst=0;
-        union
-        {
-            empty_func voidFunc;
-            struct
-            {
-                empty_member classFunc;
-                void (*memberLambda)(void *inst, empty_member classFunc);
-            };
-        };
-    };
-    std::unordered_map<int, EmptyFunc> listeners;
+    std::unordered_map<int, Callback> listeners;
     std::vector<int> eraseQueue;
     int nextID = 0;
 
@@ -33,14 +18,7 @@ public:
     int connect_int(T *inst, void(T::*func)())
     {
         int id = nextID;
-        typedef void(T::*member_func)();
-        listeners.insert(std::make_pair(id, EmptyFunc{
-            .classFunc = reinterpret_cast<empty_member>(func),
-            .memberLambda=[](void *inst, empty_member classFunc)
-            { (((T*)inst)->*(reinterpret_cast<member_func>(classFunc)))(); },
-
-            .inst=inst
-        }));
+        listeners.insert(std::make_pair(id, Callback(inst, func)));
         ++nextID;
         return id;
     }
@@ -89,22 +67,8 @@ class SignalT final
 {
 private:
     typedef void (*signal_func)(T data);
-    typedef void (EmptyClass::*signal_member)(T data);
-    struct SignalFunc
-    {
-        void *inst=0;
-        union
-        {
-            signal_func voidFunc;
-            struct
-            {
-                signal_member classFunc;
-                void (*memberLambda)(void *inst, signal_member classFunc, T data);
-            };
-        };
-    };
     int nextID = 0;
-    std::unordered_map<int, SignalFunc> listeners;
+    std::unordered_map<int, ArgCallback<T>> listeners;
     std::vector<int> eraseQueue;
 
     friend class EventT<T>;

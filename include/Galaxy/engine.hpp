@@ -1,7 +1,8 @@
 #pragma once
+#include "callback.hpp"
+#include "event.hpp"
 #include "init.hpp"
 #include "object.hpp"
-#include "event.hpp"
 
 #include "Assets/assets.hpp"
 #include "Audio/audio.hpp"

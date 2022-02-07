@@ -1,9 +1,9 @@
 
 template<typename T>
-int SignalT<T>::connect_int(SignalT<T>::signal_func func)
+int SignalT<T>::connect_int(signal_func func)
 {
     int id = nextID;
-    listeners.insert(std::make_pair(id, SignalFunc{.voidFunc=func}));
+    listeners.insert(std::make_pair(id, ArgCallback<T>(func)));
     ++nextID;
     return id;
 }
@@ -12,13 +12,7 @@ template <typename U>
 int SignalT<T>::connect_int(U *inst, void(U::*func)(T data))
 {
     int id = nextID;
-    typedef void(U::*member_func)(T data);
-    listeners.insert(std::make_pair(id, SignalFunc{
-        .classFunc=reinterpret_cast<signal_member>(func),
-        .memberLambda=[](void *inst, signal_member classFunc, T data)
-        { (((U*)inst)->*(reinterpret_cast<member_func>(classFunc)))(data); },
-        .inst=inst
-    }));
+    listeners.insert(std::make_pair(id, ArgCallback<T>(inst, func)));
     ++nextID;
     return id;
 }
@@ -45,8 +39,7 @@ void EventT<T>::fire(T data) const
     signal->eraseQueue.clear();
     for (auto &&[id, listener] : signal->listeners)
     {
-        if (listener.inst) listener.memberLambda(listener.inst, listener.classFunc, data);
-        else listener.voidFunc(data);
+        listener(data);
     }
 }
 

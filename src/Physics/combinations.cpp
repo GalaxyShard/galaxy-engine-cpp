@@ -37,6 +37,7 @@ void get_points(std::vector<Vector3> &p, CubeCollider *cube)
     for (int i = 0; i < 8; ++i)
         p[i] += cube->pos();
 }
+#include <iostream>
 CollisionData sphere_cube_collision(SphereCollider *sphere, CubeCollider *cube)
 {
     Vector3 localSpherePos = Matrix3x3::rotate(cube->rotation()).transpose()*((sphere->pos() - cube->pos()));
@@ -48,8 +49,16 @@ CollisionData sphere_cube_collision(SphereCollider *sphere, CubeCollider *cube)
     Vector3 offset = localSpherePos - closest;
     if (offset.sqr_magnitude() < sqr(sphere->radius()))
     {
-        Vector3 mtv = offset.unit()*(sphere->radius() - offset.magnitude());
-        return CollisionData(Matrix3x3::rotate(cube->rotation())*mtv);
+        // Check for zero vector
+        if (offset.sqr_magnitude() > 0.001f)
+        {
+            Vector3 mtv = offset.unit()*(sphere->radius() - offset.magnitude());
+            return CollisionData(Matrix3x3::rotate(cube->rotation())*mtv);
+        }
+        else
+        {
+            return CollisionData();
+        }
     }
     return CollisionData();
 }
