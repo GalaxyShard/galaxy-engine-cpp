@@ -11,9 +11,14 @@ Callback::Callback(T *inst, void (T::*func)())
 
 
 template<typename U>
+ArgCallback<U>::ArgCallback()
+{
+    raw.voidFunc = 0;
+}
+template<typename U>
 ArgCallback<U>::ArgCallback(void (*func)(U))
 {
-    raw.voidFunc = reinterpret_cast<raw_func>(func);
+    raw.voidFunc = func;
 }
 template<typename U>
 template<typename T>
@@ -30,7 +35,5 @@ template<typename U>
 void ArgCallback<U>::operator()(U arg)
 {
     if (raw.inst) raw.memberLambda(raw.inst, raw.classFunc, arg);
-    else raw.voidFunc(arg);
-    //if (raw.inst) (reinterpret_cast<void(*)(void*, member, U)>(raw.memberLambda))(raw.inst, raw.classFunc, arg);
-    //else (reinterpret_cast<func>(raw.voidFunc))(arg);
+    else if (raw.voidFunc) raw.voidFunc(arg);
 }

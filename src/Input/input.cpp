@@ -8,6 +8,8 @@
 #include <debug.hpp>
 #include <iostream>
 
+template class ArgCallback<bool>;
+
 struct InputData
 {
     const char *bind;
@@ -34,8 +36,8 @@ namespace
 
         for (auto i = iterator.first; i != iterator.second; ++i)
         {
-            if (i->second.callback != nullptr)
-                i->second.callback(action);
+            //if (i->second.callback != nullptr)
+            i->second.callback(action);
         }
     }
     const KeyCode exitRebindKey = KeyCode::Escape;
@@ -170,6 +172,11 @@ namespace
         }
     }
 #endif
+}
+
+void Input::add_bind(const char *bind, KeyCode key)
+{
+    add_bind(bind, key, input_callback());
 }
 void Input::add_bind(const char *bind, KeyCode key, input_callback callback)
 {

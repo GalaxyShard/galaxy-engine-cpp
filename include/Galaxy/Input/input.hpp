@@ -1,7 +1,9 @@
 #pragma once
 #include "keycodes.hpp"
 #include <Galaxy/Math/vector.hpp>
-typedef void(*input_callback)(bool pressed);
+#include <Galaxy/callback.hpp>
+//typedef void(*input_callback)(bool pressed);
+typedef ArgCallback<bool> input_callback;
 class Signal;
 
 template<typename T>
@@ -17,6 +19,7 @@ struct TouchData
 
 namespace Input
 {
+    void add_bind(const char *bind, KeyCode key);
     void add_bind(const char *bind, KeyCode key, input_callback callback);
     void remove_bind(const char *bind);
     bool is_held(const char *bind);

@@ -21,6 +21,7 @@ class Callback
 private:
     RawCallback raw;
 public:
+    Callback();
     Callback(void (*func)());
     template<typename T>
     Callback(T *inst, void (T::*func)());
@@ -57,6 +58,7 @@ private:
     RawArgCallback<U> raw;
     //RawCallback raw;
 public:
+    ArgCallback();
     ArgCallback(void (*func)(U));
     template<typename T>
     ArgCallback(T *inst, void (T::*func)(U));
