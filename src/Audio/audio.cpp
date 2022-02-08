@@ -26,6 +26,28 @@ int to_native_endian32(char *buffer, Endian endian = LITTLE)
     }
     return *(int*)buffer;
 }
+void read_until_found(std::ifstream &stream, const char *dataStr, char *buffer)
+{
+    int foundLetters = 0;
+    //const char *dataStr = "data";
+    while(1)
+    {
+        stream.read(buffer, 1);
+        if (!stream)
+            throw("Failed to find data chunk");
+        if (foundLetters)
+        {
+            if (buffer[0] == dataStr[foundLetters])
+            {
+                ++foundLetters;
+                if (foundLetters == 4)
+                    break;
+            }
+            else foundLetters = 0;
+        }
+        if (buffer[0] == dataStr[0]) foundLetters = 1;
+    }
+}
 std::vector<char> load_wav(const std::string &path, char *channels, int *sampleRate, char *bitsPerSample)
 {
     
@@ -53,10 +75,7 @@ std::vector<char> load_wav(const std::string &path, char *channels, int *sampleR
 
 
     // Format chunk
-    if (!stream.read(buffer, 4))
-        throw("Failed to read (fmt )");
-    if (strncmp(buffer, "fmt ", 4))
-        throw("Invalid file (no fmt )");
+    read_until_found(stream, "fmt ", buffer);
     
     // Format chunk size (16 for PCM)
     stream.ignore(4);
@@ -86,27 +105,28 @@ std::vector<char> load_wav(const std::string &path, char *channels, int *sampleR
     memcpy(bitsPerSample, buffer, 1);
 
     // "data"
-    {
-        int foundLetters = 0;
-        const char *dataStr = "data";
-        while(1)
-        {
-            stream.read(buffer, 1);
-            if (!stream)
-                throw("Failed to find data chunk");
-            if (foundLetters)
-            {
-                if (buffer[0] == dataStr[foundLetters])
-                {
-                    ++foundLetters;
-                    if (foundLetters == 4)
-                        break;
-                }
-                else foundLetters = 0;
-            }
-            if (buffer[0] == 'd') foundLetters = 1;
-        }
-    }
+    read_until_found(stream, "data", buffer);
+    //{
+    //    int foundLetters = 0;
+    //    const char *dataStr = "data";
+    //    while(1)
+    //    {
+    //        stream.read(buffer, 1);
+    //        if (!stream)
+    //            throw("Failed to find data chunk");
+    //        if (foundLetters)
+    //        {
+    //            if (buffer[0] == dataStr[foundLetters])
+    //            {
+    //                ++foundLetters;
+    //                if (foundLetters == 4)
+    //                    break;
+    //            }
+    //            else foundLetters = 0;
+    //        }
+    //        if (buffer[0] == 'd') foundLetters = 1;
+    //    }
+    //}
     if (!stream.read(buffer, 4))
         throw("Failed to read (size)");
     int dataSize = to_native_endian32(buffer);

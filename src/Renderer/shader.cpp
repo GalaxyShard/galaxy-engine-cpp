@@ -94,6 +94,7 @@ unsigned int Shader::create_program()
         #if OS_MOBILE
             glBindAttribLocation(program, 0, "pos");
             glBindAttribLocation(program, 1, "texCoord");
+            glBindAttribLocation(program, 2, "normal");
         #endif
         GLCall(glLinkProgram(program));
         

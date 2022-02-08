@@ -96,9 +96,10 @@ void Renderer::draw(Object &obj)
     
     Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(reverseAspect.x, reverseAspect.y, 1);
 
+    Matrix4x4 rotation = Matrix4x4::rotate(obj.rotation);
     Matrix4x4 model =
         Matrix4x4::translate(obj.position * filteredAspect)
-        * Matrix4x4::rotate(obj.rotation)
+        * rotation
         * Matrix4x4::scale(obj.scale * filteredAspect);
 
 
@@ -107,10 +108,12 @@ void Renderer::draw(Object &obj)
     Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
         * Matrix4x4::translate(-Camera::main->position);
 
-    shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
-    shader.set_uniform_mat4x4("u_model", model);
 
     bind_material(obj.material);
+    shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
+    shader.set_uniform_mat4x4("u_model", model);
+    shader.set_uniform_mat4x4("u_rotation", rotation);
+    shader.set_uniform3f("u_camPos", Camera::main->position);
     if (tex)
     {
         tex->bind();
