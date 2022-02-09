@@ -11,9 +11,9 @@ CollisionData::CollisionData() : dir(), isColliding(0) { }
 Vector3 Collider::pos() { return _pos; }
 bool Collider::aabb_test(Collider *other)
 {
-    // Equivalent to above (todo: test)
     return !(((other->aabbMin.x >= aabbMax.x) || (aabbMin.x >= other->aabbMax.x))
-        && ((other->aabbMin.y >= aabbMax.y) || (aabbMin.y >= other->aabbMax.y)));
+        && ((other->aabbMin.y >= aabbMax.y) || (aabbMin.y >= other->aabbMax.y))
+        && ((other->aabbMin.z >= aabbMax.z) || (aabbMin.z >= other->aabbMax.z)));
 }
 void get_local_points(std::vector<Vector3> &p, CubeCollider *cube)
 {

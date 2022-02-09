@@ -64,7 +64,7 @@ CollisionData SphereCollider::is_colliding(Collider *other)
         float totalRadius = _radius + sphere->_radius;
 
         if (sqrMag <= sqr(totalRadius))
-            return CollisionData(dir* (sqrtf(sqrMag)-totalRadius));
+            return CollisionData(dir * (totalRadius-sqrtf(sqrMag)));
         return CollisionData();
     }
     else if (auto cube = dynamic_cast<CubeCollider*>(other))

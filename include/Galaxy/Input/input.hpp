@@ -23,6 +23,7 @@ namespace Input
     void add_bind(const char *bind, KeyCode key, input_callback callback);
     void remove_bind(const char *bind);
     bool is_held(const char *bind);
+    void trigger(const char *bind, bool isPressed);
     void rebind(const char *bind, KeyCode newKey);
     void interactive_rebind(const char *bind, void(*onFinish)());
 
