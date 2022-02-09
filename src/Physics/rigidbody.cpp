@@ -1,6 +1,23 @@
 #include <Galaxy/Physics/physics.hpp>
 #include <Galaxy/Math/time.hpp>
-
+template <typename T>
+void insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b))
+{
+    for (int i = 1; i < array.size(); ++i)
+    {
+        if (predicate(array[i], array[i-1]))
+        {
+            int element = array[i];
+            int j = i-1;
+            while (j >= 0 && predicate(element, array[j]))
+            {
+                array[j+1] = array[j];
+                --j;
+            }
+            array[j+1] = element;
+        }
+    }
+}
 std::vector<Rigidbody*> Rigidbody::allRigidbodies;
 std::vector<Collider*> Collider::allColliders;
 RayResult Physics::raycast(const Ray &ray)

@@ -79,23 +79,29 @@ namespace
         lastTouchID = touchID;
         if (action)
         {
-            UIImage *img = image_in_pos(pos);
+            UIImage *img = image_in_pos(pos); 
             if (img)
             {
                 heldImages[touchID] = img;
-                if (img->onTouchDown) img->onTouchDown();
+                //img->handler(TOUCH_DOWN);
+                if (img->onTouchDown)
+                    img->onTouchDown();
             }
         }
         else if (heldImages[touchID])
         {
             UIImage *&img = heldImages[touchID];
-            if (img->onTouchUp) img->onTouchUp();
+            //img->handler(TOUCH_UP);
+            if (img->onTouchUp)
+                img->onTouchUp();
             
             // check incase image was deleted inside onTouchUp
             if (img && img->onClick)
+            //if (img)
             {
                 if (img->is_within(pos))
                 {
+                    //img->handler(CLICK);
                     img->onClick();
                 }
             }

@@ -7,6 +7,10 @@ class Shader;
 class Mesh;
 class Scene;
 class UIGroup;
+//template <typename T>
+//class ArgCallback;
+
+//enum ImageState { NONE, TOUCH_DOWN, TOUCH_UP, CLICK };
 
 class UIImage
 {
@@ -32,6 +36,10 @@ public:
     Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
     Vector4 tint = Vector4(1, 1, 1, 1);
 
+    //ArgCallback<ImageState> handler;
+    //Callback onTouchDown;
+    //Callback onTouchUp;
+    //Callback onClick;
     // onTouchDown is called on left click if the cursor is over the image
     void(*onTouchDown)() = 0;
 
