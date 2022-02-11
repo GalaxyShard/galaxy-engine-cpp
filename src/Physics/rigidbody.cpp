@@ -37,14 +37,14 @@ RayResult Physics::raycast(const Ray &ray)
         return RayResult();
     return result;
 }
-void Physics::simulate()
+void Physics::simulate(float delta)
 {
-    const float maxDelta = 0.1f;
+    //const float maxDelta = 0.1f;
     
-    static double lastTime = Time::get();
-    float delta = Time::get() - lastTime;
-    if (delta > maxDelta) delta = maxDelta;
-    lastTime = Time::get();
+    //static double lastTime = Time::get();
+    //float delta = Time::get() - lastTime;
+    //if (delta > maxDelta) delta = maxDelta;
+    //lastTime = Time::get();
 /*
     https://www.toptal.com/game/video-game-physics-part-i-an-introduction-to-rigid-body-dynamics
     Moment of Inertia Tensor
@@ -65,11 +65,12 @@ void Physics::simulate()
     // Simulate rigidbodies
     for (Rigidbody *&body : Rigidbody::allRigidbodies)
     {
-        Collider *collider = body->obj->get_component<Collider>();
+        body->add_acceleration(Vector3(0,-9.81f,0)*Time::delta);
         body->obj->position += body->velocity * delta;
         if (!body->freezeRotation)
             body->obj->rotation += body->angularVelocity;
         
+        Collider *collider = body->obj->get_component<Collider>();
         if (!collider)
             continue;
         

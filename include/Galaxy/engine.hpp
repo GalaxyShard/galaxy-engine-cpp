@@ -6,6 +6,7 @@
 
 #include "Assets/assets.hpp"
 #include "Audio/audio.hpp"
+#include "ECS/ecs.hpp"
 #include "Input/input.hpp"
 
 #include "Math/gmath.hpp"

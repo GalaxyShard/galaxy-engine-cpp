@@ -2,6 +2,7 @@
 set(ENGINE_SRC
     src/Assets/asset.cpp
     src/Audio/audio.cpp
+    src/ECS/ecs.cpp
     src/External/stb_image_init.cpp
     src/Input/input.cpp
 

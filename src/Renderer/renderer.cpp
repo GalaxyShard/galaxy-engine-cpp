@@ -17,6 +17,7 @@
 #include <Galaxy/UI/group.hpp>
 
 #include <Galaxy/Physics/physics.hpp>
+#include <Galaxy/Math/time.hpp>
 namespace
 {
     void init()
@@ -189,7 +190,7 @@ void Renderer::draw_all(bool fireEvents)
     if (fireEvents)
     {
         preRender->fire();
-        Physics::simulate();
+        Physics::simulate(Time::delta);
         
         postSimulation->fire();
     }

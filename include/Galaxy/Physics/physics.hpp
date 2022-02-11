@@ -9,7 +9,7 @@ class Physics
 {
 public:
     static RayResult raycast(const Ray &ray);
-    static void simulate();
+    static void simulate(float delta);
 };
 class Rigidbody : public ObjComponent
 {
