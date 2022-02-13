@@ -87,3 +87,12 @@ void Entity::remove_comp(ECSManager &manager)
             value -= 1;
     }
 }
+template<typename T>
+T& Entity::get_comp(ECSManager &manager)
+{
+    EntityData &self = manager.entities[id];
+    if (!(self.components & manager.comp_mask<T>()))
+        throw("Component does not exist on entity");
+    T &comp = *(T*)(&self.raw[self.indices[manager.comp_id<T>()]]);
+    return comp;
+}

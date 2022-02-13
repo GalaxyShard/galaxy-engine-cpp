@@ -1,4 +1,4 @@
-#include <Galaxy/event.hpp>
+#include <Galaxy/Events/event.hpp>
 
 //void Signal::FastVectorInt::push_back(int element)
 //{

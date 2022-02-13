@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include <Galaxy/event.hpp>
+#include <Galaxy/Events/event.hpp>
 #include <Galaxy/Math/matrix.hpp>
 class Shader;
 class Material;

@@ -6,7 +6,7 @@
 #include <deque>
 #include <mutex>
 #include <atomic>
-#include <Galaxy/event.hpp>
+#include <Galaxy/Events/event.hpp>
 
 class NetworkReader
 {

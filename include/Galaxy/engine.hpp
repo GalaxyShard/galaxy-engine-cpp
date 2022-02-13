@@ -1,12 +1,15 @@
 #pragma once
-#include "callback.hpp"
-#include "event.hpp"
 #include "init.hpp"
 #include "object.hpp"
+#include "print.hpp"
 
 #include "Assets/assets.hpp"
 #include "Audio/audio.hpp"
 #include "ECS/ecs.hpp"
+
+#include "Events/callback.hpp"
+#include "Events/event.hpp"
+
 #include "Input/input.hpp"
 
 #include "Math/gmath.hpp"

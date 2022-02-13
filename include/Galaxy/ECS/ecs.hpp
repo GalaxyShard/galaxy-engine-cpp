@@ -53,6 +53,9 @@ struct Entity
 
     static Entity create(ECSManager &manager);
     void destroy(ECSManager &manager);
+
+    template<typename T>
+    T& get_comp(ECSManager &manager);
 };
 //class BaseSystem { };
 template<typename... Args>

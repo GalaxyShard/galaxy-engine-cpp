@@ -4,7 +4,7 @@
 #include <Renderer/buffer.hpp>
 #include <UI/uiobject.hpp>
 
-#include <Galaxy/event.hpp>
+#include <Galaxy/Events/event.hpp>
 #include <Galaxy/object.hpp>
 
 #include <Galaxy/Renderer/shader.hpp>

@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include <Galaxy/callback.hpp>
+#include <Galaxy/Events/callback.hpp>
 struct Listener;
 class Signal final
 {

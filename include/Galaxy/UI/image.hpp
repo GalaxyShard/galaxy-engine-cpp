@@ -1,6 +1,6 @@
 #pragma once
 #include <Galaxy/Renderer/texture.hpp>
-#include <Galaxy/event.hpp>
+#include <Galaxy/Events/event.hpp>
 #include <vector>
 
 class Shader;
