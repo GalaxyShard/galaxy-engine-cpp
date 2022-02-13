@@ -1,4 +1,4 @@
-#include <debug.hpp>
+#include <gldebug.hpp>
 #ifdef DEBUG
 #include <unordered_map>
 std::unordered_map<int, const char*> glErrorStringMap =

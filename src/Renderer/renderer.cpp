@@ -1,5 +1,5 @@
 #include <Galaxy/Renderer/renderer.hpp>
-#include <debug.hpp>
+#include <gldebug.hpp>
 #include <internalinit.hpp>
 #include <Renderer/buffer.hpp>
 #include <UI/uiobject.hpp>

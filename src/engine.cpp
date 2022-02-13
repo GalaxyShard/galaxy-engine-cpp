@@ -6,7 +6,7 @@
 #include <string>
 
 #include <iostream>
-#include <debug.hpp>
+#include <gldebug.hpp>
 /*
 Rendering APIs
 

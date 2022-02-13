@@ -1,5 +1,5 @@
 #include <Renderer/buffer.hpp>
-#include <debug.hpp>
+#include <gldebug.hpp>
 VertexBuffer::VertexBuffer(const void *data, unsigned int size, bool isStatic)
 {
     GLCall(glGenBuffers(1, &rendererID));

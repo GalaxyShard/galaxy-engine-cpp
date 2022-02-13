@@ -1,5 +1,5 @@
 #include <Renderer/buffer.hpp>
-#include <debug.hpp>
+#include <gldebug.hpp>
 IndexBuffer::IndexBuffer(const unsigned int *data, unsigned int count, bool isStatic)
 {
     indexCount = count;

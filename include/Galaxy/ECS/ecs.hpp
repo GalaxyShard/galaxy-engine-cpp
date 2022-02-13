@@ -17,7 +17,6 @@ struct EntityData
 class ECSManager
 {
 private:
-
     std::vector<EntityData> entities;
     std::queue<EntityID> availableIDs;
     
@@ -27,7 +26,9 @@ private:
     friend struct Entity;
 public:
 
-    template<typename T, typename... Args>
+    //template<typename T, typename... Args>
+    //void reg_sys();
+    template<typename T>
     void reg_sys();
 
     template<typename T>
@@ -36,9 +37,9 @@ public:
     unsigned int sys_id();
 
     template<typename T>
-    ComponentMask comp_flag();
+    ComponentMask comp_mask();
     template<typename T>
-    SystemMask sys_flag();
+    SystemMask sys_mask();
 };
 struct Entity
 {
@@ -52,5 +53,14 @@ struct Entity
 
     static Entity create(ECSManager &manager);
     void destroy(ECSManager &manager);
+};
+//class BaseSystem { };
+template<typename... Args>
+class System
+{
+    friend class ECSManager;
+public:
+    static ComponentMask mask(ECSManager &manager);
+    void run();
 };
 #include "ecs.inl"

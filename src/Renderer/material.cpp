@@ -1,7 +1,7 @@
 #include <Galaxy/Renderer/material.hpp>
 #include <Galaxy/Renderer/shader.hpp>
 #include <Galaxy/Renderer/texture.hpp>
-#include <debug.hpp>
+#include <gldebug.hpp>
 
 Material::Material(Shader *shader) : shader(shader) { }
 void Material::set_uniform(const char *uniform, Uniform value)

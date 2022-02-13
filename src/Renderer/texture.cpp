@@ -2,7 +2,7 @@
 #include <Galaxy/Renderer/material.hpp>
 #include <Galaxy/Renderer/shader.hpp>
 #include <Galaxy/Assets/assets.hpp>
-#include <debug.hpp>
+#include <gldebug.hpp>
 #include <External/stb_image.h>
 #include <unordered_map>
 

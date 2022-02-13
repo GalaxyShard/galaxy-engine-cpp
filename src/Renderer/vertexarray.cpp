@@ -1,5 +1,5 @@
 #include <Renderer/buffer.hpp>
-#include <debug.hpp>
+#include <gldebug.hpp>
 
 extern std::unordered_map<AttributeType, int> typeToBytes;
 VertexArray::VertexArray()

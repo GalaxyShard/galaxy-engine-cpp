@@ -1,5 +1,5 @@
 #include <Galaxy/Math/time.hpp>
-#include <debug.hpp>
+#include <gldebug.hpp>
 #include <chrono>
 double Time::get()
 {

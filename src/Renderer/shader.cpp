@@ -9,7 +9,7 @@
 #include <Galaxy/Math/matrix.hpp>
 
 #include <iostream>
-#include <debug.hpp>
+#include <gldebug.hpp>
 namespace
 {
     

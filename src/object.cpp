@@ -3,7 +3,7 @@
 #include <Galaxy/init.hpp>
 
 #include <iostream>
-#include <debug.hpp>
+#include <gldebug.hpp>
 auto Object::allObjects = std::make_unique<std::vector<Object*>>();
 bool Object::sortObjects = 0;
 

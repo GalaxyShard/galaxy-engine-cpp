@@ -5,7 +5,7 @@
 #include <Galaxy/UI/image.hpp>
 #include <unordered_map>
 
-#include <debug.hpp>
+#include <gldebug.hpp>
 #include <iostream>
 
 template class ArgCallback<bool>;
