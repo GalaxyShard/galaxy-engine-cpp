@@ -22,9 +22,7 @@ struct InputData
 extern std::unique_ptr<UIImage*[]> heldImages;
 extern int lastTouchID;
 
-
 Vector2 Input::mousePos = Vector2(-1,-1);
-//auto onTouchEvent = std::make_unique<EventT<TouchData>>();
 auto onTouchEvent = EventT<TouchData>();
 namespace
 {
@@ -33,13 +31,8 @@ namespace
     auto bindMap = std::unordered_map<const char*, KeyCode>();
     auto lastKeyStates = std::unordered_map<KeyCode, bool>();
     
-    
-    //auto lastTouchState = std::make_unique<std::unordered_map<int, TouchData>>();
-    //auto callbacks = std::make_unique<std::unordered_multimap<KeyCode, InputData>>();
-    //auto bindMap = std::make_unique<std::unordered_map<const char*, KeyCode>>();
     void process_key(KeyCode key, bool action, int mods)
     {
-        //auto iterator = callbacks->equal_range(key);
         if (lastKeyStates[key] == action)
             return;
         
@@ -51,15 +44,21 @@ namespace
             i->second.callback(action);
         }
     }
-    const KeyCode exitRebindKey = KeyCode::Escape;
-    void (*onRebindFinish)();
+    //KeyCode exitRebindKey = KeyCode::Escape;
+    bool (*onRebindFinish)(KeyCode key);
     const char *changingBind;
 
     void process_key_rebind(KeyCode key)
     {
-        if (key != exitRebindKey) Input::rebind(changingBind, key);
-        if (onRebindFinish) onRebindFinish();
+        //if (key != exitRebindKey) Input::rebind(changingBind, key);
+        //if (onRebindFinish) onRebindFinish();
         
+        if (onRebindFinish)
+        {
+            if (onRebindFinish(key))
+                Input::rebind(changingBind, key);
+        }
+        else Input::rebind(changingBind, key);
         onRebindFinish = nullptr;
     }
     UIImage *image_in_pos(Vector2 pos)
@@ -83,7 +82,6 @@ namespace
             if (img)
             {
                 heldImages[touchID] = img;
-                //img->handler(TOUCH_DOWN);
                 if (img->onTouchDown)
                     img->onTouchDown();
             }
@@ -91,17 +89,14 @@ namespace
         else if (heldImages[touchID])
         {
             UIImage *&img = heldImages[touchID];
-            //img->handler(TOUCH_UP);
             if (img->onTouchUp)
                 img->onTouchUp();
             
             // check incase image was deleted inside onTouchUp
             if (img && img->onClick)
-            //if (img)
             {
                 if (img->is_within(pos))
                 {
-                    //img->handler(CLICK);
                     img->onClick();
                 }
             }
@@ -136,17 +131,12 @@ namespace
             .pos = Input::mousePos,
             .state = state
         };
-        //if (lastTouchState->count(touch))
         if (lastTouchState.count(touch))
         {
             data.delta = data.pos - lastTouchState[touch].pos;
             data.startPos = lastTouchState[touch].startPos;
-            //data.delta = data.pos - (*lastTouchState)[touch].pos;
-            //data.startPos = (*lastTouchState)[touch].startPos;
         }
         else { data.startPos = data.pos; }
-        //(*lastTouchState)[touch] = data;
-        //onTouchEvent->fire(data);
         lastTouchState[touch] = data;
         onTouchEvent.fire(data);
         return 1;
@@ -175,7 +165,6 @@ namespace
             .startPos = Input::mousePos,
             .state = action ? PRESSED : RELEASED
         };
-        //(*lastTouchState)[data.id] = data;
         lastTouchState[data.id] = data;
         onTouchEvent.fire(data);
     }
@@ -192,15 +181,6 @@ namespace
             };
             lastTouchState[data.id] = data;
             onTouchEvent.fire(data);
-            //TouchData data = TouchData {
-            //    .id = 0,
-            //    .pos = Input::mousePos,
-            //    .delta = Input::mousePos - (*lastTouchState)[data.id].pos,
-            //    .startPos = (*lastTouchState)[data.id].startPos,
-            //    .state = MOVED
-            //};
-            //(*lastTouchState)[data.id] = data;
-            //onTouchEvent->fire(data);
         }
     }
 #endif
@@ -212,20 +192,18 @@ void Input::add_bind(const char *bind, KeyCode key)
 }
 void Input::add_bind(const char *bind, KeyCode key, input_callback callback)
 {
-    //if (bindMap->count(bind) == 1)
     if (bindMap.count(bind) == 1)
     {
         fprintf(stderr, "WARNING: bind \'%s\' is already used\n", bind);
         return;
     }
-    //callbacks->insert(std::make_pair(key, InputData(bind, key, callback)));
-    //bindMap->insert(std::make_pair(bind, key));
     callbacks.insert(std::make_pair(key, InputData(bind, key, callback)));
     bindMap.insert(std::make_pair(bind, key));
 }
 void Input::remove_bind(const char *bind)
 {
-    //auto it = callbacks->equal_range((*bindMap)[bind]);
+    if (!bindMap.count(bind))
+        return;
     auto it = callbacks.equal_range(bindMap[bind]);
     for (auto i = it.first; i != it.second; ++i)
     {
@@ -233,8 +211,6 @@ void Input::remove_bind(const char *bind)
         {
             callbacks.erase(i);
             bindMap.erase(bind);
-            //callbacks->erase(i);
-            //bindMap->erase(bind);
             return;
         }
     }
@@ -242,12 +218,6 @@ void Input::remove_bind(const char *bind)
 bool Input::is_held(const char *bind)
 {
     return lastKeyStates[bindMap[bind]];
-//#if OS_MOBILE
-//    return 0;
-//#else
-//    //return glfwGetKey(glfwGetCurrentContext(), (*bindMap)[bind]) == GLFW_PRESS;
-//    return glfwGetKey(glfwGetCurrentContext(), bindMap[bind]) == GLFW_PRESS;
-//#endif
 }
 void Input::trigger(const char *bind, bool action)
 {
@@ -268,19 +238,17 @@ void Input::trigger(const char *bind, bool action)
 }
 void Input::rebind(const char *bind, KeyCode newKey)
 {
-    //auto it = callbacks->equal_range((*bindMap)[bind]);
     auto it = callbacks.equal_range(bindMap[bind]);
     for (auto i = it.first; i != it.second; ++i)
     {
         if (i->second.bind == bind)
         {
             i->second.key = newKey;
-            //(*bindMap)[bind] = newKey;
             bindMap[bind] = newKey;
         }
     }
 }
-void Input::interactive_rebind(const char *bind, void(*onFinish)())
+void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
 {
     changingBind = bind;
     onRebindFinish = onFinish;
@@ -291,7 +259,6 @@ void Input::interactive_rebind(const char *bind, void(*onFinish)())
     glfwSetKeyCallback(glfwGetCurrentContext(), &rebind_callback);
 #endif
 }
-//SignalT<TouchData>& Input::touch_changed() { return *onTouchEvent->signal; }
 SignalT<TouchData>& Input::touch_changed() { return *onTouchEvent.signal; }
 static void init()
 {

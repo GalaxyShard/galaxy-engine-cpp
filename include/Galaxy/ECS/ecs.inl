@@ -10,11 +10,37 @@ ComponentMask comp_mask(ECSManager &manager)
 //    ComponentMask bits = comp_mask<Args...>(*this);
 //}
 template<typename T>
-void ECSManager::reg_sys()
+T* ECSManager::reg_sys()
 {
-    //static_assert(std::is_base_of<System<>, T>::value, "Class must inherit System");
-    ComponentMask mask = T::mask(*this);
+    static_assert(std::is_base_of<SystemBase, T>::value, "Class must inherit System");
 
+    ComponentMask mask = T::mask(*this);
+    systems.push_back(std::unique_ptr<SystemBase>(new T()));
+    T *system = (T*)systems[systems.size()-1].get();
+    system->compMask = mask;
+    for (auto &entity : entities)
+    {
+        if ((mask & entity.components) == mask)
+        {
+            //system->_entities.push_back(Entity{entity.id});
+            system->_entities.insert(entity.id);
+            entity.systemsContaining.push_back(system);
+        }
+    }
+    return system;
+}
+template<typename T>
+T* ECSManager::get_sys()
+{
+    static_assert(std::is_base_of<SystemBase, T>::value, "Class must inherit System");
+    for (auto &system : systems)
+    {
+        if (T *sys = dynamic_cast<T*>(system.get()))
+        {
+            return sys;
+        }
+    }
+    return 0;
 }
 template<typename T>
 unsigned int ECSManager::comp_id()
@@ -46,15 +72,19 @@ SystemMask ECSManager::sys_mask()
     return mask;
 }
 
-template<typename... Args>
-ComponentMask System<Args...>::mask(ECSManager &manager)
+template<typename T, typename... Args>
+ComponentMask System<T, Args...>::mask(ECSManager &manager)
 {
     return ::comp_mask<Args...>(manager);
 }
-template<typename... Args>
-void System<Args...>::run()
+template<typename T, typename... Args>
+void System<T, Args...>::run(void (T::*func)(Args&...), ECSManager &manager)
 {
-
+    for (auto &id : _entities)
+    {
+        Entity e = Entity{id};
+        (((T*)this)->*func)(e.get_comp<Args>(manager)...);
+    }
 }
 
 template<typename T>
@@ -65,11 +95,27 @@ void Entity::add_comp(T data, ECSManager &manager)
         throw("Already added component to entity");
 
     int index = self.raw.size();
-    self.raw.push_back(std::vector<unsigned char>(sizeof(T)));
-    self.raw[index].resize(sizeof(T));
-    memcpy(self.raw[index].data(), &data, sizeof(T));
+    self.raw.resize(self.raw.size()+sizeof(T));
+    memcpy(&self.raw[index], &data, sizeof(T));
+    //self.rawIndices.push_back(index);
+    //self.raw.push_back(std::vector<unsigned char>(sizeof(T)));
+    //self.raw[index].resize(sizeof(T));
+    //memcpy(self.raw[index].data(), &data, sizeof(T));
     self.indices[manager.comp_id<T>()] = index;
     self.components |= manager.comp_mask<T>();
+
+    for (auto &system : manager.systems)
+    {
+        ComponentMask mask = system->compMask;
+        if ((mask & self.components) == mask)
+        {
+            if (!system->_entities.count(id))
+            {
+                system->_entities.insert(id);
+                self.systemsContaining.push_back(system.get());
+            }
+        }
+    }
 }
 template<typename T>
 void Entity::remove_comp(ECSManager &manager)
@@ -80,11 +126,23 @@ void Entity::remove_comp(ECSManager &manager)
     self.components &= ~manager.comp_mask<T>();
     int index = self.indices[manager.comp_id<T>()];
 
-    self.raw.erase(self.raw.begin()+index);
+    auto startIter = self.raw.begin()+index;
+    self.raw.erase(startIter, startIter+sizeof(T));
+    self.indices.erase(manager.comp_id<T>());
+
+//
+    //self.raw.erase(self.raw.begin()+index);
     for (auto &[key, value] : self.indices)
     {
         if (value > index)
-            value -= 1;
+            value -= sizeof(T);
+            //value -= 1;
+    }
+
+    for (auto &system : self.systemsContaining)
+    {
+        if ((system->compMask & self.components) != system->compMask)
+            system->_entities.erase(id);
     }
 }
 template<typename T>
@@ -93,6 +151,7 @@ T& Entity::get_comp(ECSManager &manager)
     EntityData &self = manager.entities[id];
     if (!(self.components & manager.comp_mask<T>()))
         throw("Component does not exist on entity");
-    T &comp = *(T*)(&self.raw[self.indices[manager.comp_id<T>()]]);
+    //T &comp = *(T*)self.raw[self.indices[manager.comp_id<T>()]].data();
+    T &comp = *(T*)&self.raw[self.indices[manager.comp_id<T>()]];
     return comp;
 }

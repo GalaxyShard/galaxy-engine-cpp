@@ -11,7 +11,7 @@ void print_overload(std::vector<T> &obj)
     int size = obj.size()-1;
     for (int i = 0; i < size; ++i)
         std::cout << obj[i] << ", ";
-    std::cout << obj[size+1];
+    std::cout << obj[size];
 }
 template <unsigned int I, typename... Args>
 inline std::enable_if_t<I == sizeof...(Args)> print_element(const std::string &format, std::tuple<Args...> &args, int index)
