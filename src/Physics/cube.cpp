@@ -79,14 +79,25 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         Matrix3x3 rot0 = Matrix3x3::rotate(_rotation);
         Matrix3x3 rot1 = Matrix3x3::rotate(cube->_rotation);
 
-        Vector3 axes[6]; // normals
-        axes[0] = rot0*Vector3(0,1,0);
-        axes[1] = rot0*Vector3(0,0,-1);
-        axes[2] = rot0*Vector3(1,0,0);
-
-        axes[3] = rot1*Vector3(0,1,0);
-        axes[4] = rot1*Vector3(0,0,-1);
-        axes[5] = rot1*Vector3(1,0,0);
+        //constexpr int NUM_AXES = 15;
+        //Vector3 axes[NUM_AXES]; // normals
+        //axes[0] = rot0*Vector3(0,1,0);
+        //axes[1] = rot0*Vector3(0,0,1);
+        //axes[2] = rot0*Vector3(1,0,0);
+//
+        //axes[3] = rot1*Vector3(0,1,0);
+        //axes[4] = rot1*Vector3(0,0,1);
+        //axes[5] = rot1*Vector3(1,0,0);
+//
+        //axes[6] = Vector3::cross(, );
+        //axes[7] = Vector3::cross(, );
+        //axes[8] = Vector3::cross(, );
+        //axes[9] = Vector3::cross(, );
+        //axes[10] = Vector3::cross(, );
+        //axes[11] = Vector3::cross(, );
+        //axes[12] = Vector3::cross(, );
+        //axes[13] = Vector3::cross(, );
+        //axes[14] = Vector3::cross(, );
 
         float minDot[2], maxDot[2];
         std::vector<Vector3> points[2];
@@ -96,18 +107,19 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         // direction & length 'this' has to move in order to not collide with 'cube'
         Vector3 mtv;
         float mtvMag = Math::INF;
-        // Axes
-        for (int i = 0; i < 6; ++i)
+        
+        int timesCalled = 0;
+        auto testAxis = [&](Vector3 axis)
         {
             // Cube points
             for (int j = 0; j < 2; ++j)
             {
-                minDot[j] = Vector3::dot(points[j][0], axes[i]);
+                minDot[j] = Vector3::dot(points[j][0], axis);
                 maxDot[j] = minDot[j];
                 // Projections
                 for (int k = 1; k < points[j].size(); ++k)
                 {
-                    float product = Vector3::dot(points[j][k], axes[i]);
+                    float product = Vector3::dot(points[j][k], axis);
                     if (minDot[j] > product)
                         minDot[j] = product;
                     
@@ -126,18 +138,103 @@ CollisionData CubeCollider::is_colliding(Collider *other)
             if ((minDot[1]>=maxDot[0])
                 || (minDot[0]>=maxDot[1]))
             {
-                return CollisionData();
+                return false;
+                //return CollisionData();
             }
             else
             {
+                if (timesCalled > 5)
+                    return true;
                 float overlap = (maxDot[0] < maxDot[1]) ? (minDot[1]-maxDot[0]) : -(minDot[0]-maxDot[1]);
                 if (abs(mtvMag) > abs(overlap))
                 {
                     mtvMag = overlap;
-                    mtv = axes[i]*(mtvMag);
+                    mtv = axis*(mtvMag);
                 }
             }
-        }
+            ++timesCalled;
+            return true;
+        };
+        #pragma region    Axis tests
+
+        Vector3 up0 = rot0*Vector3(0,1,0);
+        if (!testAxis(up0))
+            return CollisionData();
+        Vector3 right0 = rot0*Vector3(1,0,0);
+        if (!testAxis(right0))
+            return CollisionData();
+        Vector3 forward0 = rot0*Vector3(0,0,1);
+        if (!testAxis(forward0))
+            return CollisionData();
+
+        Vector3 up1 = rot1*Vector3(0,1,0);
+        if (!testAxis(up1))
+            return CollisionData();
+        Vector3 right1 = rot1*Vector3(1,0,0);
+        if (!testAxis(right1))
+            return CollisionData();
+        Vector3 forward1 = rot1*Vector3(0,0,1);
+        if (!testAxis(forward1))
+            return CollisionData();
+        
+        // causes errors
+        //if (!testAxis(Vector3::cross(up0, up1))
+        //    || !testAxis(Vector3::cross(up0, right1))
+        //    || !testAxis(Vector3::cross(up0, forward1))
+        //    || !testAxis(Vector3::cross(right0, up1))
+        //    || !testAxis(Vector3::cross(right0, right1))
+        //    || !testAxis(Vector3::cross(right0, forward1))
+        //    || !testAxis(Vector3::cross(forward0, up1))
+        //    || !testAxis(Vector3::cross(forward0, right1))
+        //    || !testAxis(Vector3::cross(forward0, forward1)))
+        //    return CollisionData();
+
+        #pragma endregion
+
+
+        // Axes
+        //for (int i = 0; i < NUM_AXES; ++i)
+        //{
+        //    // Cube points
+        //    for (int j = 0; j < 2; ++j)
+        //    {
+        //        minDot[j] = Vector3::dot(points[j][0], axes[i]);
+        //        maxDot[j] = minDot[j];
+        //        // Projections
+        //        for (int k = 1; k < points[j].size(); ++k)
+        //        {
+        //            float product = Vector3::dot(points[j][k], axes[i]);
+        //            if (minDot[j] > product)
+        //                minDot[j] = product;
+                    //
+        //            if (maxDot[j] < product)
+        //                maxDot[j] = product;
+        //        }
+        //    }
+        //    /*
+        //        tests
+        //        <-min0--max0----min1--max1----> 0   correct
+        //        <-min0--min1----max0--max1----> 1   correct
+        //        <-min1--max1----min0--max0----> 0   correct
+        //        <-min1--min0----max1--max0----> 1   correct
+        //    */
+        //    // Use projections
+        //    if ((minDot[1]>=maxDot[0])
+        //        || (minDot[0]>=maxDot[1]))
+        //    {
+        //        return CollisionData();
+        //    }
+        //    else
+        //    {
+        //        float overlap = (maxDot[0] < maxDot[1]) ? (minDot[1]-maxDot[0]) : -(minDot[0]-maxDot[1]);
+        //        if (abs(mtvMag) > abs(overlap))
+        //        {
+        //            mtvMag = overlap;
+        //            mtv = axes[i]*(mtvMag);
+        //        }
+        //    }
+        //}
+        
         return CollisionData(mtv);
     }
     if (auto sphere = dynamic_cast<SphereCollider*>(other))
