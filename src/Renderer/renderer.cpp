@@ -20,6 +20,7 @@
 #include <Galaxy/Math/time.hpp>
 namespace
 {
+    RendererSystem *renderSystem;
     void init()
     {
         int w, h;
@@ -31,6 +32,8 @@ namespace
 
         Camera::main->projection = Matrix4x4::ortho(-1.f, 1.f, -1.f, 1.f, -100000.f, 100000.f, 0);
         Renderer::fix_aspect(w, h);
+        
+        renderSystem = ECSManager::main->reg_sys<RendererSystem>();
     }
     INTERNAL_INIT_FUNC(init);
 
@@ -62,17 +65,16 @@ void Renderer::fix_aspect(int w, int h)
     GLCall(glViewport(0, 0, w, h));
 #endif
     aspectChanged->fire();
-    //if (aspe)
-    //    aspectRatioChanged();
     
 }
-void Renderer::bind_material(Material *mat)
+
+void Renderer::bind_uniforms(std::__1::unordered_map<int, Uniform> &uniforms)
 {
-    for (const auto &v : mat->uniforms)
+    for (const auto &[i, uniform] : uniforms)
     {
-        const int i = v.first;
-        auto &val = v.second.value;
-        auto &type = v.second.type;
+        //const int i = v.first;
+        auto &val = uniform.value;
+        auto &type = uniform.type;
 
         if (type == Uniform::FLOAT) glUniform1f(i, val.v);
         else if (type == Uniform::VEC2) glUniform2fv(i, 1, &val.v2.x);
@@ -80,10 +82,49 @@ void Renderer::bind_material(Material *mat)
         else if (type == Uniform::VEC4) glUniform4fv(i, 1, &val.v4.x);
         else if (type == Uniform::INT) glUniform1i(i, val.i);
         else if (type == Uniform::MAT4x4) glUniformMatrix4fv(i, 1, false, val.m4x4.transpose().value_ptr());
-        else assert(false); // Case not implemented
-        //else throw("bind_material: Case not implemented");
-        assert(gl_check_errors());
+        else assert(false && "Case not implemented");
+        GLCall();
     }
+
+}
+void Renderer::bind_material(Material *mat)
+{
+    bind_uniforms(mat->uniforms);
+}
+void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
+{
+    renderer.mesh->varray->bind();
+    Material &mat = *renderer.mat;
+    Shader &shader = *mat.shader;
+    Texture *tex = renderer.mainTex;
+    shader.bind();
+
+    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(Renderer::reverseAspect.x, Renderer::reverseAspect.y, 1);
+
+    Matrix4x4 rotation = Matrix4x4::rotate(transform.rotation);
+    Matrix4x4 model =
+        Matrix4x4::translate(transform.pos * filteredAspect)
+        * rotation
+        * Matrix4x4::scale(transform.scale * filteredAspect);
+
+    // Rotate camera after translating
+    // The transpose of a rotation is equal to the inverse
+    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
+        * Matrix4x4::translate(-Camera::main->position);
+
+
+    //Renderer::bind_uniforms(renderer.persistantUniforms);
+    Renderer::bind_material(renderer.mat);
+    shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
+    shader.set_uniform_mat4x4("u_model", model);
+    shader.set_uniform_mat4x4("u_rotation", rotation);
+    shader.set_uniform3f("u_camPos", Camera::main->position);
+    if (tex)
+    {
+        tex->bind();
+        shader.set_uniform1i("u_tex", tex->get_slot());
+    }
+    GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 
 }
 void Renderer::draw(Object &obj)
@@ -215,6 +256,7 @@ void Renderer::draw_all(bool fireEvents)
     }
     clear();
     for (Object *obj : *Object::allObjects) draw(*obj);
+    renderSystem->run(&RendererSystem::draw, *ECSManager::main);
 
 /*
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe

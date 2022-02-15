@@ -16,9 +16,10 @@ set(src_dir ${proj_dir}/src)
 include_directories(${proj_dir}/src)
 include_directories(${proj_dir}/include)
 
-add_definitions(-DDEBUG)
-add_definitions(-DCMAKE_BUILD_TYPE=Debug)
-add_definitions(-g)
+#add_definitions(-DDEBUG)
+#add_definitions(-DCMAKE_BUILD_TYPE=Debug)
+#add_definitions(-g)
+add_definitions(-O3)
 
 add_definitions(-DGL_SILENCE_DEPRECATION)
 add_definitions(-DGLES_SILENCE_DEPRECATION)

@@ -12,7 +12,6 @@ struct Entity;
 class SystemBase
 {
 protected:
-    //std::vector<Entity> _entities;
     std::set<EntityID> _entities;
     ComponentMask compMask;
     friend class ECSManager;
@@ -20,15 +19,10 @@ protected:
 public:
     virtual ~SystemBase() = default;
 };
-//template<typename... Args>
-//class System;
-
 struct EntityData
 {
     std::unordered_map<unsigned int, int> indices;
     std::vector<unsigned char> raw;
-    //std::vector<int> rawIndices;
-    //std::vector<std::vector<unsigned char>> raw;
     EntityID id;
     ComponentMask components;
     std::vector<SystemBase*> systemsContaining;
@@ -45,6 +39,8 @@ private:
 
     friend struct Entity;
 public:
+    static std::unique_ptr<ECSManager> main;
+
     template<typename T>
     T* reg_sys();
 

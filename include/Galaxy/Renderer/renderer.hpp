@@ -1,16 +1,28 @@
 #pragma once
 #include <Galaxy/Math/vector.hpp>
+#include <Galaxy/ECS/ecs.hpp>
 class UIImage;
 class UIText;
 class Signal;
 class Object;
 class Material;
+class ObjRendererECS;
+class TransformECS;
+struct Uniform;
 typedef void (*empty_func)();
+
+class RendererSystem : public System<RendererSystem, ObjRendererECS, TransformECS>
+{
+public:
+    void draw(ObjRendererECS &renderer, TransformECS &transform);
+};
 
 class Renderer
 {
     private:
         static void bind_material(Material *mat);
+        static void bind_uniforms(std::__1::unordered_map<int, Uniform> &uniforms);
+        friend class RendererSystem;
     public:
         static int screenWidth, screenHeight;
         static Vector2 aspectRatio, reverseAspect;

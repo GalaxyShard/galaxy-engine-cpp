@@ -24,6 +24,7 @@ class Mesh
         std::unique_ptr<VertexBuffer> vbuffer;
         std::unique_ptr<IndexBuffer> ibuffer;
         friend class Renderer;
+        friend class RendererSystem;
 
     public:
         std::vector<Vertex> verts;

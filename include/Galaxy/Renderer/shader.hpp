@@ -22,9 +22,9 @@ struct Shader
         void parse(std::istream &stream);
         unsigned int create_program();
 
-        int u_location(const char *uniform);
         friend class Material;
     public:
+        int u_location(const char *uniform);
         void bind();
         void set_uniform3f(const char *uniform, Vector3 v);
         void set_uniform4f(const char *uniform, Vector4 v);

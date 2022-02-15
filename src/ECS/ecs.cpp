@@ -1,5 +1,6 @@
 #include <Galaxy/ECS/ecs.hpp>
 
+auto ECSManager::main = std::make_unique<ECSManager>();
 Entity Entity::create(ECSManager &manager)
 {
     if (manager.availableIDs.size())
@@ -18,7 +19,6 @@ Entity Entity::create(ECSManager &manager)
         if ((mask & self.components) == mask)
         {
             system->_entities.insert(id);
-            //system->_entities.push_back(Entity{id});
             self.systemsContaining.push_back(system.get());
         }
     }
@@ -32,24 +32,5 @@ void Entity::destroy(ECSManager &manager)
     self.components = 0;
 
     for (auto &system : self.systemsContaining)
-    {
         system->_entities.erase(id);
-        //for (int i = 0; i < system->_entities.size(); ++i)
-        //{
-            //if (system->_entities[i].id == id)
-            //{
-                //std::swap(system->_entities[i], system->_entities.back());
-                //system->_entities.pop_back();
-            //}
-        //}
-    }
-    //for (auto &system : manager.systems)
-    //{
-    //    ComponentMask mask = system->compMask;
-    //    if ((mask & self.components) == mask)
-    //    {
-    //        system->_entities.push_back(Entity{id});
-    //        self.systemsContaining.push_back(system.get());
-    //    }
-    //}
 }

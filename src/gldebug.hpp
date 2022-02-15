@@ -6,6 +6,7 @@
 #else
     #include <GLFW/glfw3.h>
 #endif
+#ifdef DEBUG
 #include <unordered_map>
 extern std::unordered_map<int, const char*> glErrorStringMap;
 
@@ -19,7 +20,6 @@ static inline bool gl_check_errors()
     }
     return !errored;
 }
-#ifdef DEBUG
     #define GLCall(v) v; assert(gl_check_errors());
 #else
     #define GLCall(v) v;
