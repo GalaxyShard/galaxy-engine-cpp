@@ -100,6 +100,10 @@ struct Vector4
     bool operator ==(const Vector4 &) const;
     DEFINE_NOT_EQ(Vector4);
 
+    float sqr_magnitude() const;
+    float magnitude() const;
+    Vector4 unit() const;
+
     operator Vector2() const;
     operator Vector3() const;
 

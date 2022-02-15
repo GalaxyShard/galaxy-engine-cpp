@@ -1,5 +1,6 @@
 #include <Galaxy/Math/vector.hpp>
 #include <ostream>
+#include <cmath>
 Vector4::Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) { }
 
 
@@ -33,6 +34,10 @@ DEFINE_OP(/);
 #undef DEFINE_OP
 #undef DEFINE_OP_BASE
 
+float Vector4::sqr_magnitude() const { return x*x + y*y + z*z + w*w; }
+float Vector4::magnitude() const { return std::sqrt(sqr_magnitude()); }
+
+Vector4 Vector4::unit() const { return (*this) / magnitude(); }
 
 Vector4::operator Vector2() const { return Vector2(x, y); }
 Vector4::operator Vector3() const { return Vector3(x, y, z); }

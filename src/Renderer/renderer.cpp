@@ -91,30 +91,25 @@ void Renderer::bind_material(Material *mat)
 {
     bind_uniforms(mat->uniforms);
 }
-static int objectsCulled = 0;
-static bool shouldCull(ObjRendererECS &renderer, TransformECS &transform)
-{
-    // very basic inaccurate frustum culling
-    Vector3 normal = Matrix3x3::rotate(Camera::main->rotation) * Vector3(0,0,-1);
-    Vector3 toWorld = transform.pos - Camera::main->position;
-    if (Vector3::dot(normal, renderer.mesh->aabbMin + toWorld) < 0 
-        && Vector3::dot(normal, renderer.mesh->aabbMax + toWorld) < 0)
-    {
-        ++objectsCulled;
-        return true;
-    }
-    return false;
-}
+//static int objectsCulled = 0;
+//static bool shouldCull(ObjRendererECS &renderer, TransformECS &transform)
+//{
+//    // very basic inaccurate frustum culling
+//    Vector3 normal = Matrix3x3::rotate(Camera::main->rotation) * Vector3(0,0,-1);
+//    Vector3 toWorld = transform.pos - Camera::main->position;
+//    if (Vector3::dot(normal, renderer.mesh->aabbMin + toWorld) < 0 
+//        && Vector3::dot(normal, renderer.mesh->aabbMax + toWorld) < 0)
+//    {
+//        ++objectsCulled;
+//        return true;
+//    }
+//    return false;
+//}
 void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 {
-    if (Camera::main->isPerspective && shouldCull(renderer, transform))
-        return;
-
-    renderer.mesh->varray->bind();
     Material &mat = *renderer.mat;
     Shader &shader = *mat.shader;
     Texture *tex = renderer.mainTex;
-    shader.bind();
 
     Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(Renderer::reverseAspect.x, Renderer::reverseAspect.y, 1);
 
@@ -129,8 +124,77 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
     Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
         * Matrix4x4::translate(-Camera::main->position);
 
+    auto shouldCull = [&]()
+    {
+        // very basic inaccurate frustum culling
+        //Vector3 normal = Matrix3x3::rotate(Camera::main->rotation) * Vector3(0,0,-1);
+        //Vector3 toWorld = transform.pos - Camera::main->position;
+        //if (Vector3::dot(normal, renderer.mesh->aabbMin + toWorld) < 0 
+        //    && Vector3::dot(normal, renderer.mesh->aabbMax + toWorld) < 0)
+        //Matrix4x4 viewProj = (view * Camera::main->projection);
+        Matrix4x4 viewProj = (view * Camera::main->projection).transpose();
+        // left right top bottom near far
+        Vector4 frustumPlanes[6];
+        frustumPlanes[0] = viewProj[3] + viewProj[0];
+        frustumPlanes[1] = viewProj[3] - viewProj[0];
+        frustumPlanes[2] = viewProj[3] - viewProj[1];
+        frustumPlanes[3] = viewProj[3] + viewProj[1];
+        frustumPlanes[4] = viewProj[2];
+        frustumPlanes[5] = viewProj[3] - viewProj[2];
+        for (int i = 0; i < 6; ++i)
+            frustumPlanes[i] = frustumPlanes[i].unit();
+        /*
+        #pragma region
+        frustumPlanes[0] = Vector4(
+            viewProj[0][3] + viewProj[0][0],
+            viewProj[1][3] + viewProj[1][0],
+            viewProj[2][3] + viewProj[2][0],
+            viewProj[3][3] + viewProj[3][0]
+        );
+        frustumPlanes[1] = Vector4(
+            viewProj[0][3] - viewProj[0][0],
+            viewProj[1][3] - viewProj[1][0],
+            viewProj[2][3] - viewProj[2][0],
+            viewProj[3][3] - viewProj[3][0]
+        );
+        frustumPlanes[2] = Vector4(
+            viewProj[0][3] - viewProj[0][1],
+            viewProj[1][3] - viewProj[1][1],
+            viewProj[2][3] - viewProj[2][1],
+            viewProj[3][3] - viewProj[3][1]
+        );
+        frustumPlanes[3] = Vector4(
+            viewProj[0][3] + viewProj[0][1],
+            viewProj[1][3] + viewProj[1][1],
+            viewProj[2][3] + viewProj[2][1],
+            viewProj[3][3] + viewProj[3][1]
+        );
+        frustumPlanes[4] = Vector4(
+            viewProj[0][2],
+            viewProj[1][2],
+            viewProj[2][2],
+            viewProj[3][2]
+        );
+        frustumPlanes[5] = Vector4(
+            viewProj[0][3] - viewProj[0][2],
+            viewProj[1][3] - viewProj[1][2],
+            viewProj[2][3] - viewProj[2][2],
+            viewProj[3][3] - viewProj[3][2]
+        );
+        #pragma endregion
+        //*/
+        if (false)
+        {
+            return true;
+        }
+        return false;
+    };
 
-    //Renderer::bind_uniforms(renderer.persistantUniforms);
+    if (Camera::main->isPerspective && shouldCull())
+        return;
+
+    renderer.mesh->varray->bind();
+    shader.bind();
     Renderer::bind_material(renderer.mat);
     shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
     shader.set_uniform_mat4x4("u_model", model);
@@ -274,9 +338,9 @@ void Renderer::draw_all(bool fireEvents)
     clear();
     for (Object *obj : *Object::allObjects) draw(*obj);
     renderSystem->run(&RendererSystem::draw, *ECSManager::main);
-    if (objectsCulled)
-        printf("Culled: %d\n", objectsCulled);
-    objectsCulled ^= objectsCulled;
+    //if (objectsCulled)
+    //    printf("Culled: %d\n", objectsCulled);
+    //objectsCulled ^= objectsCulled;
     //objectsCulled = 0;
 
 /*
