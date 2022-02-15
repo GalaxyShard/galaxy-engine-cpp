@@ -1,9 +1,14 @@
 #pragma once
-namespace Time
+class Time
 {
-    extern float delta, smoothDelta;
-    double get();
-    double unix_epoch();
+private:
+    static float mDelta, mRawDelta;
+public:
+    static inline float delta();
+    static inline float raw_delta();
+    static inline double get();
+    static inline double unix_epoch();
 
-    void update_delta(); // internal
-}
+    static void update_delta(); // internal
+};
+#include "time.inl"

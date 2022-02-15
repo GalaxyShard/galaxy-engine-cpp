@@ -91,8 +91,25 @@ void Renderer::bind_material(Material *mat)
 {
     bind_uniforms(mat->uniforms);
 }
+static int objectsCulled = 0;
+static bool shouldCull(ObjRendererECS &renderer, TransformECS &transform)
+{
+    // very basic inaccurate frustum culling
+    Vector3 normal = Matrix3x3::rotate(Camera::main->rotation) * Vector3(0,0,-1);
+    Vector3 toWorld = transform.pos - Camera::main->position;
+    if (Vector3::dot(normal, renderer.mesh->aabbMin + toWorld) < 0 
+        && Vector3::dot(normal, renderer.mesh->aabbMax + toWorld) < 0)
+    {
+        ++objectsCulled;
+        return true;
+    }
+    return false;
+}
 void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 {
+    if (Camera::main->isPerspective && shouldCull(renderer, transform))
+        return;
+
     renderer.mesh->varray->bind();
     Material &mat = *renderer.mat;
     Shader &shader = *mat.shader;
@@ -231,7 +248,7 @@ void Renderer::draw_all(bool fireEvents)
     if (fireEvents)
     {
         preRender->fire();
-        Physics::simulate(Time::delta);
+        Physics::simulate(Time::delta());
         
         postSimulation->fire();
     }
@@ -257,6 +274,10 @@ void Renderer::draw_all(bool fireEvents)
     clear();
     for (Object *obj : *Object::allObjects) draw(*obj);
     renderSystem->run(&RendererSystem::draw, *ECSManager::main);
+    if (objectsCulled)
+        printf("Culled: %d\n", objectsCulled);
+    objectsCulled ^= objectsCulled;
+    //objectsCulled = 0;
 
 /*
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
