@@ -108,25 +108,30 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         Vector3 mtv;
         float mtvMag = Math::INF;
         
-        int timesCalled = 0;
+        //int timesCalled = 0;
         auto testAxis = [&](Vector3 axis)
         {
             // Cube points
-            for (int j = 0; j < 2; ++j)
-            {
-                minDot[j] = Vector3::dot(points[j][0], axis);
-                maxDot[j] = minDot[j];
-                // Projections
-                for (int k = 1; k < points[j].size(); ++k)
-                {
-                    float product = Vector3::dot(points[j][k], axis);
-                    if (minDot[j] > product)
-                        minDot[j] = product;
-                    
-                    if (maxDot[j] < product)
-                        maxDot[j] = product;
-                }
-            }
+            min_max_dot(points[0], axis, minDot[0], maxDot[0]);
+            min_max_dot(points[1], axis, minDot[1], maxDot[1]);
+
+            //for (int j = 0; j < 2; ++j)
+            //{
+                //min_max_dot(points[j], axis, minDot[j], maxDot[j]);
+                //minDot[j] = Vector3::dot(points[j][0], axis);
+                //maxDot[j] = minDot[j];
+                //// Projections
+                //for (int k = 1; k < points[j].size(); ++k)
+                //{
+                //    float product = Vector3::dot(points[j][k], axis);
+                //    if (minDot[j] > product)
+                //        minDot[j] = product;
+                    //
+                //    if (maxDot[j] < product)
+                //        maxDot[j] = product;
+                //}
+            //}
+            
             /*
                 tests
                 <-min0--max0----min1--max1----> 0   correct
@@ -139,12 +144,9 @@ CollisionData CubeCollider::is_colliding(Collider *other)
                 || (minDot[0]>=maxDot[1]))
             {
                 return false;
-                //return CollisionData();
             }
             else
             {
-                if (timesCalled > 5)
-                    return true;
                 float overlap = (maxDot[0] < maxDot[1]) ? (minDot[1]-maxDot[0]) : -(minDot[0]-maxDot[1]);
                 if (abs(mtvMag) > abs(overlap))
                 {
@@ -152,7 +154,6 @@ CollisionData CubeCollider::is_colliding(Collider *other)
                     mtv = axis*(mtvMag);
                 }
             }
-            ++timesCalled;
             return true;
         };
         #pragma region    Axis tests

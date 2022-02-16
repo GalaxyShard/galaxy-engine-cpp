@@ -62,3 +62,17 @@ CollisionData sphere_cube_collision(SphereCollider *sphere, CubeCollider *cube)
     }
     return CollisionData();
 }
+void min_max_dot(std::vector<Vector3> &points, Vector3 axis, float &min, float &max)
+{
+    min = Vector3::dot(points[0], axis);
+    max = min;
+    for (Vector3 &point : points)
+    {
+        float product = Vector3::dot(point, axis);
+        if (min > product)
+            min = product;
+        
+        if (max < product)
+            max = product;
+    }
+}
