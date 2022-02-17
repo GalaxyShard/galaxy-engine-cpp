@@ -15,7 +15,7 @@ Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris) : verts(ve
 }
 void Mesh::initialize_mesh()
 {
-    bool isStatic = false; // unimplemented
+    bool isStatic = true;
 
     varray = std::make_unique<VertexArray>();
     vbuffer = std::make_unique<VertexBuffer>(verts.data(), sizeof(Vertex)*verts.size(), isStatic);
