@@ -19,6 +19,8 @@
 #include <Galaxy/Physics/physics.hpp>
 #include <Physics/combinations.hpp>
 #include <Galaxy/Math/time.hpp>
+
+#include <array>
 namespace
 {
     RendererSystem *renderSystem;
@@ -106,194 +108,135 @@ static int objectsCulled = 0;
 //    }
 //    return false;
 //}
+Matrix4x4 add_r_c(Matrix3x3 m)
+{
+    const float *p = m.value_ptr();
+    return Matrix4x4(
+        p[0], p[1], p[2], 0,
+        p[3], p[4], p[5], 0,
+        p[6], p[7], p[8], 0,
+        0,    0,    0,    1
+    );
+}
 void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 {
-    Material &mat = *renderer.mat;
-    Shader &shader = *mat.shader;
-    Texture *tex = renderer.mainTex;
-
-    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(Renderer::reverseAspect.x, Renderer::reverseAspect.y, 1);
-
-    Matrix4x4 rotation = Matrix4x4::rotate(transform.rotation);
-    Matrix4x4 model =
-        Matrix4x4::translate(transform.pos * filteredAspect)
-        * rotation
-        * Matrix4x4::scale(transform.scale * filteredAspect);
+    Matrix3x3 rotation = Matrix3x3::rotate(transform.rotation);
 
     // Rotate camera after translating
     // The transpose of a rotation is equal to the inverse
     Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
         * Matrix4x4::translate(-Camera::main->position);
 
-    Matrix4x4 mvp = Camera::main->projection * view * model;
-    Matrix4x4 viewSpace = (view * model);
-    //auto shouldCull = [&]()
-    //{
-        //Matrix4x4 viewProj = (Camera::main->projection * view);
-        //
-        //    (min.x, min.y, min.z)
-        //    (min.x, max.y, min.z)
-        //    (max.x, min.y, min.z)
-        //    (max.x, max.y, min.z)
-        //    (max.x, max.y, max.z)
-        //    (max.x, min.y, max.z)
-        //    (min.x, max.y, max.z)
-        //    (min.x, min.y, max.z)
-        //    norm_x = rotation*Vector3(1,0,0)
-        //    norm_y = rotation*Vector3(0,1,0)
-        //    norm_z = rotation*Vector3(0,0,1)
-        //*/
-//
-        //
-//
-        // very basic inaccurate frustum culling
-        //Vector3 normal = Matrix3x3::rotate(Camera::main->rotation) * Vector3(0,0,-1);
-        //Vector3 toWorld = transform.pos - Camera::main->position;
-        //if (Vector3::dot(normal, renderer.mesh->aabbMin + toWorld) < 0 
-        //    && Vector3::dot(normal, renderer.mesh->aabbMax + toWorld) < 0)
-        // Transpose to get column vectors instead of row vectors
-        //Matrix4x4 viewProj = (view * Camera::main->projection);
-        //Matrix4x4 toRightHand = Matrix4x4(
-        //    -1,  0,  0,  0,
-        //    0, 1,  0,  0,
-        //    0,  0, 1,  0,
-        //    0,  0,  0,  1
-        //);
-        //Matrix4x4 viewProj = ((toRightHand*view) * (toRightHand*Camera::main->projection)).transpose();
-        //Matrix4x4 viewProj = (view * Camera::main->projection).transpose();
-        //Matrix4x4 viewProj = ((toRightHand*Camera::main->projection) * (toRightHand*view)).transpose();
-        // left right top bottom near far
-        //Vector4 frustumPlanes[6];
-//
-        //
-        //#pragma region
-        //frustumPlanes[0] = Vector4(
-        //    viewProj[0][3] + viewProj[0][0],
-        //    viewProj[1][3] + viewProj[1][0],
-        //    viewProj[2][3] + viewProj[2][0],
-        //    viewProj[3][3] + viewProj[3][0]
-        //);
-        //frustumPlanes[1] = Vector4(
-        //    viewProj[0][3] - viewProj[0][0],
-        //    viewProj[1][3] - viewProj[1][0],
-        //    viewProj[2][3] - viewProj[2][0],
-        //    viewProj[3][3] - viewProj[3][0]
-        //);
-        //frustumPlanes[2] = Vector4(
-        //    viewProj[0][3] - viewProj[0][1],
-        //    viewProj[1][3] - viewProj[1][1],
-        //    viewProj[2][3] - viewProj[2][1],
-        //    viewProj[3][3] - viewProj[3][1]
-        //);
-        //frustumPlanes[3] = Vector4(
-        //    viewProj[0][3] + viewProj[0][1],
-        //    viewProj[1][3] + viewProj[1][1],
-        //    viewProj[2][3] + viewProj[2][1],
-        //    viewProj[3][3] + viewProj[3][1]
-        //);
-        //frustumPlanes[4] = Vector4(
-        //    viewProj[0][2],
-        //    viewProj[1][2],
-        //    viewProj[2][2],
-        //    viewProj[3][2]
-        //);
-        //frustumPlanes[5] = Vector4(
-        //    viewProj[0][3] - viewProj[0][2],
-        //    viewProj[1][3] - viewProj[1][2],
-        //    viewProj[2][3] - viewProj[2][2],
-        //    viewProj[3][3] - viewProj[3][2]
-        //);
-        //#pragma endregion
-        ////*/
-        //frustumPlanes[0] = viewProj[3] + viewProj[0];
-        //frustumPlanes[1] = viewProj[3] - viewProj[0];
-        //frustumPlanes[2] = viewProj[3] - viewProj[1];
-        //frustumPlanes[3] = viewProj[3] + viewProj[1];
-        //frustumPlanes[4] = viewProj[2];
-        //frustumPlanes[5] = viewProj[3] - viewProj[2];
-        ////Vector3 toWorld = transform.pos - Camera::main->position;
-        //Vector3 toWorld = transform.pos;
-        //for (int i = 0; i < 6; ++i)
-        //{
-        //    frustumPlanes[i] = frustumPlanes[i] / ((Vector3)frustumPlanes[i]).magnitude();
-        //    float planeConstant = frustumPlanes[i].w;
-        //    Vector3 vertex;
-        //    for (int j = 0; j < 3; ++j)
-        //    {
-        //        // should properly rotate mesh, does not work if -aabbMin != aabbMax
-        //        if (frustumPlanes[i][j] < 0) vertex[j] = renderer.mesh->aabbMin[j] + toWorld[j];
-        //        else vertex[j] = renderer.mesh->aabbMax[j] + toWorld[j];
-        //    }
-        //    if (Vector3::dot(frustumPlanes[i], vertex)+planeConstant < 0)
-        //    {
-        //        ++objectsCulled;
-        //        return true;
-        //    }
-        //}
-        //
-        //if (false)
-        //{
-        //    return true;
-        //}
-        //return false;
-        //return 1;
-    //};
-//
-    //if (Camera::main->isPerspective && shouldCull())
-    //    return;
-
     if (Camera::main->isPerspective)
     {
         Vector3 min = renderer.mesh->aabbMin;
         Vector3 max = renderer.mesh->aabbMax;
-        std::vector<Vector3> obbPoints = {
-            Vector3(min.x, min.y, min.z),
-            Vector3(min.x, max.y, min.z),
-            Vector3(max.x, min.y, min.z),
-            Vector3(max.x, max.y, min.z),
-            Vector3(max.x, max.y, max.z),
-            Vector3(max.x, min.y, max.z),
-            Vector3(min.x, max.y, max.z),
-            Vector3(min.x, min.y, max.z)
-        };
-        //std::vector<Vector3> frustumPoints = {
-            
-        //};
-        for (int i = 0; i < obbPoints.size(); ++i)
-            obbPoints[i] = viewSpace * obbPoints[i];
-        
-        float obbMin;
-        float obbMax;
-        float frustumMin;
-        float frustumMax;
-        auto testAxis = [&](Vector3 axis)
         {
-            min_max_dot(obbPoints, axis, obbMin, obbMax);
-            //min_max_dot(frustumPoints, axis, frustumMin, frustumMax);
-            //return (obbMin < frustumMax) && (frustumMin < obbMax);
-            return true;
+            Vector3 obbPoints[8] = {
+                Vector3(min.x, min.y, min.z),
+                Vector3(min.x, max.y, min.z),
+                Vector3(max.x, min.y, min.z),
+                Vector3(max.x, max.y, min.z),
+                Vector3(max.x, max.y, max.z),
+                Vector3(max.x, min.y, max.z),
+                Vector3(min.x, max.y, max.z),
+                Vector3(min.x, min.y, max.z)
+            };
+            min = Vector3(Math::INF, Math::INF, Math::INF);
+            max = Vector3(Math::NEGINF, Math::NEGINF, Math::NEGINF);
+            for (int i = 0; i < 8; ++i)
+            {
+                obbPoints[i] = rotation*(obbPoints[i]*transform.scale) + transform.pos;
+                for (int j = 0; j < 3; ++j)
+                {
+                    min[j] = std::min(min[j], obbPoints[i][j]);
+                    max[j] = std::max(max[j], obbPoints[i][j]);
+                }
+            }
+        }
+        auto checkPlane = [&](Vector4 frustumPlane)
+        {
+            frustumPlane = frustumPlane / ((Vector3)frustumPlane).magnitude();
+            float planeConstant = frustumPlane.w;
+            Vector3 vertex;
+            for (int i = 0; i < 3; ++i)
+            {
+                if (frustumPlane[i] < 0) vertex[i] = min[i];
+                else vertex[i] = max[i];
+            }
+            if (Vector3::dot(frustumPlane, vertex)+planeConstant < 0)
+            {
+                ++objectsCulled;
+                return 1;
+            }
+            return 0;
         };
-        if (!testAxis(Vector3(0,0,1))) return;
-        Vector3 norm_x = rotation*Vector3(1,0,0);
-        if (!testAxis(norm_x)) return;
-        Vector3 norm_y = rotation*Vector3(0,1,0);
-        if (!testAxis(norm_y)) return;
-        Vector3 norm_z = rotation*Vector3(0,0,1);
-        if (!testAxis(norm_z)) return;
-
-        if (!testAxis(Vector3::cross(norm_x, Vector3(0,1,0)))
-            || !testAxis(Vector3::cross(norm_y, Vector3(0,1,0)))
-            || !testAxis(Vector3::cross(norm_z, Vector3(0,1,0)))
-            || !testAxis(Vector3::cross(norm_x, Vector3(1,0,0)))
-            || !testAxis(Vector3::cross(norm_y, Vector3(1,0,0)))
-            || !testAxis(Vector3::cross(norm_z, Vector3(1,0,0))))
+        Matrix4x4 viewProj = (Camera::main->projection * view);
+        if (checkPlane(viewProj[3] + viewProj[0])
+            || checkPlane(viewProj[3] - viewProj[0])
+            || checkPlane(viewProj[3] - viewProj[1])
+            || checkPlane(viewProj[3] + viewProj[1])
+            || checkPlane(viewProj[2])
+            || checkPlane(viewProj[3] - viewProj[2]))
                 return;
 
+        //std::vector<Vector3> obbPoints = {
+        //    Vector3(min.x, min.y, min.z),
+        //    Vector3(min.x, max.y, min.z),
+        //    Vector3(max.x, min.y, min.z),
+        //    Vector3(max.x, max.y, min.z),
+        //    Vector3(max.x, max.y, max.z),
+        //    Vector3(max.x, min.y, max.z),
+        //    Vector3(min.x, max.y, max.z),
+        //    Vector3(min.x, min.y, max.z)
+        //};
+        // near*2.f/(right-left)
+        //float fovy = atanf(Camera::main->projection[1][1])*2;
+        //std::vector<Vector3> frustumPoints = {
+        //    Vector3(, , ),
+        //    Vector3(, , ),
+        //    Vector3(, , ),
+        //    Vector3(, , ),
+        //    Vector3(, , ),
+        //    Vector3(, , ),
+        //    Vector3(, , ),
+        //    Vector3(, , )
+        //};
+        //for (int i = 0; i < obbPoints.size(); ++i)
+        //    obbPoints[i] = viewSpace * obbPoints[i];
+        //
+        //float obbMin;
+        //float obbMax;
+        //float frustumMin;
+        //float frustumMax;
+        //auto testAxis = [&](Vector3 axis)
+        //{
+        //    min_max_dot(obbPoints, axis, obbMin, obbMax);
+        //    min_max_dot(frustumPoints, axis, frustumMin, frustumMax);
+        //    //return (obbMin < frustumMax) && (frustumMin < obbMax);
+        //    return true;
+        //};
+        //if (!testAxis(Vector3(0,0,1))) return;
+        //Vector3 norm_x = rotation*Vector3(1,0,0);
+        //if (!testAxis(norm_x)) return;
+        //Vector3 norm_y = rotation*Vector3(0,1,0);
+        //if (!testAxis(norm_y)) return;
+        //Vector3 norm_z = rotation*Vector3(0,0,1);
+        //if (!testAxis(norm_z)) return;
+//
+        //if (!testAxis(Vector3::cross(norm_x, Vector3(0,1,0)))
+        //    || !testAxis(Vector3::cross(norm_y, Vector3(0,1,0)))
+        //    || !testAxis(Vector3::cross(norm_z, Vector3(0,1,0)))
+        //    || !testAxis(Vector3::cross(norm_x, Vector3(1,0,0)))
+        //    || !testAxis(Vector3::cross(norm_y, Vector3(1,0,0)))
+        //    || !testAxis(Vector3::cross(norm_z, Vector3(1,0,0))))
+        //        return;
+//
         //float proj22 = Camera::main->projection[2][2];
         //float proj23 = Camera::main->projection[2][3];
         //float zNear = (2.f*proj23)/(2.f*proj22-2.f);
         //float zFar = ((proj22-1.f)*zNear)/(proj22+1.f);
-
+//
         //if (!testAxis(Vector3(0,0,1))
         //    || !testAxis(Vector3())
         //    || !testAxis(Vector3())
@@ -302,15 +245,29 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
         //min_max_dot(obbPoints, , obbMin, obbMax);
         //viewSpace * renderer.mesh->aabbMin;
         //viewSpace * renderer.mesh->aabbMax;
-
     }
+    
+    Material &mat = *renderer.mat;
+    Shader &shader = *mat.shader;
+    Texture *tex = renderer.mainTex;
+
+    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(Renderer::reverseAspect.x, Renderer::reverseAspect.y, 1);
+
+    Matrix4x4 rotation4x4 = add_r_c(rotation);
+   
+    Matrix4x4 model =
+        Matrix4x4::translate(transform.pos * filteredAspect)
+        * rotation4x4
+        * Matrix4x4::scale(transform.scale * filteredAspect);
+
+    Matrix4x4 mvp = Camera::main->projection * view * model;
 
     renderer.mesh->varray->bind();
     shader.bind();
     Renderer::bind_material(renderer.mat);
     shader.set_uniform_mat4x4("u_mvp", mvp);
     shader.set_uniform_mat4x4("u_model", model);
-    shader.set_uniform_mat4x4("u_rotation", rotation);
+    shader.set_uniform_mat4x4("u_rotation", rotation4x4);
     shader.set_uniform3f("u_camPos", Camera::main->position);
     if (tex)
     {
@@ -450,8 +407,8 @@ void Renderer::draw_all(bool fireEvents)
     clear();
     for (Object *obj : *Object::allObjects) draw(*obj);
     renderSystem->run(&RendererSystem::draw, *ECSManager::main);
-    if (objectsCulled)
-        printf("Culled: %d\n", objectsCulled);
+    //if (objectsCulled)
+    printf("Culled: %d\n", objectsCulled);
     objectsCulled = 0;
 
 /*
