@@ -28,7 +28,7 @@ inline std::enable_if_t<I < sizeof...(Args)> print_element(const std::string &fo
     }
     else
     {
-        size_t end = format.find("o", index);
+        size_t end = format.find("o", start);
         auto original = std::cout.precision();
         std::cout.precision(std::stoi(format.substr(start+2, end-start-2)));
 
