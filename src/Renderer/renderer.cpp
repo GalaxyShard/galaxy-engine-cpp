@@ -408,7 +408,7 @@ void Renderer::draw_all(bool fireEvents)
     for (Object *obj : *Object::allObjects) draw(*obj);
     renderSystem->run(&RendererSystem::draw, *ECSManager::main);
     //if (objectsCulled)
-    printf("Culled: %d\n", objectsCulled);
+    //printf("Culled: %d\n", objectsCulled);
     objectsCulled = 0;
 
 /*
