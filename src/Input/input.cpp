@@ -13,10 +13,10 @@ template class ArgCallback<bool>;
 struct InputData
 {
     const char *bind;
-    KeyCode key;
+    GEngine::KeyCode key;
     input_callback callback;
 
-    InputData(const char *bind, KeyCode key, input_callback callback)
+    InputData(const char *bind, GEngine::KeyCode key, input_callback callback)
         : bind(bind), key(key), callback(callback) { }
 };
 extern std::unique_ptr<UIImage*[]> heldImages;
@@ -27,11 +27,11 @@ auto onTouchEvent = EventT<TouchData>();
 namespace
 {
     auto lastTouchState = std::unordered_map<int, TouchData>();
-    auto callbacks = std::unordered_multimap<KeyCode, InputData>();
-    auto bindMap = std::unordered_map<const char*, KeyCode>();
-    auto lastKeyStates = std::unordered_map<KeyCode, bool>();
+    auto callbacks = std::unordered_multimap<GEngine::KeyCode, InputData>();
+    auto bindMap = std::unordered_map<const char*, GEngine::KeyCode>();
+    auto lastKeyStates = std::unordered_map<GEngine::KeyCode, bool>();
     
-    void process_key(KeyCode key, bool action, int mods)
+    void process_key(GEngine::KeyCode key, bool action, int mods)
     {
         if (lastKeyStates[key] == action)
             return;
@@ -44,11 +44,11 @@ namespace
             i->second.callback(action);
         }
     }
-    //KeyCode exitRebindKey = KeyCode::Escape;
-    bool (*onRebindFinish)(KeyCode key);
+    //GEngine::KeyCode exitRebindKey = GEngine::KeyCode::Escape;
+    bool (*onRebindFinish)(GEngine::KeyCode key);
     const char *changingBind;
 
-    void process_key_rebind(KeyCode key)
+    void process_key_rebind(GEngine::KeyCode key)
     {
         //if (key != exitRebindKey) Input::rebind(changingBind, key);
         //if (onRebindFinish) onRebindFinish();
@@ -145,12 +145,12 @@ namespace
     void key_callback(GLFWwindow*, int key, int, int action, int mods)
     {
         if (action == GLFW_REPEAT) return;
-        process_key((KeyCode)key, action, mods);
+        process_key((GEngine::KeyCode)key, action, mods);
     }
     void rebind_callback(GLFWwindow*, int key, int scancode, int action, int mods)
     {
         if (action != GLFW_PRESS) return;
-        process_key_rebind((KeyCode)key);
+        process_key_rebind((GEngine::KeyCode)key);
         glfwSetKeyCallback(glfwGetCurrentContext(), &key_callback);
     }
     bool isMouseHeld = 0;
@@ -186,11 +186,11 @@ namespace
 #endif
 }
 
-void Input::add_bind(const char *bind, KeyCode key)
+void Input::add_bind(const char *bind, GEngine::KeyCode key)
 {
     add_bind(bind, key, input_callback());
 }
-void Input::add_bind(const char *bind, KeyCode key, input_callback callback)
+void Input::add_bind(const char *bind, GEngine::KeyCode key, input_callback callback)
 {
     if (bindMap.count(bind) == 1)
     {
@@ -221,7 +221,7 @@ bool Input::is_held(const char *bind)
 }
 void Input::trigger(const char *bind, bool action)
 {
-    KeyCode key = bindMap[bind];
+    GEngine::KeyCode key = bindMap[bind];
     if (lastKeyStates[key] == action)
         return;
     
@@ -236,7 +236,7 @@ void Input::trigger(const char *bind, bool action)
         }
     }
 }
-void Input::rebind(const char *bind, KeyCode newKey)
+void Input::rebind(const char *bind, GEngine::KeyCode newKey)
 {
     auto it = callbacks.equal_range(bindMap[bind]);
     for (auto i = it.first; i != it.second; ++i)
@@ -248,7 +248,7 @@ void Input::rebind(const char *bind, KeyCode newKey)
         }
     }
 }
-void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
+void Input::interactive_rebind(const char *bind, bool(*onFinish)(GEngine::KeyCode key))
 {
     changingBind = bind;
     onRebindFinish = onFinish;

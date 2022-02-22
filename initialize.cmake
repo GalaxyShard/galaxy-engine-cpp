@@ -51,11 +51,52 @@ set(ENGINE_SRC
     src/event.cpp
     src/main.cpp
 )
+set(ENGINE_H
+    PRIVATE
+    include/Galaxy/engine.hpp
+)
+#set(ENGINE_H
+#    PUBLIC
+#    include/Galaxy/Assets/assets.hpp
+#    include/Galaxy/Audio/audio.hpp
+#    include/Galaxy/ECS/ecs.hpp
+#    include/Galaxy/Events/callback.hpp
+#    include/Galaxy/Events/event.hpp
+#    include/Galaxy/Input/input.hpp
+#    include/Galaxy/Input/keycodes.hpp
+#    include/Galaxy/Math/gmath.hpp
+#    include/Galaxy/Math/matrix.hpp
+#    include/Galaxy/Math/time.hpp
+#    include/Galaxy/Math/vector.hpp
+#    include/Galaxy/Networking/networking.hpp
+#    include/Galaxy/OS/defines.hpp
+#    include/Galaxy/Physics/physics.hpp
+#    include/Galaxy/Renderer/camera.hpp
+#    include/Galaxy/Renderer/material.hpp
+#    include/Galaxy/Renderer/mesh.hpp
+#    include/Galaxy/Renderer/renderer.hpp
+#    include/Galaxy/Renderer/shader.hpp
+#    include/Galaxy/Renderer/texture.hpp
+#    include/Galaxy/Scene/scene.hpp
+#    include/Galaxy/UI/font.hpp
+#    include/Galaxy/UI/group.hpp
+#    include/Galaxy/UI/image.hpp
+#    include/Galaxy/UI/text.hpp
+#    include/Galaxy/init.hpp
+#    include/Galaxy/object.hpp
+#    include/Galaxy/print.hpp
+#    include/Galaxy/types.hpp
+#    include/Galaxy/engine.hpp
+#)
 macro(add_src files)
     set(ENGINE_SRC ${ENGINE_SRC} ${files})
 endmacro()
+macro(add_h files)
+    set(ENGINE_H ${ENGINE_H} ${files})
+endmacro()
 
 if (APPLE)
+    #add_src(src/External/metal_init.cpp)
     add_src(src/OS/Apple/file_handler.mm)
 endif()
 if (CMAKE_SYSTEM_NAME MATCHES "iOS")

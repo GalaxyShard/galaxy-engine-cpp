@@ -6,7 +6,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS")
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
 endif()
 
-project("Galaxy Engine")
+project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -14,6 +14,7 @@ set(proj_dir ${CMAKE_CURRENT_LIST_DIR})
 set(src_dir ${proj_dir}/src)
 
 include_directories(${proj_dir}/src)
+include_directories(${proj_dir}/src/External/metal-cpp)
 include_directories(${proj_dir}/include)
 
 #add_definitions(-DDEBUG)
@@ -28,6 +29,9 @@ add_definitions(-DOPENAL_DEPRECATED=)
 
 if (APPLE)
     add_library(engine STATIC ${ENGINE_SRC})
+    #target_precompile_headers(engine PUBLIC ${ENGINE_H})
+    target_precompile_headers(engine ${ENGINE_H})
+    #target_precompile_headers(engine PUBLIC include/Galaxy/engine.hpp)
     macro(add_fw fwname)
         target_link_libraries(engine "-framework ${fwname}")
     endmacro(add_fw)

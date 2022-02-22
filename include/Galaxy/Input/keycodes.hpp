@@ -1,4 +1,5 @@
 #pragma once
+namespace GEngine {
 enum KeyCode : unsigned short
 {
     // From glfw3.h
@@ -150,3 +151,4 @@ enum MouseCode
     MIDDLE = B3
 
 };
+}
