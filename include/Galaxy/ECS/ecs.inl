@@ -4,11 +4,6 @@ ComponentMask comp_mask(ECSManager &manager)
 {
     return (... | manager.comp_mask<Args>());
 }
-//template<typename T, typename... Args>
-//void ECSManager::reg_sys()
-//{
-//    ComponentMask bits = comp_mask<Args...>(*this);
-//}
 template<typename T>
 T* ECSManager::reg_sys()
 {
@@ -22,7 +17,6 @@ T* ECSManager::reg_sys()
     {
         if ((mask & entity.components) == mask)
         {
-            //system->_entities.push_back(Entity{entity.id});
             system->_entities.insert(entity.id);
             entity.systemsContaining.push_back(system);
         }
@@ -97,10 +91,6 @@ void Entity::add_comp(T data, ECSManager &manager)
     int index = self.raw.size();
     self.raw.resize(self.raw.size()+sizeof(T));
     memcpy(&self.raw[index], &data, sizeof(T));
-    //self.rawIndices.push_back(index);
-    //self.raw.push_back(std::vector<unsigned char>(sizeof(T)));
-    //self.raw[index].resize(sizeof(T));
-    //memcpy(self.raw[index].data(), &data, sizeof(T));
     self.indices[manager.comp_id<T>()] = index;
     self.components |= manager.comp_mask<T>();
 
@@ -130,15 +120,11 @@ void Entity::remove_comp(ECSManager &manager)
     self.raw.erase(startIter, startIter+sizeof(T));
     self.indices.erase(manager.comp_id<T>());
 
-//
-    //self.raw.erase(self.raw.begin()+index);
     for (auto &[key, value] : self.indices)
     {
         if (value > index)
             value -= sizeof(T);
-            //value -= 1;
     }
-
     for (auto &system : self.systemsContaining)
     {
         if ((system->compMask & self.components) != system->compMask)

@@ -3,6 +3,7 @@
 #include <Galaxy/UI/image.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
 #include <Galaxy/Scene/scene.hpp>
+
 #include <internalinit.hpp>
 
 auto UIGroup::aspectRatio = std::make_unique<UIGroup>();

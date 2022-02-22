@@ -1,5 +1,6 @@
 #include <Galaxy/Physics/physics.hpp>
 #include <Galaxy/Math/time.hpp>
+
 template <typename T>
 void insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b))
 {

@@ -1,5 +1,6 @@
 #include <Galaxy/Physics/physics.hpp>
 #include <Galaxy/Math/matrix.hpp>
+
 static float sqr(float x) { return x*x; }
 
 RayResult::RayResult(Vector3 pos, Vector3 normal, float dist)

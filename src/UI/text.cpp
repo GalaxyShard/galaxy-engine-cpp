@@ -6,9 +6,10 @@
 #include <Galaxy/Assets/assets.hpp>
 #include <Galaxy/Scene/scene.hpp>
 #include <Galaxy/init.hpp>
+#include <iostream>
+
 
 #include "uiobject.hpp"
-#include <iostream>
 static AssetRef<Shader> textShader;
 Shader *UIText::shader() { return textShader.get(); }
 

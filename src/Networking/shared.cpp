@@ -1,6 +1,7 @@
-#include "internalnet.hpp"
 #include <Galaxy/Math/vector.hpp>
 #include <Galaxy/init.hpp>
+
+#include "internalnet.hpp"
 
 addrinfo* get_addr_list(const char *ip, unsigned short port)
 {

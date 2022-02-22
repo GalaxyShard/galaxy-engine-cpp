@@ -1,14 +1,15 @@
-#include <unordered_map>
 #include <Galaxy/Assets/assets.hpp>
 #include <Galaxy/OS/defines.hpp>
-#if OS_MAC
-    #include <filesystem>
-#endif
-
 #include <Galaxy/Renderer/mesh.hpp>
 #include <Galaxy/Renderer/texture.hpp>
 #include <Galaxy/Renderer/shader.hpp>
 #include <Galaxy/Audio/audio.hpp>
+#include <unordered_map>
+
+#if OS_MAC
+    #include <filesystem>
+#endif
+
 
 const char *get_resource_path_platform();
 const char *get_bundle_identifier();

@@ -1,4 +1,5 @@
 #include <Galaxy/Physics/physics.hpp>
+
 #include "combinations.hpp"
 #include <cmath>
 static float sqr(float x) { return x*x; }

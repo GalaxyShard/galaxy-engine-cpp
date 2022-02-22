@@ -1,9 +1,10 @@
 #include <Galaxy/Math/vector.hpp>
-#include <iostream>
+#include <ostream>
+
 Quaternion Quaternion::operator *(const Quaternion &q)
 {
-    std::cout << "ERROR: Quaternion::* not implemented" << std::endl;
-    assert(false);
+    //std::cout << "ERROR: Quaternion::* not implemented" << std::endl;
+    assert(false && "ERROR: Quaternion::* not implemented");
     return q;
 }
 Quaternion::Quaternion(float x, float y, float z, float w)

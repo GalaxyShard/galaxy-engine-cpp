@@ -1,11 +1,12 @@
 #include <Galaxy/Renderer/mesh.hpp>
 #include <Galaxy/Assets/assets.hpp>
+#include <iostream>
+
 #include <Renderer/buffer.hpp>
 #include <vector>
 #include <fstream>
 #include <sstream>
 
-#include <iostream>
 
 //using std::vector;
 Mesh::Mesh() { } // for smart ptr

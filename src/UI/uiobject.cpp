@@ -1,5 +1,6 @@
 #include <Galaxy/UI/image.hpp>
 #include <Galaxy/UI/text.hpp>
+
 #include "uiobject.hpp"
 auto UIObject::uiObjects = std::make_unique<std::vector<UIObject*>>();
 bool UIObject::sortObjects = 0;

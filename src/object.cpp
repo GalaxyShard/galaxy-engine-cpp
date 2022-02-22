@@ -1,8 +1,8 @@
 #include <Galaxy/Scene/scene.hpp>
 #include <Galaxy/object.hpp>
 #include <Galaxy/init.hpp>
-
 #include <iostream>
+
 #include <gldebug.hpp>
 auto Object::allObjects = std::make_unique<std::vector<Object*>>();
 bool Object::sortObjects = 0;

@@ -1,6 +1,7 @@
 #include <Galaxy/Renderer/material.hpp>
 #include <Galaxy/Renderer/shader.hpp>
 #include <Galaxy/Renderer/texture.hpp>
+
 #include <gldebug.hpp>
 
 Material::Material(Shader *shader) : shader(shader) { }

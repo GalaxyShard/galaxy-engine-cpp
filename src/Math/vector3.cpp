@@ -1,6 +1,7 @@
 #include <Galaxy/Math/vector.hpp>
-#include <cmath>
 #include <ostream>
+
+#include <cmath>
 Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) { }
 
 float& Vector3::operator[](int i){ return (&x)[i]; }

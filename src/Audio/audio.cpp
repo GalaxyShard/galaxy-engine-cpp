@@ -1,4 +1,5 @@
 #include <Galaxy/Audio/audio.hpp>
+
 #include <OpenAL/OpenAL.h>
 #include <internalinit.hpp>
 

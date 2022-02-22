@@ -1,5 +1,6 @@
-#include "internalnet.hpp"
 #include <Galaxy/Renderer/renderer.hpp>
+
+#include "internalnet.hpp"
 
 std::unique_ptr<Client> Client::inst;
 void Client::pre_render()

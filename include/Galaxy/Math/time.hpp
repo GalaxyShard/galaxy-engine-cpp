@@ -1,14 +1,13 @@
 #pragma once
 class Time
 {
-private:
-    static float mDelta, mRawDelta;
+protected:
+    static float mDelta, mRawDelta, mFrameTime;
 public:
     static inline float delta();
     static inline float raw_delta();
+    static inline float frame_time();
     static inline double get();
     static inline double unix_epoch();
-
-    static void update_delta(); // internal
 };
 #include "time.inl"

@@ -1,8 +1,9 @@
 #include <Galaxy/UI/font.hpp>
 #include <Galaxy/Renderer/texture.hpp>
+#include <iostream>
+
 #include <fstream>
 #include <sstream>
-#include <iostream>
 Font *Font::defaultFont;
 
 static float xcoord(float pixel, float size) { return pixel / size + (1.f / (size * 2.f)); }

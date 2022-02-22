@@ -1,5 +1,6 @@
 #include <Galaxy/Physics/physics.hpp>
 #include <Galaxy/Math/matrix.hpp>
+
 #include "combinations.hpp"
 #include <cmath>
 Vector3 CubeCollider::scale() { return _scale; }

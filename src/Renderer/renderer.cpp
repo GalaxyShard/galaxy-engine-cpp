@@ -1,8 +1,4 @@
 #include <Galaxy/Renderer/renderer.hpp>
-#include <gldebug.hpp>
-#include <internalinit.hpp>
-#include <Renderer/buffer.hpp>
-#include <UI/uiobject.hpp>
 
 #include <Galaxy/Events/event.hpp>
 #include <Galaxy/object.hpp>
@@ -16,9 +12,15 @@
 #include <Galaxy/UI/text.hpp>
 #include <Galaxy/UI/group.hpp>
 
-#include <Galaxy/Physics/physics.hpp>
-#include <Physics/combinations.hpp>
 #include <Galaxy/Math/time.hpp>
+#include <Galaxy/Physics/physics.hpp>
+
+
+#include <Physics/combinations.hpp>
+#include <gldebug.hpp>
+#include <internalinit.hpp>
+#include <Renderer/buffer.hpp>
+#include <UI/uiobject.hpp>
 
 #include <array>
 namespace

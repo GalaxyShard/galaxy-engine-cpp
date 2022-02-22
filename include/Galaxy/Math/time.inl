@@ -13,3 +13,4 @@ inline double Time::unix_epoch()
 }
 inline float Time::delta() { return mDelta; }
 inline float Time::raw_delta() { return mRawDelta; }
+inline float Time::frame_time() { return mFrameTime; }

@@ -1,11 +1,10 @@
 #include <Galaxy/init.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
-#include <Galaxy/Math/time.hpp>
+//#include <Galaxy/Math/time.hpp>
 #include <Galaxy/Input/input.hpp>
-
-#include <string>
-
 #include <iostream>
+
+#include <Math/internaltime.hpp>
 #include <gldebug.hpp>
 /*
 Rendering APIs
@@ -60,9 +59,10 @@ static bool init_glfw()
     {
         int w, h;
         glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
-        Time::update_delta();
+        InternalTime::start_frame();
         Renderer::fix_aspect(w, h);
         Renderer::draw_all(1);
+        InternalTime::end_frame();
         glfwSwapBuffers(window);
     });
     glfwSetWindowSizeLimits(window, 600, 400, GLFW_DONT_CARE, GLFW_DONT_CARE);
@@ -71,8 +71,9 @@ static bool init_glfw()
 #endif
 static void redraw()
 {
-    Time::update_delta();
+    InternalTime::start_frame();
     Renderer::draw_all(true);
+    InternalTime::end_frame();
 
     SWAP_BUFFERS();
 #if !OS_MOBILE
@@ -103,6 +104,7 @@ void initialize()
     GLCall(glCullFace(GL_BACK));
     GLCall(glFrontFace(GL_CCW)); // counter clockwise vertex ordering
 
+    InternalTime::initialize();
 #if OS_MOBILE
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
     {

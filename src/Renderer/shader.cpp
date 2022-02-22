@@ -1,14 +1,12 @@
-#include <string>
-#include <sstream>
-#include <fstream>
-
 #include <Galaxy/Renderer/shader.hpp>
-#include <internalinit.hpp>
 #include <Galaxy/Assets/assets.hpp>
 #include <Galaxy/Math/vector.hpp>
 #include <Galaxy/Math/matrix.hpp>
-
 #include <iostream>
+
+#include <sstream>
+#include <fstream>
+#include <internalinit.hpp>
 #include <gldebug.hpp>
 namespace
 {

@@ -51,10 +51,10 @@ set(ENGINE_SRC
     src/event.cpp
     src/main.cpp
 )
-set(ENGINE_H
-    PRIVATE
-    include/Galaxy/engine.hpp
-)
+#set(ENGINE_H
+#    PRIVATE
+#    include/Galaxy/engine.hpp
+#)
 #set(ENGINE_H
 #    PUBLIC
 #    include/Galaxy/Assets/assets.hpp
@@ -91,9 +91,9 @@ set(ENGINE_H
 macro(add_src files)
     set(ENGINE_SRC ${ENGINE_SRC} ${files})
 endmacro()
-macro(add_h files)
-    set(ENGINE_H ${ENGINE_H} ${files})
-endmacro()
+#macro(add_h files)
+#    set(ENGINE_H ${ENGINE_H} ${files})
+#endmacro()
 
 if (APPLE)
     #add_src(src/External/metal_init.cpp)

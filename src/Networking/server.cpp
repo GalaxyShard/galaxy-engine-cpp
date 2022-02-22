@@ -1,5 +1,6 @@
-#include "internalnet.hpp"
 #include <Galaxy/Renderer/renderer.hpp>
+
+#include "internalnet.hpp"
 
 std::unique_ptr<Server> Server::inst;
 void Server::process_messages()

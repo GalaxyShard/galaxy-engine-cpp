@@ -1,6 +1,7 @@
 #include <Galaxy/Math/vector.hpp>
-#include <cmath>
 #include <ostream>
+
+#include <cmath>
 #define DEFINE_OP_BASE(t0, t1, op, r1, r2) \
     t0 t0::operator op(const t1 &v2) const { \
         return t0(x op r1, y op r2); \

@@ -29,8 +29,12 @@ add_definitions(-DOPENAL_DEPRECATED=)
 
 if (APPLE)
     add_library(engine STATIC ${ENGINE_SRC})
+    #target_precompile_headers(engine PRIVATE include/Galaxy/engine.hpp)
+    
     #target_precompile_headers(engine PUBLIC ${ENGINE_H})
-    target_precompile_headers(engine ${ENGINE_H})
+    #if (DEFINED ENGINE_H)
+        #target_precompile_headers(engine ${ENGINE_H})
+    #endif()
     #target_precompile_headers(engine PUBLIC include/Galaxy/engine.hpp)
     macro(add_fw fwname)
         target_link_libraries(engine "-framework ${fwname}")

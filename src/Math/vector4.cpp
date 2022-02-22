@@ -1,5 +1,6 @@
 #include <Galaxy/Math/vector.hpp>
 #include <ostream>
+
 #include <cmath>
 Vector4::Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) { }
 
