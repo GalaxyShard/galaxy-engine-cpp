@@ -2,7 +2,7 @@
 #include <Galaxy/Math/vector.hpp>
 #include <vector>
 #include <unordered_map>
-#include <Galaxy/ECS/ecs.hpp>
+//#include <Galaxy/ECS/ecs.hpp>
 class Material;
 class Mesh;
 class Scene;
@@ -10,14 +10,6 @@ class Shader;
 class Texture;
 struct Uniform;
 
-struct ObjRendererECS
-{
-    //std::unordered_map<int, Uniform> persistantUniforms;
-    //Shader *shader = 0;
-    Material *mat;
-    Mesh *mesh = 0;
-    Texture *mainTex = 0;
-};
 struct TransformECS
 {
     Vector3 pos;

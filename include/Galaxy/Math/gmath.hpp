@@ -27,7 +27,6 @@ namespace Math
     float lerp(float start, float goal, float t);
     constexpr float PI = 3.14159265359f;
     constexpr float INF = std::numeric_limits<float>::infinity();
-    constexpr float NEGINF = -std::numeric_limits<float>::infinity();
 
     constexpr float to_deg = 180.0f / PI;
     constexpr float to_rad = PI / 180.0f;

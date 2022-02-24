@@ -1,6 +1,5 @@
 #include <Galaxy/init.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
-//#include <Galaxy/Math/time.hpp>
 #include <Galaxy/Input/input.hpp>
 #include <iostream>
 

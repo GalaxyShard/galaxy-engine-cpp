@@ -13,6 +13,7 @@
 
 #include "Input/input.hpp"
 
+#include "Math/binary.hpp"
 #include "Math/gmath.hpp"
 #include "Math/vector.hpp"
 #include "Math/matrix.hpp"

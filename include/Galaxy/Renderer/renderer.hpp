@@ -6,10 +6,17 @@ class UIText;
 class Signal;
 class Object;
 class Material;
-class ObjRendererECS;
-class TransformECS;
+struct TransformECS;
+class Texture;
+class Mesh;
 struct Uniform;
 typedef void (*empty_func)();
+
+struct ObjRendererECS
+{
+    Material *mat = 0;
+    Mesh *mesh = 0;
+};
 
 class RendererSystem : public System<RendererSystem, ObjRendererECS, TransformECS>
 {

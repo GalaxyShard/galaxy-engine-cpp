@@ -131,6 +131,8 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 
     if (Camera::main->isPerspective)
     {
+        //Vector3 min = renderer.mesh->aabbMin+transform.pos;
+        //Vector3 max = renderer.mesh->aabbMax+transform.pos;
         Vector3 min = renderer.mesh->aabbMin;
         Vector3 max = renderer.mesh->aabbMax;
         {
@@ -145,7 +147,7 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
                 Vector3(min.x, min.y, max.z)
             };
             min = Vector3(Math::INF, Math::INF, Math::INF);
-            max = Vector3(Math::NEGINF, Math::NEGINF, Math::NEGINF);
+            max = Vector3(-Math::INF, -Math::INF, -Math::INF);
             for (int i = 0; i < 8; ++i)
             {
                 obbPoints[i] = rotation*(obbPoints[i]*transform.scale) + transform.pos;
@@ -156,6 +158,9 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
                 }
             }
         }
+        
+        //Vector3 min = renderer.aabbMin();
+        //Vector3 max = renderer.aabbMax();
         auto checkPlane = [&](Vector4 frustumPlane)
         {
             frustumPlane = frustumPlane / ((Vector3)frustumPlane).magnitude();
@@ -251,7 +256,7 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
     
     Material &mat = *renderer.mat;
     Shader &shader = *mat.shader;
-    Texture *tex = renderer.mainTex;
+    Texture *tex = mat.mainTex;
 
     Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(Renderer::reverseAspect.x, Renderer::reverseAspect.y, 1);
 
@@ -281,40 +286,49 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 }
 void Renderer::draw(Object &obj)
 {
-    obj.mesh->varray->bind();
-
-    Material &mat = *obj.material;
-    Shader &shader = *mat.shader;
-    Texture *tex = mat.mainTex;
-    shader.bind();
-    
-    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(reverseAspect.x, reverseAspect.y, 1);
-
-    Matrix4x4 rotation = Matrix4x4::rotate(obj.rotation);
-    Matrix4x4 model =
-        Matrix4x4::translate(obj.position * filteredAspect)
-        * rotation
-        * Matrix4x4::scale(obj.scale * filteredAspect);
-
-
-    // Rotate camera after translating
-    // The transpose of a rotation is equal to the inverse
-    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
-        * Matrix4x4::translate(-Camera::main->position);
-
-
-    bind_material(obj.material);
-    shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
-    shader.set_uniform_mat4x4("u_model", model);
-    shader.set_uniform_mat4x4("u_rotation", rotation);
-    shader.set_uniform3f("u_camPos", Camera::main->position);
-    if (tex)
-    {
-        tex->bind();
-        shader.set_uniform1i("u_tex", tex->get_slot());
-    }
-    GLCall(glDrawElements(GL_TRIANGLES, obj.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
+    // hack: rewrite this
+    ObjRendererECS renderer = ObjRendererECS{.mat=obj.material, .mesh=obj.mesh};
+    TransformECS transform = TransformECS{.pos=obj.position,.rotation=obj.rotation,.scale=obj.scale};
+    RendererSystem().draw(renderer, transform);
 }
+
+//void Renderer::draw(Object &obj)
+//{
+//    obj.mesh->varray->bind();
+//
+//    Material &mat = *obj.material;
+//    Shader &shader = *mat.shader;
+//    Texture *tex = mat.mainTex;
+//    shader.bind();
+    //
+//    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(reverseAspect.x, reverseAspect.y, 1);
+//
+//    Matrix4x4 rotation = Matrix4x4::rotate(obj.rotation);
+//    Matrix4x4 model =
+//        Matrix4x4::translate(obj.position * filteredAspect)
+//        * rotation
+//        * Matrix4x4::scale(obj.scale * filteredAspect);
+//
+//
+//    // Rotate camera after translating
+//    // The transpose of a rotation is equal to the inverse
+//    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
+//        * Matrix4x4::translate(-Camera::main->position);
+//
+//
+//    bind_material(obj.material);
+//    shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
+//    shader.set_uniform_mat4x4("u_model", model);
+//    shader.set_uniform_mat4x4("u_rotation", rotation);
+//    shader.set_uniform3f("u_camPos", Camera::main->position);
+//    if (tex)
+//    {
+//        tex->bind();
+//        shader.set_uniform1i("u_tex", tex->get_slot());
+//    }
+//    GLCall(glDrawElements(GL_TRIANGLES, obj.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
+//}
+
 void Renderer::draw(UIImage &img)
 {
     UIImage::mesh()->varray->bind();

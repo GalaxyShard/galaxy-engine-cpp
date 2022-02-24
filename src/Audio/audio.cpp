@@ -1,4 +1,5 @@
 #include <Galaxy/Audio/audio.hpp>
+#include <Galaxy/Math/binary.hpp>
 
 #include <OpenAL/OpenAL.h>
 #include <internalinit.hpp>
@@ -14,7 +15,8 @@ short to_native_endian16(char *buffer, Endian endian = LITTLE)
     {
         std::swap(buffer[0], buffer[1]);
     }
-    return *(short*)buffer;
+    //return *(short*)buffer;
+    return b_cast<short>(buffer);
 }
 int to_native_endian32(char *buffer, Endian endian = LITTLE)
 {
@@ -25,12 +27,12 @@ int to_native_endian32(char *buffer, Endian endian = LITTLE)
         std::swap(buffer[0], buffer[3]);
         std::swap(buffer[1], buffer[2]);
     }
-    return *(int*)buffer;
+    //return *(int*)buffer;
+    return b_cast<int>(buffer);
 }
 void read_until_found(std::ifstream &stream, const char *dataStr, char *buffer)
 {
     int foundLetters = 0;
-    //const char *dataStr = "data";
     while(1)
     {
         stream.read(buffer, 1);
@@ -107,27 +109,7 @@ std::vector<char> load_wav(const std::string &path, char *channels, int *sampleR
 
     // "data"
     read_until_found(stream, "data", buffer);
-    //{
-    //    int foundLetters = 0;
-    //    const char *dataStr = "data";
-    //    while(1)
-    //    {
-    //        stream.read(buffer, 1);
-    //        if (!stream)
-    //            throw("Failed to find data chunk");
-    //        if (foundLetters)
-    //        {
-    //            if (buffer[0] == dataStr[foundLetters])
-    //            {
-    //                ++foundLetters;
-    //                if (foundLetters == 4)
-    //                    break;
-    //            }
-    //            else foundLetters = 0;
-    //        }
-    //        if (buffer[0] == 'd') foundLetters = 1;
-    //    }
-    //}
+    
     if (!stream.read(buffer, 4))
         throw("Failed to read (size)");
     int dataSize = to_native_endian32(buffer);
