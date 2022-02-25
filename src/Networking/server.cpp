@@ -74,7 +74,8 @@ void Server::server_thread()
         if (eventCount == -1)
         {
             printf("error %d occured while polling%s\n", errno, strerror(errno));
-            assert(false);
+            //assert(false);
+            throw("");
         }
         if (eventCount < 1)
             continue;

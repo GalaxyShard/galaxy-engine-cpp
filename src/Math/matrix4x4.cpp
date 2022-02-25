@@ -128,50 +128,50 @@ Matrix4x4 Matrix4x4::transpose() const
         v[0][3], v[1][3], v[2][3], v[3][3]
     );
 }
-Matrix4x4 Matrix4x4::inverse() const
-{
-    /*
-    2x2
-    float inverseDet = 1 / (v[0][0]*v[1][1] - v[0][1]*v[1][0]);
-
-    return Matrix2x2(
-        v[1][1], -v[0][1],
-        -v[1][0], v[0][0]
-    ) * inverseDet;
-
-
-
-    1, 2, 3,
-    4, 5, 6,
-    7, 8, 9
-
-
-    1, 4, 7
-    2, 5, 8
-    3, 6, 9
-
-
-    3x3
-    [00, 01, 02]
-    [10, 11, 12]
-    [20, 21, 22]
-
-    det
-    00*(11*22 - 12*21) -
-    01*(10*22 - 12*20) +
-    02*(10*21 - 11*20)
-
-
-
-    float inverseDet = v[0][0]*(v[1][1]*v[2][2] - v[1][2]*v[2][1])
-        - v[0][1]*(v[1][0]*v[2][2] - v[1][2]*v[2][0])
-        + v[0][2]*(v[1][0]*v[2][1] - v[1][1]*v[2][0])
-    */
-
-
-    assert(false);
-    return 0;
-}
+//Matrix4x4 Matrix4x4::inverse() const
+//{
+//    /*
+//    2x2
+//    float inverseDet = 1 / (v[0][0]*v[1][1] - v[0][1]*v[1][0]);
+//
+//    return Matrix2x2(
+//        v[1][1], -v[0][1],
+//        -v[1][0], v[0][0]
+//    ) * inverseDet;
+//
+//
+//
+//    1, 2, 3,
+//    4, 5, 6,
+//    7, 8, 9
+//
+//
+//    1, 4, 7
+//    2, 5, 8
+//    3, 6, 9
+//
+//
+//    3x3
+//    [00, 01, 02]
+//    [10, 11, 12]
+//    [20, 21, 22]
+//
+//    det
+//    00*(11*22 - 12*21) -
+//    01*(10*22 - 12*20) +
+//    02*(10*21 - 11*20)
+//
+//
+//
+//    float inverseDet = v[0][0]*(v[1][1]*v[2][2] - v[1][2]*v[2][1])
+//        - v[0][1]*(v[1][0]*v[2][2] - v[1][2]*v[2][0])
+//        + v[0][2]*(v[1][0]*v[2][1] - v[1][1]*v[2][0])
+//    */
+//
+//
+//    assert(false);
+//    return 0;
+//}
 /*
 https://stackoverflow.com/questions/18404890/how-to-build-perspective-projection-matrix-no-api
 General form of the Projection Matrix
@@ -203,9 +203,11 @@ Matrix4x4 Matrix4x4::ortho(float left, float right, float bottom, float top, flo
     // probably -1~1 for NO, which is OpenGL, and 0~1 for ZO, which is DirectX
 
     // prevent division by 0
-    assert(zNear != zFar);
-    assert(top != bottom);
-    assert(left != right);
+    if (zNear==zFar || top==bottom || left==right)
+        throw("division by 0");
+    //assert(zNear != zFar);
+    //assert(top != bottom);
+    //assert(left != right);
 
     float mul = leftHanded ? 1 : -1; // right handed is negative z
 

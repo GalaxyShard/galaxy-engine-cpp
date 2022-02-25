@@ -100,11 +100,12 @@ Matrix3x3 Matrix3x3::transpose() const
         v[0][2], v[1][2], v[2][2]
     );
 }
-Matrix3x3 Matrix3x3::inverse() const
-{
-    assert(false);
-    return 0;
-}
+//Matrix3x3 Matrix3x3::inverse() const
+//{
+//    //assert(false);
+//    throw("Inverse not implemented");
+//    return 0;
+//}
 // rotation functions are based off of wikipedia, the order is from blender & trial/error
 Matrix3x3 rotateX(float x)
 {

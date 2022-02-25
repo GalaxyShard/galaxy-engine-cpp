@@ -33,11 +33,13 @@ unsigned int &UIObject::renderer_id()
 {
     if (type == UIIMAGE) return ((UIImage*)data)->rendererID;
     else if (type == UITEXT) return ((UIText*)data)->rendererID;
-    assert(false);
+    throw("Type not implemented");
+    //assert(false);
 }
 int &UIObject::render_order()
 {
     if (type == UIIMAGE) return ((UIImage*)data)->renderOrder;
     else if (type == UITEXT) return ((UIText*)data)->renderOrder;
-    assert(false);
+    throw("Type not implemented");
+    //assert(false);
 }

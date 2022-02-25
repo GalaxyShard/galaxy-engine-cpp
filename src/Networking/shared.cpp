@@ -17,7 +17,8 @@ addrinfo* get_addr_list(const char *ip, unsigned short port)
     if (status != 0)
     {
         fprintf(stderr, "addrinfo error %d: %s\n", status, gai_strerror(status));
-        assert(false);
+        //assert(false);
+        throw("");
     }
     return linkedList;
 }

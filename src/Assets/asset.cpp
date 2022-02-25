@@ -34,6 +34,8 @@ std::string Assets::data_path()
     #elif OS_IOS
     // HOME on iOS is the application folder
     auto path = std::string() + getenv("HOME") + "/Documents";
+    #elif defined(EMSCRIPTEN)
+    
     #else
     static_assert(false, "Platform not implemented");
     #endif
@@ -46,19 +48,23 @@ FileContent::~FileContent()
 FileContent Assets::file_contents(const char *path, bool assertOnFail)
 {
     auto stream = std::ifstream(path, std::ios::binary | std::ios::ate);
-    if (!stream.good())
+    if (!stream)
     {
-        if (assertOnFail) assert(false);
+        //if (assertOnFail) assert(false);
+        if (assertOnFail) throw("Failed to open stream");
         else return {0, nullptr};
     }
     unsigned int length = stream.tellg();
 
     stream.seekg(0);
     char *contents = new char[length+1];
-    stream.read(contents, length);
-
-    assert(stream.good());
-    //strcat(contents, ""); // add null terminator
+    //stream.read(contents, length);
+    if (!stream.read(contents, length))
+    {
+        if (assertOnFail) throw("Failed to read stream");
+        else return {0, nullptr};
+    }
+    //assert(stream.good());
     contents[length] = '\0';
     return {length+1, contents};
 }

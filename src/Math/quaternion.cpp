@@ -1,12 +1,12 @@
 #include <Galaxy/Math/vector.hpp>
 #include <ostream>
 
-Quaternion Quaternion::operator *(const Quaternion &q)
-{
-    //std::cout << "ERROR: Quaternion::* not implemented" << std::endl;
-    assert(false && "ERROR: Quaternion::* not implemented");
-    return q;
-}
+//Quaternion Quaternion::operator *(const Quaternion &q)
+//{
+//    //std::cout << "ERROR: Quaternion::* not implemented" << std::endl;
+//    assert(false && "ERROR: Quaternion::* not implemented");
+//    return q;
+//}
 Quaternion::Quaternion(float x, float y, float z, float w)
     : x(x), y(y), z(z), w(w) { }
 Quaternion::operator Vector4() const { return Vector4(x, y, z, w); }

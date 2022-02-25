@@ -87,7 +87,8 @@ void Renderer::bind_uniforms(std::__1::unordered_map<int, Uniform> &uniforms)
         else if (type == Uniform::VEC4) glUniform4fv(i, 1, &val.v4.x);
         else if (type == Uniform::INT) glUniform1i(i, val.i);
         else if (type == Uniform::MAT4x4) glUniformMatrix4fv(i, 1, false, val.m4x4.transpose().value_ptr());
-        else assert(false && "Case not implemented");
+        //else assert(false && "Case not implemented");
+        else throw("Case not implemented");
         GLCall();
     }
 

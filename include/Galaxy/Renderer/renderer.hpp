@@ -28,7 +28,7 @@ class Renderer
 {
     private:
         static void bind_material(Material *mat);
-        static void bind_uniforms(std::__1::unordered_map<int, Uniform> &uniforms);
+        static void bind_uniforms(std::unordered_map<int, Uniform> &uniforms);
         friend class RendererSystem;
     public:
         static int screenWidth, screenHeight;

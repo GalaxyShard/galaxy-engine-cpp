@@ -28,7 +28,8 @@ Font::Font(std::string folder)
             while(std::getline(charData, val, ' '))
             {
                 size_t pos = val.find('=');
-                assert(pos != std::string::npos);
+                if (pos == std::string::npos) throw("Error reading font data");
+                //assert(pos != std::string::npos);
 
                 name = val.substr(0, pos);
                 val = val.substr(pos+1);

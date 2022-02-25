@@ -1,14 +1,9 @@
 if (CMAKE_SYSTEM_NAME MATCHES "iOS")
-    message("Using IOS Cmake")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch arm64")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -arch arm64")
 endif()
 include(initialize.cmake)
-
 
 #project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
 project("Galaxy Engine")
@@ -19,7 +14,6 @@ set(proj_dir ${CMAKE_CURRENT_LIST_DIR})
 set(src_dir ${proj_dir}/src)
 
 include_directories(${proj_dir}/src)
-#include_directories(${proj_dir}/src/External/metal-cpp)
 include_directories(${proj_dir}/include)
 
 #add_definitions(-DDEBUG)
@@ -31,6 +25,17 @@ add_definitions(-DGL_SILENCE_DEPRECATION)
 add_definitions(-DGLES_SILENCE_DEPRECATION)
 add_definitions(-DGLFW_INCLUDE_GLCOREARB)
 add_definitions(-DOPENAL_DEPRECATED=)
+
+message("Platform: ${CMAKE_SYSTEM_NAME}")
+if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+    set(EMSCRIPTEN 1)
+endif()
+
+if (EMSCRIPTEN)
+    #set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    add_library(engine STATIC ${ENGINE_SRC})
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lopenal")
+endif()
 
 if (APPLE)
     add_library(engine STATIC ${ENGINE_SRC})

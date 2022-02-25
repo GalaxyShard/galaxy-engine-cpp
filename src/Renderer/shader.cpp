@@ -28,7 +28,8 @@ namespace
             printf("ERROR compiling shader\n%s\n", log);
 
             GLCall(glDeleteShader(shader));
-            assert(false);
+            throw("");
+            //assert(false);
         }
         return shader;
     }
@@ -80,8 +81,9 @@ unsigned int Shader::create_program()
         {
             if (fallback == nullptr)
             {
-                printf("Error creating program and fallback is null\n");
-                assert(false);
+                fprintf(stderr, "Error creating program and fallback is null\n");
+                //assert(false);
+                throw("");
             }
             vertex = fallback->vertex;
             fragment = fallback->fragment;
@@ -104,10 +106,11 @@ unsigned int Shader::create_program()
             GLCall(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logSize));
             char log[logSize];
             GLCall(glGetProgramInfoLog(program, logSize, nullptr, log));
-            printf("ERROR creating shader program\n%s\n", log);
+            fprintf(stderr, "ERROR creating shader program\n%s\n", log);
 
             GLCall(glDeleteProgram(program));
-            assert(false);
+            //assert(false);
+            throw("");
         }
         GLCall(glValidateProgram(program));
         return program;

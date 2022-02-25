@@ -141,7 +141,8 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
             if (tris.size() != 3)
             {
                 // TODO: triangulate
-                assert(false);
+                //assert(false);
+                throw("Cannot triangulate mesh automatically");
             }
             Face face;
             int i = 0;
