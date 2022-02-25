@@ -59,7 +59,7 @@ template<typename T>
 class EventT;
 
 template<typename T>
-class ListenerT;
+struct ListenerT;
 
 
 template<typename T>

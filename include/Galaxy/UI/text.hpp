@@ -21,7 +21,7 @@ private:
     void build_mesh();
 
     friend class Renderer;
-    friend class UIObject;
+    friend struct UIObject;
 public:
     std::string text;
     UIGroup *group = 0;

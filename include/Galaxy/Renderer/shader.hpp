@@ -5,7 +5,7 @@ struct Vector3;
 struct Vector4;
 struct Matrix4x4;
 
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     #define SHADER_FOLDER "/shaders-es"
 #else
     #define SHADER_FOLDER "/shaders-gl"
@@ -13,7 +13,7 @@ struct Matrix4x4;
 template<typename T>
 class AssetRef;
 
-struct Shader
+class Shader
 {
     private:
         unsigned int vertex = 0, fragment = 0, program = 0;

@@ -25,7 +25,7 @@ private:
     Shader *shader();
 
     friend class Renderer;
-    friend class UIObject;
+    friend struct UIObject;
 public:
     UIImage(Texture *texture = nullptr);
     ~UIImage();

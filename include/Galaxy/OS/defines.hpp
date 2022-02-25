@@ -1,6 +1,6 @@
 #pragma once
 
-/* OS_WINDOWS OS_PC OS_IOS OS_MOBILE OS_MAC OS_LINUX OS_ANDROID */
+/* OS_WINDOWS OS_PC OS_IOS OS_MOBILE OS_MAC OS_LINUX OS_ANDROID OS_WEB */
 #ifdef _WIN32
     #define OS_WINDOWS 1
     #define OS_PC 1
@@ -17,6 +17,10 @@
         #define OS_MAC 1
         #define OS_PC 1
     #endif
+#endif
+
+#ifdef EMSCRIPTEN
+    #define OS_WEB 1
 #endif
 
 #ifdef __linux__
@@ -37,6 +41,9 @@
 #endif
 #ifndef OS_MOBILE
     #define OS_MOBILE 0
+#endif
+#ifndef OS_WEB
+    #define OS_WEB 0
 #endif
 
 #ifndef OS_WINDOWS

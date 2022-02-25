@@ -1,5 +1,11 @@
 #pragma once
 #include <string>
+enum Endian:unsigned char { LITTLE, BIG };
+
+int set_endian32(char *buffer, Endian from, Endian to);
+short set_endian16(char *buffer, Endian from, Endian to);
+short to_native_endian16(char *buffer, Endian current);
+int to_native_endian32(char *buffer, Endian current);
 
 template<typename T>
 T b_cast(const void *buffer)

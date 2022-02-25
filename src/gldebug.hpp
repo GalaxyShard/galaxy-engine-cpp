@@ -1,6 +1,6 @@
 #pragma once
 #include <Galaxy/OS/defines.hpp>
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     #include <glfm.h>
     extern GLFMDisplay *glfmDisplay;
 #else
@@ -16,7 +16,7 @@ static inline bool gl_check_errors()
     while (int e = glGetError())
     {
         errored = 1;
-        printf("GL error: %s\n", glErrorStringMap[e]);
+        printf("GL error: %s\n", (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));
     }
     return !errored;
 }

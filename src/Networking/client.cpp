@@ -108,12 +108,12 @@ void Client::client_thread(const char *ip, unsigned short port)
         {
             constexpr int bufferSize = 512;
             char buffer[bufferSize];
-            int bytesRead;
+            int bytesRead=0;
 
             {
                 auto lock = std::lock_guard(inst->connMutex);
-                if (inst->serverConn >= 0)
-                    bytesRead = recv(inst->serverConn, buffer, bufferSize, 0);
+                //if (inst->serverConn >= 0)
+                bytesRead = recv(inst->serverConn, buffer, bufferSize, 0);
             }
             check_socket(bytesRead);
 

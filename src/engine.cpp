@@ -28,7 +28,7 @@ PS4: GNM (low level), GNMX (high level)
 
 extern const char *gameName;
 
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
 #define SWAP_BUFFERS() glfmSwapBuffers(glfmDisplay);
 
 #else
@@ -75,7 +75,7 @@ static void redraw()
     InternalTime::end_frame();
 
     SWAP_BUFFERS();
-#if !OS_MOBILE
+#if !OS_MOBILE && !OS_WEB
     glfwPollEvents();
 #endif
 }
@@ -83,7 +83,7 @@ void initialize()
 {
     srand(time(0)); // use a combination of time and something else for seed, eg mac address
     rand();
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     glfmSetSurfaceResizedFunc(glfmDisplay, [](GLFMDisplay*, int w, int h)
     { Renderer::fix_aspect(w, h); });
 #else
@@ -104,7 +104,7 @@ void initialize()
     GLCall(glFrontFace(GL_CCW)); // counter clockwise vertex ordering
 
     InternalTime::initialize();
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
     {
         static bool didInit = 0;

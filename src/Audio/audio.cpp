@@ -1,35 +1,19 @@
 #include <Galaxy/Audio/audio.hpp>
 #include <Galaxy/Math/binary.hpp>
+#include <Galaxy/OS/defines.hpp>
 
-#include <OpenAL/OpenAL.h>
+#if OS_MAC || OS_IOS
+    #include <OpenAL/OpenAL.h>
+#endif
+#if OS_WEB
+    #include <AL/al.h>
+    #include <AL/alc.h>
+#endif
 #include <internalinit.hpp>
+//#include <emscripten.h>
 
 static ALCdevice *alcDevice;
 
-enum Endian:unsigned char { LITTLE, BIG };
-short to_native_endian16(char *buffer, Endian endian = LITTLE)
-{
-    int one=1;
-    Endian sysEndian = (*(unsigned char*)&one == 1) ? LITTLE : BIG;
-    if (sysEndian != endian)
-    {
-        std::swap(buffer[0], buffer[1]);
-    }
-    //return *(short*)buffer;
-    return b_cast<short>(buffer);
-}
-int to_native_endian32(char *buffer, Endian endian = LITTLE)
-{
-    int one=1;
-    Endian sysEndian = (*(unsigned char*)&one == 1) ? LITTLE : BIG;
-    if (sysEndian != endian)
-    {
-        std::swap(buffer[0], buffer[3]);
-        std::swap(buffer[1], buffer[2]);
-    }
-    //return *(int*)buffer;
-    return b_cast<int>(buffer);
-}
 void read_until_found(std::ifstream &stream, const char *dataStr, char *buffer)
 {
     int foundLetters = 0;
@@ -85,19 +69,19 @@ std::vector<char> load_wav(const std::string &path, char *channels, int *sampleR
 
     if (!stream.read(buffer, 2))
         throw("Failed to read format");
-    short audioFormat = to_native_endian16(buffer);
+    short audioFormat = to_native_endian16(buffer, Endian::LITTLE);
     if (audioFormat != 1)
         throw("Invalid audio format");
 
 
     if (!stream.read(buffer, 2))
         throw("Failed to read (channels)");
-    *channels = to_native_endian16(buffer);
+    *channels = to_native_endian16(buffer, Endian::LITTLE);
     
     
     if (!stream.read(buffer, 4))
         throw("Failed to read (sample rate)");
-    *sampleRate = to_native_endian32(buffer);
+    *sampleRate = to_native_endian32(buffer, Endian::LITTLE);
 
     // byte rate(4), block align(2)
     stream.ignore(6);
@@ -112,7 +96,7 @@ std::vector<char> load_wav(const std::string &path, char *channels, int *sampleR
     
     if (!stream.read(buffer, 4))
         throw("Failed to read (size)");
-    int dataSize = to_native_endian32(buffer);
+    int dataSize = to_native_endian32(buffer, Endian::LITTLE);
 
     std::vector<char> data = std::vector<char>(dataSize);
     if (!stream.read(data.data(), dataSize))
@@ -141,7 +125,11 @@ AudioPlayer::AudioPlayer(AudioData *data)
     else if (data->channels == 1 && data->bitsPerSample == 16) format = AL_FORMAT_MONO16;
     else if (data->channels == 2 && data->bitsPerSample == 8) format = AL_FORMAT_STEREO8;
     else if (data->channels == 2 && data->bitsPerSample == 16) format = AL_FORMAT_STEREO16;
-    else fprintf(stderr, "Unrecognized bits per sample (%d) and channels (%d)\n", data->bitsPerSample, data->channels);
+    else
+    {
+        fprintf(stderr, "Unrecognized bits per sample (%d) and channels (%d)\n", data->bitsPerSample, data->channels);
+        throw("Audio error");
+    }
 
     alBufferData(soundBuffer, format, data->rawAudio.data(), data->rawAudio.size(), data->sampleRate);
 

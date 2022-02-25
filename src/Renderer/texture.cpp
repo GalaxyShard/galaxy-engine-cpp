@@ -7,7 +7,7 @@
 #include <External/stb_image.h>
 #include <unordered_map>
 
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
 static constexpr unsigned int MAX_SLOTS = 8;
 #else
 static constexpr unsigned int MAX_SLOTS = 16;
@@ -36,7 +36,7 @@ void Texture::init_texture(unsigned char *localBuffer, DisplayMode displayMode)
         GL_CLAMP_TO_EDGE makes the last pixels stretch
         GL_CLAMP_TO_BORDER sets the pixels outside the image to a color
     */
-    #if OS_MOBILE
+    #if OS_MOBILE || OS_WEB
         #define GL_RGBA8 GL_RGBA
     #endif
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));

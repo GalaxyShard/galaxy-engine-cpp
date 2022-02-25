@@ -29,7 +29,7 @@ namespace
     void init()
     {
         int w, h;
-        #if OS_MOBILE
+        #if OS_MOBILE || OS_WEB
             glfmGetDisplaySize(glfmDisplay, &w, &h);
         #else
             glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
@@ -66,7 +66,7 @@ void Renderer::fix_aspect(int w, int h)
     }
     UIGroup::aspectRatio->scale = reverseAspect;
 
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     GLCall(glViewport(0, 0, w, h));
 #endif
     aspectChanged->fire();

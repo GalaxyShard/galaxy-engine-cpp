@@ -74,7 +74,6 @@ namespace
     }
     void process_click(int touchID, bool action, int mods, Vector2 pos)
     {
-        const auto &raycastables = UIImage::get_raycastables();
         lastTouchID = touchID;
         if (action)
         {
@@ -110,7 +109,7 @@ namespace
         // will be updated when outside of window as long as window is focused
         Input::mousePos = Vector2(x / Renderer::screenWidth, 1.f-(y / Renderer::screenHeight))*2-1;
     }
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     bool touch_callback(GLFMDisplay*, int touch, GLFMTouchPhase phase, double x, double y)
     {
         process_cursor(x, y);
@@ -253,7 +252,7 @@ void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
     changingBind = bind;
     onRebindFinish = onFinish;
 
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     
 #else
     glfwSetKeyCallback(glfwGetCurrentContext(), &rebind_callback);
@@ -262,7 +261,7 @@ void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
 SignalT<TouchData>& Input::touch_changed() { return *onTouchEvent.signal; }
 static void init()
 {
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
     glfmSetTouchFunc(glfmDisplay, &touch_callback);
 #else
     auto *window = glfwGetCurrentContext();

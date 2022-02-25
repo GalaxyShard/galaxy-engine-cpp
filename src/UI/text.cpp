@@ -13,7 +13,7 @@
 static AssetRef<Shader> textShader;
 Shader *UIText::shader() { return textShader.get(); }
 
-UIText::UIText(std::string text, Font *font) : text(text), font(font)
+UIText::UIText(std::string text, Font *font) : font(font), text(text)
 {
     rendererID = UIObject::add_text(this);
 
@@ -40,8 +40,8 @@ void UIText::refresh()
     build_mesh();
     mesh->refresh_mesh();
 }
-static float xcoord(int pixel, float size) { return pixel / size + (1.f / (size * 2.f)); }
-static float ycoord(int pixel, float size) { return xcoord(size-pixel, size); }
+//static float xcoord(int pixel, float size) { return pixel / size + (1.f / (size * 2.f)); }
+//static float ycoord(int pixel, float size) { return xcoord(size-pixel, size); }
 void UIText::build_mesh()
 {
     auto &tris = mesh->tris;
@@ -53,7 +53,8 @@ void UIText::build_mesh()
     tris.reserve(text.size());
 
     // scale is bounding box
-    const int fontSize = 72, lineHeight = 72;
+    //const int fontSize = 72, lineHeight = 72;
+    const int fontSize = 72;
 
 
     float xadv = 0;

@@ -1,7 +1,7 @@
 #include <gldebug.hpp>
 #ifdef DEBUG
 #include <unordered_map>
-std::unordered_map<int, const char*> glErrorStringMap =
+const std::unordered_map<int, const char*> glErrorStringMap =
 {
     {GL_INVALID_ENUM, "Invalid enum"},
     {GL_INVALID_VALUE, "Invalid value"},
@@ -12,7 +12,7 @@ std::unordered_map<int, const char*> glErrorStringMap =
 #endif
 void initialize();
 
-#if OS_MOBILE
+#if OS_MOBILE || OS_WEB
 GLFMDisplay *glfmDisplay;
 void glfmMain(GLFMDisplay *display)
 {

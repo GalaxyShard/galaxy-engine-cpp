@@ -7,6 +7,37 @@ static_assert(sizeof(short) == 2);
 static_assert(sizeof(long long) == 8);
 static_assert(sizeof(float) == 4);
 static_assert(sizeof(double) == 8);
+Endian sys_endian()
+{
+    int one=1;
+    return (*(unsigned char*)&one == 1) ? LITTLE : BIG;
+}
+short set_endian16(char *buffer, Endian from, Endian to)
+{
+    if (from != to)
+    {
+        std::swap(buffer[0], buffer[1]);
+    }
+    return b_cast<short>(buffer);
+}
+int set_endian32(char *buffer, Endian from, Endian to)
+{
+    if (from != to)
+    {
+        std::swap(buffer[0], buffer[3]);
+        std::swap(buffer[1], buffer[2]);
+    }
+    return b_cast<int>(buffer);
+}
+short to_native_endian16(char *buffer, Endian current)
+{
+    return set_endian16(buffer, current, sys_endian());
+}
+int to_native_endian32(char *buffer, Endian current)
+{
+    return set_endian32(buffer, current, sys_endian());
+}
+
 
 template<>
 unsigned char BinaryReader::read<unsigned char>()
@@ -24,10 +55,11 @@ signed char BinaryReader::read<signed char>()
 template<>
 int BinaryReader::read<int>()
 {
-    int val = b_cast<int>(&buffer[nextIndex]);
+    //int val = b_cast<int>(&buffer[nextIndex]);
     //int val = *(int*)&buffer[nextIndex];
     nextIndex += 4;
-    return ntohl(val);
+    return to_native_endian32(&buffer[nextIndex], Endian::BIG);
+    //return ntohl(val);
 }
 template<>
 std::string BinaryReader::read<std::string>()
@@ -44,23 +76,29 @@ std::string BinaryReader::read<std::string>()
 template<>
 float BinaryReader::read<float>()
 {
-    // IEEE-754
+    // Force IEEE-754
     static_assert(std::numeric_limits<float>::is_iec559);
     
-    auto b0 = read<unsigned char>();
-    auto b1 = read<unsigned char>();
-    auto b2 = read<unsigned char>();
-    auto b3 = read<unsigned char>();
+    //auto b0 = read<unsigned char>();
+    //auto b1 = read<unsigned char>();
+    //auto b2 = read<unsigned char>();
+    //auto b3 = read<unsigned char>();
 
-    unsigned char rawBytes[4] = {b0,b1,b2,b3};
-    int one = 1;
-    if (*(unsigned char*)&one == 1)
+    //unsigned char rawBytes[4] = {b0,b1,b2,b3};
+    unsigned char rawBytes[4];
+    rawBytes[0] = read<unsigned char>();
+    rawBytes[1] = read<unsigned char>();
+    rawBytes[2] = read<unsigned char>();
+    rawBytes[3] = read<unsigned char>();
+    //int one = 1;
+    //if (*(unsigned char*)&one == 1)
+    if (sys_endian() == LITTLE)
     {
         std::swap(rawBytes[0], rawBytes[3]);
         std::swap(rawBytes[1], rawBytes[2]);
     }
-    //return *(float*)rawBytes;
     return b_cast<float>(rawBytes);
+    //return *(float*)rawBytes;
 
     //// bytes are left to right
     //unsigned char b0 = read<unsigned char>();
@@ -108,16 +146,20 @@ void BinaryWriter::write<unsigned char>(unsigned char data)
 template<>
 void BinaryWriter::write<int>(int data)
 {
-    int bigEndian = htonl(data);
-    buffer.append((char*)&bigEndian, sizeof(int));
+    int newData = set_endian32((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(int));
+    //int bigEndian = htonl(data);
+    //buffer.append((char*)&bigEndian, sizeof(int));
 }
 template<>
 void BinaryWriter::write<std::string>(std::string data)
 {
     //unsigned short length = (unsigned short)data.size();
     //length = htons(length);
-    char length = (char)data.size();
-    buffer += length + data;
+    //char length = (char)data.size();
+    //buffer += length + data;
+    write((unsigned char)data.size());
+    buffer += data; // no endian checks, probably should
 }
 
 template<>
@@ -128,8 +170,7 @@ void BinaryWriter::write<float>(float data)
     unsigned char *rawBytes;
     rawBytes = (unsigned char*)&data;
 
-    int one = 1;
-    if (*(unsigned char*)&one == 1)
+    if (sys_endian() == LITTLE)
     {
         std::swap(rawBytes[0], rawBytes[3]);
         std::swap(rawBytes[1], rawBytes[2]);

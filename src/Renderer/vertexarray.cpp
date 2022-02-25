@@ -7,6 +7,8 @@ VertexArray::VertexArray()
 {
 #if OS_MOBILE
     GLCall(glGenVertexArraysOES(1, &rendererID));
+//#elif OS_WEB
+
 #else
     GLCall(glGenVertexArrays(1, &rendererID));
 #endif
@@ -16,7 +18,9 @@ VertexArray::~VertexArray()
 {
 #if OS_MOBILE
     GLCall(glDeleteVertexArraysOES(1, &rendererID));
+//#elif OS_WEB
 #else
+
     GLCall(glDeleteVertexArrays(1, &rendererID));
 #endif
 }
@@ -49,6 +53,8 @@ void VertexArray::bind() const
 {
 #if OS_MOBILE
     GLCall(glBindVertexArrayOES(rendererID));
+//#elif OS_WEB
+
 #else
     GLCall(glBindVertexArray(rendererID));
 #endif
@@ -57,6 +63,7 @@ void VertexArray::unbind() const
 {
 #if OS_MOBILE
     GLCall(glBindVertexArrayOES(0));
+//#elif OS_WEB
 #else
     GLCall(glBindVertexArray(0));
 #endif
