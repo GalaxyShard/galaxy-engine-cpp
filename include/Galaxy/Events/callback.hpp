@@ -1,5 +1,31 @@
 #pragma once
 
+/*
+    New Implementation:
+
+        constexpr int size = 16;
+        typedef struct
+        {
+            char raw[size];
+            void (*indirection)(char*);
+        } TestLambda;
+        template<typename T>
+        TestLambda create(T lambda)
+        {
+            auto test = TestLambda();
+            memcpy(test.raw, &lambda, sizeof(lambda));
+            static_assert(sizeof(lambda) <= sizeof(test.raw), "Lambda is too large");
+            test.indirection = [](char *buffer)
+            {
+                (*(decltype(lambda)*)buffer)();
+            };
+        }
+        void call(const TestLambda &test)
+        {
+            test.indirection(test.raw);
+        }
+*/
+
 class EmptyCallbackClass{};
 struct RawCallback
 {
