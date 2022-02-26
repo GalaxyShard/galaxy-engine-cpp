@@ -1,17 +1,27 @@
 #include <Galaxy/Events/event.hpp>
 
-
-int Signal::connect_int(empty_func func)
+int Signal::connect_int(Callback callback)
 {
     int id = nextID;
-    listeners.insert(std::make_pair(id, Callback(func)));
+    listeners.insert(std::make_pair(id, callback));
     ++nextID;
     return id;
 }
-std::unique_ptr<Listener> Signal::connect(empty_func func)
+std::unique_ptr<Listener> Signal::connect(Callback callback)
 {
-    return std::make_unique<Listener>(this, connect_int(func));
+    return std::make_unique<Listener>(this, connect_int(callback));
 }
+//int Signal::connect_int(empty_func func)
+//{
+//    int id = nextID;
+//    listeners.insert(std::make_pair(id, Callback(func)));
+//    ++nextID;
+//    return id;
+//}
+//std::unique_ptr<Listener> Signal::connect(empty_func func)
+//{
+//    return std::make_unique<Listener>(this, connect_int(func));
+//}
 void Signal::disconnect_int(int id)
 {
     eraseQueue.push_back(id);

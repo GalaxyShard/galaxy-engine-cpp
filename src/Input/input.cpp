@@ -125,6 +125,7 @@ namespace
         if (phase==GLFMTouchPhaseBegan) state = TouchState::PRESSED;
         else if (phase==GLFMTouchPhaseCancelled || phase==GLFMTouchPhaseEnded) state = TouchState::RELEASED;
         else if (phase==GLFMTouchPhaseMoved) state = TouchState::MOVED;
+        else return 1;
         TouchData data = TouchData {
             .id = touch,
             .pos = Input::mousePos,

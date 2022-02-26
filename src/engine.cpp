@@ -81,6 +81,7 @@ static void redraw()
 }
 void initialize()
 {
+    std::cout.setf(std::ios::fixed);
     srand(time(0)); // use a combination of time and something else for seed, eg mac address
     rand();
 #if OS_MOBILE || OS_WEB
