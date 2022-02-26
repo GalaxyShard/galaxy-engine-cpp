@@ -5,6 +5,7 @@
 
 addrinfo* get_addr_list(const char *ip, unsigned short port)
 {
+#if !OS_WEB
     addrinfo hints;
     memset(&hints, 0, sizeof(addrinfo));
     hints.ai_socktype = SOCK_STREAM;
@@ -21,13 +22,18 @@ addrinfo* get_addr_list(const char *ip, unsigned short port)
         throw("");
     }
     return linkedList;
+#else
+    return 0;
+#endif
 }
 int check_socket(int status)
 {
+#if !OS_WEB
     if (status == -1)
     {
         fprintf(stderr, "socket error %d: %s\n", errno, strerror(errno));
     }
+#endif
     return status;
 }
 static void clean()

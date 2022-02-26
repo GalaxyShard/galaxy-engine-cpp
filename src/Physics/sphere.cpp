@@ -1,4 +1,5 @@
 #include <Galaxy/Physics/physics.hpp>
+#include <stdio.h>
 
 #include "combinations.hpp"
 #include <cmath>

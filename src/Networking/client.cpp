@@ -5,6 +5,7 @@
 std::unique_ptr<Client> Client::inst;
 void Client::pre_render()
 {
+#if !OS_WEB
     {
         auto lock = std::lock_guard(inst->queueMutex);
         while(inst->queuedMessages.size())
@@ -29,9 +30,11 @@ void Client::pre_render()
     {
         shutdown();
     }
+#endif
 }
 void Client::client_thread(const char *ip, unsigned short port)
 {
+#if !OS_WEB
     {
         addrinfo *list = get_addr_list(ip, port);
         
@@ -121,9 +124,11 @@ void Client::client_thread(const char *ip, unsigned short port)
             inst->queuedMessages.push_back(std::string(buffer, bytesRead));
         }
     }
+#endif
 }
 bool Client::start(const char *ip, unsigned short port)
 {
+#if !OS_WEB
     if (inst.get())
         return 0;
     
@@ -132,9 +137,13 @@ bool Client::start(const char *ip, unsigned short port)
     inst->clientThread = std::make_unique<std::thread>(client_thread, ip, port);
     inst->preRenderConn = Renderer::pre_render().connect(&pre_render);
     return 1;
+#else
+    return 0;
+#endif
 }
 bool Client::start_as_host()
 {
+#if !OS_WEB
     if (inst.get() || !Server::inst.get())
         return 0;
     
@@ -149,27 +158,35 @@ bool Client::start_as_host()
     inst->isActive = 1;
     Server::inst->clients.push_back(HOST_FD);
     return 1;
+#else
+    return 0;
+#endif
 }
 void Client::set_shutdown_callback(void(*func)())
 {
+#if !OS_WEB
     if (!inst.get())
     {
         fprintf(stderr, "Error: shutdown callback set before starting client\n");
         return;
     }
     inst->shutdownCallback = func;
+#endif
 }
 void Client::set_error_callback(void(*func)())
 {
+#if !OS_WEB
     if (!inst.get())
     {
         fprintf(stderr, "Error: error callback set before starting client\n");
         return;
     }
     inst->errorCallback = func;
+#endif
 }
 void Client::shutdown()
 {
+#if !OS_WEB
     if (!inst.get())
         return;
     inst->shutdownCallback();
@@ -207,18 +224,22 @@ void Client::shutdown()
         }
     }
     inst = 0;
+#endif
 }
 void Client::register_rpc(std::string name, void(*func)(NetworkReader))
 {
+#if !OS_WEB
     if (!inst.get())
     {
         fprintf(stderr, "Error: rpc registered before starting client\n");
         return;
     }
     inst->rpcs[name] = func;
+#endif
 }
 void Client::send(const char *msg, const NetworkWriter &data)
 {
+#if !OS_WEB
     if (!inst.get())
     {
         fprintf(stderr, "Error: send can only be called after starting client\n");
@@ -235,6 +256,7 @@ void Client::send(const char *msg, const NetworkWriter &data)
         long bytesSent = ::send(inst->serverConn, buffer.c_str(), buffer.size(), 0);
         check_socket(bytesSent);
     }
+#endif
 }
 bool Client::is_active()
 {

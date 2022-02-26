@@ -58,7 +58,7 @@ int BinaryReader::read<int>()
     //int val = b_cast<int>(&buffer[nextIndex]);
     //int val = *(int*)&buffer[nextIndex];
     nextIndex += 4;
-    return to_native_endian32(&buffer[nextIndex], Endian::BIG);
+    return to_native_endian32(&buffer[nextIndex-4], Endian::BIG);
     //return ntohl(val);
 }
 template<>

@@ -109,7 +109,7 @@ namespace
         // will be updated when outside of window as long as window is focused
         Input::mousePos = Vector2(x / Renderer::screenWidth, 1.f-(y / Renderer::screenHeight))*2-1;
     }
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
     bool touch_callback(GLFMDisplay*, int touch, GLFMTouchPhase phase, double x, double y)
     {
         process_cursor(x, y);
@@ -253,16 +253,14 @@ void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
     changingBind = bind;
     onRebindFinish = onFinish;
 
-#if OS_MOBILE || OS_WEB
-    
-#else
+#if USE_GLFW
     glfwSetKeyCallback(glfwGetCurrentContext(), &rebind_callback);
 #endif
 }
 SignalT<TouchData>& Input::touch_changed() { return *onTouchEvent.signal; }
 static void init()
 {
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
     glfmSetTouchFunc(glfmDisplay, &touch_callback);
 #else
     auto *window = glfwGetCurrentContext();

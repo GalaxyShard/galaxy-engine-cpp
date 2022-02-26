@@ -29,9 +29,10 @@ namespace
     void init()
     {
         int w, h;
-        #if OS_MOBILE || OS_WEB
+        #if USE_GLFM
             glfmGetDisplaySize(glfmDisplay, &w, &h);
-        #else
+        #endif
+        #if USE_GLFW
             glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
         #endif
 
@@ -66,14 +67,14 @@ void Renderer::fix_aspect(int w, int h)
     }
     UIGroup::aspectRatio->scale = reverseAspect;
 
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
     GLCall(glViewport(0, 0, w, h));
 #endif
     aspectChanged->fire();
     
 }
 
-void Renderer::bind_uniforms(std::__1::unordered_map<int, Uniform> &uniforms)
+void Renderer::bind_uniforms(std::unordered_map<int, Uniform> &uniforms)
 {
     for (const auto &[i, uniform] : uniforms)
     {
@@ -289,7 +290,7 @@ void Renderer::draw(Object &obj)
 {
     // hack: rewrite this
     ObjRendererECS renderer = ObjRendererECS{.mat=obj.material, .mesh=obj.mesh};
-    TransformECS transform = TransformECS{.pos=obj.position,.rotation=obj.rotation,.scale=obj.scale};
+    TransformECS transform = TransformECS{.pos=obj.position,.scale=obj.scale,.rotation=obj.rotation};
     RendererSystem().draw(renderer, transform);
 }
 

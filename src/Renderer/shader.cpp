@@ -91,7 +91,7 @@ unsigned int Shader::create_program()
         GLCall(glAttachShader(program, vertex));
         GLCall(glAttachShader(program, fragment));
 
-        #if OS_MOBILE || OS_WEB
+        #if USE_GLFM
             glBindAttribLocation(program, 0, "pos");
             glBindAttribLocation(program, 1, "texCoord");
             glBindAttribLocation(program, 2, "normal");

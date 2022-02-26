@@ -12,7 +12,7 @@ const std::unordered_map<int, const char*> glErrorStringMap =
 #endif
 void initialize();
 
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
 GLFMDisplay *glfmDisplay;
 void glfmMain(GLFMDisplay *display)
 {
@@ -27,7 +27,8 @@ void glfmMain(GLFMDisplay *display)
         GLFMMultisampleNone
     );
 }
-#else
+#endif
+#if USE_GLFW
 int main()
 {
     initialize();

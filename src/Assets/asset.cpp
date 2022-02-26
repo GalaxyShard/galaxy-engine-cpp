@@ -12,6 +12,13 @@
 
 
 const char *get_resource_path_platform();
+
+#if OS_WEB
+const char *get_resource_path_platform()
+{
+    return "res";
+}
+#endif
 const char *get_bundle_identifier();
 extern const char *gameName;
 
@@ -34,8 +41,10 @@ std::string Assets::data_path()
     #elif OS_IOS
     // HOME on iOS is the application folder
     auto path = std::string() + getenv("HOME") + "/Documents";
-    #elif defined(EMSCRIPTEN)
-    
+    #elif OS_WEB
+    auto path = std::string(); // TODO
+    fprintf(stderr,"Error: no data path implemented\n");
+    exit(-1);
     #else
     static_assert(false, "Platform not implemented");
     #endif

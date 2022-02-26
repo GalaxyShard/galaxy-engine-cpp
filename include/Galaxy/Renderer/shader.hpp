@@ -5,9 +5,10 @@ struct Vector3;
 struct Vector4;
 struct Matrix4x4;
 
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
     #define SHADER_FOLDER "/shaders-es"
-#else
+#endif
+#if USE_GLFW
     #define SHADER_FOLDER "/shaders-gl"
 #endif
 template<typename T>

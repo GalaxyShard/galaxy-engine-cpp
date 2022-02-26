@@ -1,4 +1,5 @@
 #pragma once
+#include <Galaxy/OS/defines.hpp>
 #include <vector>
 class Buffer
 {
@@ -65,6 +66,12 @@ public:
 };
 class VertexArray : public Buffer
 {
+private:
+    #if OS_WEB
+    IndexBuffer *ibo = 0;
+    VertexBuffer *vbo = 0;
+    VertexLayout vertexLayout;
+    #endif
 public:
     VertexArray();
     ~VertexArray();

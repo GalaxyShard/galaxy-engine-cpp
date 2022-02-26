@@ -5,6 +5,7 @@
 std::unique_ptr<Server> Server::inst;
 void Server::process_messages()
 {
+#if !OS_WEB
     {
         while (inst->internalMsgs.size())
         {
@@ -53,9 +54,11 @@ void Server::process_messages()
             inst->queuedMessages.pop_front();
         }
     }
+#endif
 }
 void Server::server_thread()
 {
+#if !OS_WEB
     std::vector<pollfd> descriptors;
     descriptors.push_back({.events = POLLIN, .fd = inst->listener});
 
@@ -143,9 +146,11 @@ void Server::server_thread()
             }
         }
     }
+#endif
 }
 bool Server::start(unsigned short port)
 {
+#if !OS_WEB
     if (inst)
         return 0;
 
@@ -193,9 +198,13 @@ bool Server::start(unsigned short port)
     inst->serverThread = std::thread(server_thread);
     inst->preRenderConn = Renderer::pre_render().connect(&process_messages);
     return 1;
+#else
+    return 0;
+#endif
 }
 void Server::shutdown()
 {
+#if !OS_WEB
     if (!inst)
         return;
     inst->isActive = 0;
@@ -215,17 +224,21 @@ void Server::shutdown()
     inst->serverThread.join();
     process_messages();
     inst = 0;
+#endif
 }
 void Server::send_all(const char *msg, const NetworkWriter &data)
 {
+#if !OS_WEB
     auto lock = std::lock_guard(inst->clientMutex);
     for (Connection conn : inst->clients)
     {
         send(conn, msg, data);
     }
+#endif
 }
 void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
 {
+#if !OS_WEB
     if (!inst.get())
     {
         fprintf(stderr, "Error: send called before starting server\n");
@@ -242,32 +255,43 @@ void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
         long bytesSent = ::send(conn.fd, buffer.c_str(), buffer.size(), 0);
         check_socket(bytesSent);
     }
+#endif
 }
 const std::vector<Connection> &Server::get_clients()
 {
+#if !OS_WEB
     if (!inst.get())
     {
         fprintf(stderr, "Error: Server must be active to get clients\n");
     }
     auto lock = std::lock_guard(inst->clientMutex);
     return inst->clients;
+#else
+    throw("Not supported on web");
+#endif
 }
 void Server::set_join_callback(ClientStatusCallback func)
 {
+#if !OS_WEB
     inst->joinCallback = func;
+#endif
 }
 void Server::set_leave_callback(ClientStatusCallback func)
 {
+#if !OS_WEB
     inst->leaveCallback = func;
+#endif
 }
 void Server::register_rpc(std::string name, void (*func)(NetworkReader, Connection))
 {
+#if !OS_WEB
     if (!inst.get())
     {
         fprintf(stderr, "Error: rpc registered before starting server\n");
         return;
     }
     inst->rpcs[name] = func;
+#endif
 }
 bool Server::is_active()
 {

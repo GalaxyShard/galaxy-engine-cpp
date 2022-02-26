@@ -56,7 +56,7 @@ macro(add_src files)
     set(ENGINE_SRC ${ENGINE_SRC} ${files})
 endmacro()
 
-if (APPLE)
+if (APPLE AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
     #add_src(src/External/metal_init.cpp)
     add_src(src/OS/Apple/file_handler.mm)
 endif()

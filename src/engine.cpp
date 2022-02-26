@@ -28,10 +28,10 @@ PS4: GNM (low level), GNMX (high level)
 
 extern const char *gameName;
 
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
 #define SWAP_BUFFERS() glfmSwapBuffers(glfmDisplay);
-
-#else
+#endif
+#if USE_GLFW
 static GLFWwindow *window;
 #define SWAP_BUFFERS() glfwSwapBuffers(window);
 static bool init_glfw()
@@ -75,7 +75,7 @@ static void redraw()
     InternalTime::end_frame();
 
     SWAP_BUFFERS();
-#if !OS_MOBILE && !OS_WEB
+#if USE_GLFW
     glfwPollEvents();
 #endif
 }
@@ -84,10 +84,11 @@ void initialize()
     std::cout.setf(std::ios::fixed);
     srand(time(0)); // use a combination of time and something else for seed, eg mac address
     rand();
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
     glfmSetSurfaceResizedFunc(glfmDisplay, [](GLFMDisplay*, int w, int h)
     { Renderer::fix_aspect(w, h); });
-#else
+#endif
+#if USE_GLFW
     if (!init_glfw()) return;
 #endif
     printf("GL %s\n", glGetString(GL_VERSION));
@@ -105,7 +106,7 @@ void initialize()
     GLCall(glFrontFace(GL_CCW)); // counter clockwise vertex ordering
 
     InternalTime::initialize();
-#if OS_MOBILE || OS_WEB
+#if USE_GLFM
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
     {
         static bool didInit = 0;
@@ -119,7 +120,8 @@ void initialize()
         Init::fire_cleanup();
         printf("Cleanup fired\n");
     });
-#else
+#endif
+#if USE_GLFW
     Init::fire();
     while (!glfwWindowShouldClose(window))
     {

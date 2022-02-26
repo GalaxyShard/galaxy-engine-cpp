@@ -5,21 +5,20 @@
 extern std::unordered_map<AttributeType, int> typeToBytes;
 VertexArray::VertexArray()
 {
-#if OS_MOBILE
+#if OS_IOS
     GLCall(glGenVertexArraysOES(1, &rendererID));
-//#elif OS_WEB
 
-#else
+#elif USE_GLFW
     GLCall(glGenVertexArrays(1, &rendererID));
 #endif
     bind();
 }
 VertexArray::~VertexArray()
 {
-#if OS_MOBILE
+#if OS_IOS
     GLCall(glDeleteVertexArraysOES(1, &rendererID));
 //#elif OS_WEB
-#else
+#elif USE_GLFW
 
     GLCall(glDeleteVertexArrays(1, &rendererID));
 #endif
@@ -28,15 +27,20 @@ void VertexArray::add_buffer(IndexBuffer &buffer)
 {
     bind();
     buffer.bind();
+#if OS_WEB
+    ibo = &buffer;
+#endif
 }
 void VertexArray::add_buffer(VertexBuffer &buffer)
 {
     bind();
     buffer.bind();
+#if OS_WEB
+    vbo = &buffer;
+#endif
 }
-void VertexArray::add_layout(VertexLayout layout)
+static void apply_layout(const VertexLayout &layout)
 {
-    bind();
     long offset = 0;
     
     int index = 0;
@@ -49,22 +53,37 @@ void VertexArray::add_layout(VertexLayout layout)
         ++index;
     }
 }
+void VertexArray::add_layout(VertexLayout layout)
+{
+#if OS_WEB
+    vertexLayout = layout;
+#else
+    bind();
+    apply_layout(layout);
+#endif
+}
 void VertexArray::bind() const
 {
-#if OS_MOBILE
+#if OS_IOS
     GLCall(glBindVertexArrayOES(rendererID));
-//#elif OS_WEB
-
-#else
+#elif USE_GLFW
     GLCall(glBindVertexArray(rendererID));
+#endif
+
+#if OS_WEB
+    if (ibo && vbo)
+    {
+        ibo->bind();
+        vbo->bind();
+        apply_layout(vertexLayout);
+    }
 #endif
 }
 void VertexArray::unbind() const
 {
-#if OS_MOBILE
+#if OS_IOS
     GLCall(glBindVertexArrayOES(0));
-//#elif OS_WEB
-#else
+#elif USE_GLFW
     GLCall(glBindVertexArray(0));
 #endif
 }

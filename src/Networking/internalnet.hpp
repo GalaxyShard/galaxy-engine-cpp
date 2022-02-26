@@ -1,11 +1,15 @@
 #pragma once
 #include <Galaxy/Networking/networking.hpp>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <poll.h>
-#include <thread>
+#include <Galaxy/OS/defines.hpp>
+struct addrinfo;
+#if !OS_WEB
+    #include <unistd.h>
+    #include <sys/socket.h>
+    #include <arpa/inet.h>
+    #include <netdb.h>
+    #include <poll.h>
+    #include <thread>
+#endif
 
 enum MsgState { CLIENT_JOIN, CLIENT_LEAVE };
 
