@@ -194,7 +194,8 @@ void Input::add_bind(const char *bind, KeyCode key, input_callback callback)
 {
     if (bindMap.count(bind) == 1)
     {
-        fprintf(stderr, "WARNING: bind \'%s\' is already used\n", bind);
+        //fprintf(stderr, "WARNING: bind \'%s\' is already used\n", bind);
+        Debug::logerror("WARNING: bind \'%o\' is already used\n", bind);
         return;
     }
     callbacks.insert(std::make_pair(key, InputData(bind, key, callback)));

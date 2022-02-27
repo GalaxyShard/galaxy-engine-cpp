@@ -246,7 +246,8 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         data.dir = -data.dir;
         return data;
     }
-    fprintf(stderr, "error: collision not implemented\n");
+    //fprintf(stderr, "error: collision not implemented\n");
+    Debug::logerror("error: collision not implemented\n");
     return CollisionData();
 }
 void CubeCollider::fix_bounding_box()

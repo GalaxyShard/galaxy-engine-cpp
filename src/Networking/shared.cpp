@@ -17,7 +17,8 @@ addrinfo* get_addr_list(const char *ip, unsigned short port)
     int status = getaddrinfo(ip, portStr.c_str(), &hints, &linkedList);
     if (status != 0)
     {
-        fprintf(stderr, "addrinfo error %d: %s\n", status, gai_strerror(status));
+        //fprintf(stderr, "addrinfo error %d: %s\n", status, gai_strerror(status));
+        Debug::logerror("addrinfo error %o: %o\n", status, gai_strerror(status));
         //assert(false);
         throw("");
     }
@@ -31,7 +32,8 @@ int check_socket(int status)
 #if !OS_WEB
     if (status == -1)
     {
-        fprintf(stderr, "socket error %d: %s\n", errno, strerror(errno));
+        //fprintf(stderr, "socket error %d: %s\n", errno, strerror(errno));
+        Debug::logerror("socket error %o: %o\n", errno, strerror(errno));
     }
 #endif
     return status;

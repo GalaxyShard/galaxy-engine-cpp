@@ -68,7 +68,7 @@ void Renderer::fix_aspect(int w, int h)
     UIGroup::aspectRatio->scale = reverseAspect;
 
 #if USE_GLFM
-    printf("size: %d, %d\n",w,h);
+    //printf("size: %d, %d\n",w,h);
     //GLCall(glViewport(0, 0, w, h));
     GLCall(glViewport(0, 0, 1200, 600));
 #endif

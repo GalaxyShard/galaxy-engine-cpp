@@ -16,7 +16,8 @@ Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned short> tris) : verts(
 }
 void Mesh::initialize_mesh()
 {
-    printf("triangles: %lu\n", tris.size());
+    //printf("triangles: %lu\n", tris.size());
+    Debug::log("triangles: %o\n", tris.size());
     bool isStatic = true;
 
     varray = std::make_unique<VertexArray>();

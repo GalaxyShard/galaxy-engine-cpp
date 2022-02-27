@@ -13,7 +13,8 @@ void Server::process_messages()
             unsigned char msg = reader.read<unsigned char>();
             int fd = reader.read<int>();
 
-            printf("Client %s\n", msg == CLIENT_JOIN ? "joined" : "left");
+            //printf("Client %s\n", msg == CLIENT_JOIN ? "joined" : "left");
+            Debug::log("Client %o\n", msg == CLIENT_JOIN ? "joined" : "left");
             if (msg == CLIENT_JOIN)
             {
                 if (inst->joinCallback)
@@ -43,7 +44,8 @@ void Server::process_messages()
                     message was corrupt, because it is applied on the
                     server right before queueing message
                 */
-                fprintf(stderr, "Message \"%s\" from client %d was corrupted\n", msg.c_str(), connID);
+                //fprintf(stderr, "Message \"%s\" from client %d was corrupted\n", msg.c_str(), connID);
+                Debug::logerror("Message \"%o\" from client %o was corrupted\n", msg.c_str(), connID);
                 inst->queuedMessages.pop_front();
                 continue;
             }
@@ -76,7 +78,8 @@ void Server::server_thread()
         int eventCount = poll(descriptors.data(), descriptors.size(), -1);
         if (eventCount == -1)
         {
-            printf("error %d occured while polling%s\n", errno, strerror(errno));
+            //printf("error %d occured while polling%s\n", errno, strerror(errno));
+            Debug::log("error %o occured while polling%o\n", errno, strerror(errno));
             //assert(false);
             throw("");
         }
@@ -85,7 +88,8 @@ void Server::server_thread()
 
         if (descriptors[1].revents & POLLIN)
         {
-            printf("Server Exit\n");
+            //printf("Server Exit\n");
+            Debug::log("Server Exit\n");
             close(descriptors[1].fd); // pipe reader
             return;
         }
@@ -112,7 +116,8 @@ void Server::server_thread()
             pollfd &client = descriptors[i];
             if (client.revents & POLLHUP)
             {
-                printf("Client disconnected\n");
+                //printf("Client disconnected\n");
+                Debug::log("Client disconnected\n");
                 auto lock = std::lock_guard(inst->clientMutex);
                 int clientFD = descriptors[i].fd;
                 descriptors.erase(descriptors.begin() + i);
@@ -241,7 +246,8 @@ void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
 #if !OS_WEB
     if (!inst.get())
     {
-        fprintf(stderr, "Error: send called before starting server\n");
+        //fprintf(stderr, "Error: send called before starting server\n");
+        Debug::logerror("Error: send called before starting server\n");
         return;
     }
     if (conn.fd == HOST_FD)
@@ -262,7 +268,8 @@ const std::vector<Connection> &Server::get_clients()
 #if !OS_WEB
     if (!inst.get())
     {
-        fprintf(stderr, "Error: Server must be active to get clients\n");
+        //fprintf(stderr, "Error: Server must be active to get clients\n");
+        Debug::logerror("Error: Server must be active to get clients\n");
     }
     auto lock = std::lock_guard(inst->clientMutex);
     return inst->clients;
@@ -287,7 +294,8 @@ void Server::register_rpc(std::string name, void (*func)(NetworkReader, Connecti
 #if !OS_WEB
     if (!inst.get())
     {
-        fprintf(stderr, "Error: rpc registered before starting server\n");
+        //fprintf(stderr, "Error: rpc registered before starting server\n");
+        Debug::logerror("Error: rpc registered before starting server\n");
         return;
     }
     inst->rpcs[name] = func;

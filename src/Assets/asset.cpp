@@ -44,7 +44,8 @@ std::string Assets::data_path()
     auto path = std::string() + getenv("HOME") + "/Documents";
     #elif OS_WEB
     auto path = std::string(); // TODO
-    fprintf(stderr,"Error: no data path implemented\n");
+    Debug::logerror("Error: no data path implemented\n");
+    //fprintf(stderr,"Error: no data path implemented\n");
     assert(false);
     #else
     static_assert(false, "Platform not implemented");

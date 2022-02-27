@@ -20,7 +20,10 @@ static inline bool gl_check_errors(int line, const char *fileName)
     {
         errored = 1;
         //printf("GL error: %s\n", (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));
-        printf("(%s:%d) GL error: %s\n", fileName, line, (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));
+        //printf("(%s:%d) GL error: %s\n", fileName, line, (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));
+        //fprintf(stderr, "(%s:%d) GL error: %s\n", fileName, line, (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));
+        Debug::logerror("(%o:%o) GL error: %o\n", fileName, line, (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));
+    
     }
     return !errored;
 }

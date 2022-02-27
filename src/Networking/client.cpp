@@ -14,7 +14,8 @@ void Client::pre_render()
             unsigned long index = msg.find('\0');
             if (index == std::string::npos)
             {
-                fprintf(stderr, "Message \"%s\" from server was corrupted\n", msg.c_str());
+                //fprintf(stderr, "Message \"%s\" from server was corrupted\n", msg.c_str());
+                Debug::logerror("Message \"%o\" from server was corrupted\n", msg);
                 inst->queuedMessages.pop_front();
                 continue;
             }
@@ -84,8 +85,8 @@ void Client::client_thread(const char *ip, unsigned short port)
         int eventCount = poll(descriptors.data(), descriptors.size(), -1);
         if (eventCount == -1)
         {
-            fprintf(stderr, "error %d occured while polling%s\n", errno, strerror(errno));
-            
+            //fprintf(stderr, "error %d occured while polling%s\n", errno, strerror(errno));
+            Debug::logerror("error %o occured while polling%o\n", errno, strerror(errno));
             auto lock = std::lock_guard(inst->shutdownMutex);
             inst->shuttingDown = 1;
             inst->errorCode = GENERAL;
@@ -95,7 +96,8 @@ void Client::client_thread(const char *ip, unsigned short port)
         
         if (descriptors[readerIndex].revents & POLLIN)
         {
-            printf("Client shutdown\n");
+            //printf("Client shutdown\n");
+            Debug::log("Client shutdown\n");
             close(descriptors[readerIndex].fd); // pipe reader
             return;
         }
@@ -103,7 +105,8 @@ void Client::client_thread(const char *ip, unsigned short port)
         {
             if (inst->shuttingDown)
                 return;
-            printf("Server closed connection\n");
+            //printf("Server closed connection\n");
+            Debug::log("Server closed connection\n");
             auto lock = std::lock_guard(inst->shutdownMutex);
             inst->shuttingDown = 1;
         }
@@ -167,7 +170,8 @@ void Client::set_shutdown_callback(void(*func)())
 #if !OS_WEB
     if (!inst.get())
     {
-        fprintf(stderr, "Error: shutdown callback set before starting client\n");
+        //fprintf(stderr, "Error: shutdown callback set before starting client\n");
+        Debug::logerror("Error: shutdown callback set before starting client\n");
         return;
     }
     inst->shutdownCallback = func;
@@ -178,7 +182,8 @@ void Client::set_error_callback(void(*func)())
 #if !OS_WEB
     if (!inst.get())
     {
-        fprintf(stderr, "Error: error callback set before starting client\n");
+        //fprintf(stderr, "Error: error callback set before starting client\n");
+        Debug::logerror("Error: error callback set before starting client\n");
         return;
     }
     inst->errorCallback = func;
@@ -231,7 +236,8 @@ void Client::register_rpc(std::string name, void(*func)(NetworkReader))
 #if !OS_WEB
     if (!inst.get())
     {
-        fprintf(stderr, "Error: rpc registered before starting client\n");
+        //fprintf(stderr, "Error: rpc registered before starting client\n");
+        Debug::logerror("Error: rpc registered before starting client\n");
         return;
     }
     inst->rpcs[name] = func;
@@ -242,7 +248,8 @@ void Client::send(const char *msg, const NetworkWriter &data)
 #if !OS_WEB
     if (!inst.get())
     {
-        fprintf(stderr, "Error: send can only be called after starting client\n");
+        //fprintf(stderr, "Error: send can only be called after starting client\n");
+        Debug::logerror("Error: send can only be called after starting client\n");
         return;
     }
     if (Server::inst.get())

@@ -100,7 +100,8 @@ void initialize()
 #if USE_GLFW
     if (!init_glfw()) return;
 #endif
-    printf("GL %s\n", glGetString(GL_VERSION));
+    //printf("GL %s\n", glGetString(GL_VERSION));
+    Debug::log("GL %o\n", glGetString(GL_VERSION));
 /*
     enables transparency & sets the equation
     first multiplies the new/source color by the source alpha,
@@ -126,7 +127,8 @@ void initialize()
     });
     glfmSetSurfaceDestroyedFunc(glfmDisplay, [](GLFMDisplay*)
     {
-        printf("Cleanup fired\n");
+        //printf("Cleanup fired\n");
+        Debug::log("Cleanup fired\n");
         Init::fire_cleanup();
     });
 #endif

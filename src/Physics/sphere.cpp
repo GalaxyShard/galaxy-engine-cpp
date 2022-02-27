@@ -73,7 +73,8 @@ CollisionData SphereCollider::is_colliding(Collider *other)
     {
         return sphere_cube_collision(this, cube);
     }
-    fprintf(stderr, "error: collision not implemented\n");
+    //fprintf(stderr, "error: collision not implemented\n");
+    Debug::logerror("error: collision not implemented\n");
     return CollisionData();
 }
 void SphereCollider::fix_bounding_box()

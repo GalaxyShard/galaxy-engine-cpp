@@ -25,7 +25,8 @@ namespace
             GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize));
             char log[logSize];
             GLCall(glGetShaderInfoLog(shader, logSize, nullptr, log));
-            printf("ERROR compiling shader\n%s\nShader: \'%s\'\n", log, source);
+            //printf("ERROR compiling shader\n%s\nShader: \'%s\'\n", log, source);
+            Debug::log("ERROR compiling shader\n%o\nShader: \'%o\'\n", (char*)log, source);
 
             GLCall(glDeleteShader(shader));
             assert(false);
@@ -82,7 +83,8 @@ unsigned int Shader::create_program()
         {
             if (fallback == nullptr)
             {
-                fprintf(stderr, "Error creating program and fallback is null\n");
+                //fprintf(stderr, "Error creating program and fallback is null\n");
+                Debug::logerror("Error creating program and fallback is null\n");
                 //assert(false);
                 throw("");
             }
