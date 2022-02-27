@@ -29,7 +29,7 @@ VertexArray::VertexArray()
 #elif USE_GLFW
     GLCall(glGenVertexArrays(1, &rendererID));
 #endif
-    //bind();
+    bind();
 }
 VertexArray::~VertexArray()
 {
@@ -49,7 +49,7 @@ void VertexArray::add_buffer(IndexBuffer &buffer)
 }
 void VertexArray::add_buffer(VertexBuffer &buffer)
 {
-    //bind();
+    bind();
     buffer.bind();
 #if OS_WEB
     vbo = &buffer;
