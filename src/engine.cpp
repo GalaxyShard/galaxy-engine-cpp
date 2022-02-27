@@ -5,6 +5,9 @@
 
 #include <Math/internaltime.hpp>
 #include <gldebug.hpp>
+#if OS_WEB
+#include <emscripten/html5.h>
+#endif
 /*
 Rendering APIs
 
@@ -88,17 +91,21 @@ void initialize()
     glfmSetSupportedInterfaceOrientation(glfmDisplay, GLFMInterfaceOrientationAllButUpsideDown);
     glfmSetSurfaceResizedFunc(glfmDisplay, [](GLFMDisplay*, int w, int h)
     { Renderer::fix_aspect(w, h); });
-    //printf("size: %d, %d\n", w, h);
-    {
-        //int x,y;
-        //glfmGetDisplaySize(glfmDisplay, &x, &y);
-        //printf("size (engine): %d, %d\n", x,y);
-        //glViewport(0, 0, x, y);
-        //GLCall(glViewport(0, 0, 100, 100));
-    }
 #endif
 #if USE_GLFW
     if (!init_glfw()) return;
+#endif
+#if OS_WEB
+    
+    bool enabled = emscripten_webgl_enable_extension(
+        emscripten_webgl_get_current_context(),
+        "OES_element_index_uint"
+    );
+    if (!enabled)
+    {
+        assert(false && "Failed to enable extension");
+    }
+
 #endif
     //printf("GL %s\n", glGetString(GL_VERSION));
     Debug::log("GL %o\n", glGetString(GL_VERSION));

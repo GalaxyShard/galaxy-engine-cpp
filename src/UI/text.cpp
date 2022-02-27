@@ -48,7 +48,7 @@ void UIText::build_mesh()
     auto &verts = mesh->verts;
 
     verts = std::vector<Vertex>(text.size()*4);
-    tris = std::vector<unsigned short>(text.size()*6);
+    tris = std::vector<unsigned int>(text.size()*6);
     tris.clear();
     tris.reserve(text.size());
 
@@ -74,7 +74,7 @@ void UIText::build_mesh()
         // yOffset is the offset from the top of the line for each character
     
         auto &data = font->get_char(c);
-        int vert0 = verts.size();
+        unsigned int vert0 = verts.size();
 
         if (c == ' ')
         {
