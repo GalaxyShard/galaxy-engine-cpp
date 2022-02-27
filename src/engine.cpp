@@ -85,8 +85,17 @@ void initialize()
     srand(time(0)); // use a combination of time and something else for seed, eg mac address
     rand();
 #if USE_GLFM
+    glfmSetSupportedInterfaceOrientation(glfmDisplay, GLFMInterfaceOrientationAllButUpsideDown);
     glfmSetSurfaceResizedFunc(glfmDisplay, [](GLFMDisplay*, int w, int h)
     { Renderer::fix_aspect(w, h); });
+    //printf("size: %d, %d\n", w, h);
+    {
+        //int x,y;
+        //glfmGetDisplaySize(glfmDisplay, &x, &y);
+        //printf("size (engine): %d, %d\n", x,y);
+        //glViewport(0, 0, x, y);
+        //GLCall(glViewport(0, 0, 100, 100));
+    }
 #endif
 #if USE_GLFW
     if (!init_glfw()) return;
@@ -117,8 +126,8 @@ void initialize()
     });
     glfmSetSurfaceDestroyedFunc(glfmDisplay, [](GLFMDisplay*)
     {
-        Init::fire_cleanup();
         printf("Cleanup fired\n");
+        Init::fire_cleanup();
     });
 #endif
 #if USE_GLFW

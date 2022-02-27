@@ -5,6 +5,7 @@
 #include <Galaxy/Renderer/shader.hpp>
 #include <Galaxy/Audio/audio.hpp>
 #include <unordered_map>
+#include <assert.h>
 
 #if OS_MAC
     #include <filesystem>
@@ -16,7 +17,7 @@ const char *get_resource_path_platform();
 #if OS_WEB
 const char *get_resource_path_platform()
 {
-    return "res";
+    return "bin/web/res";
 }
 #endif
 const char *get_bundle_identifier();
@@ -44,7 +45,7 @@ std::string Assets::data_path()
     #elif OS_WEB
     auto path = std::string(); // TODO
     fprintf(stderr,"Error: no data path implemented\n");
-    exit(-1);
+    assert(false);
     #else
     static_assert(false, "Platform not implemented");
     #endif

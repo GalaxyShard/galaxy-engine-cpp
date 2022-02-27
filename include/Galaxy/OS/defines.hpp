@@ -1,39 +1,39 @@
 #pragma once
 
 /* OS_WINDOWS OS_PC OS_IOS OS_MOBILE OS_MAC OS_LINUX OS_ANDROID OS_WEB */
-#ifdef _WIN32
-    #define OS_WINDOWS 1
-    #define OS_PC 1
-#endif
-
-#ifdef __APPLE__
-    #include <TargetConditionals.h>
-
-    #if TARGET_OS_SIMULATOR || TARGET_OS_IPHONE
-        #define OS_IOS 1
-        #define OS_MOBILE 1
-        
-    #elif TARGET_OS_MAC
-        #define OS_MAC 1
-        #define OS_PC 1
-    #endif
-#endif
 
 #ifdef EMSCRIPTEN
     #define OS_WEB 1
+#else
+
+    #ifdef _WIN32
+        #define OS_WINDOWS 1
+        #define OS_PC 1
+    #endif
+
+    #ifdef __APPLE__
+        #include <TargetConditionals.h>
+
+        #if TARGET_OS_SIMULATOR || TARGET_OS_IPHONE
+            #define OS_IOS 1
+            #define OS_MOBILE 1
+            
+        #elif TARGET_OS_MAC
+            #define OS_MAC 1
+            #define OS_PC 1
+        #endif
+    #endif
+    #ifdef __linux__
+        #define OS_LINUX 1
+        #define OS_PC 1
+    #endif
+
+    #ifdef __ANDROID__
+        #define OS_ANDROID 1
+        #define OS_MOBILE 1
+    #endif
+
 #endif
-
-#ifdef __linux__
-    #define OS_LINUX 1
-    #define OS_PC 1
-#endif
-
-#ifdef __ANDROID__
-    #define OS_ANDROID 1
-    #define OS_MOBILE 1
-#endif
-
-
 
 
 #ifndef OS_PC

@@ -15,12 +15,17 @@ class IndexBuffer : public Buffer
 private:
     unsigned int indexCount;
 public:
-    IndexBuffer(const unsigned int *data, unsigned int count, bool isStatic=0);
+    IndexBuffer(const void *data, unsigned int bytes, bool isStatic=0);
+    //IndexBuffer(const unsigned int *data, unsigned int count, bool isStatic=0);
+    //template <typename T>
+    //IndexBuffer(const T *data, unsigned int count, bool isStatic=0);
     ~IndexBuffer();
+    void update_data(const void* data, unsigned int bytes);
 
     void bind() const;
     void unbind() const;
-    void update_data(const void* data, unsigned int count);
+    //template <typename T>
+    //void update_data(const T* data, unsigned int count);
     inline unsigned int get_count() { return indexCount; }
 };
 class VertexBuffer : public Buffer
@@ -67,11 +72,11 @@ public:
 class VertexArray : public Buffer
 {
 private:
-    #if OS_WEB
+#if OS_WEB
     IndexBuffer *ibo = 0;
     VertexBuffer *vbo = 0;
     VertexLayout vertexLayout;
-    #endif
+#endif
 public:
     VertexArray();
     ~VertexArray();

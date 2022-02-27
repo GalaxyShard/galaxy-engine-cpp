@@ -10,17 +10,18 @@
 
 //using std::vector;
 Mesh::Mesh() { } // for smart ptr
-Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris) : verts(verts), tris(tris)
+Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned short> tris) : verts(verts), tris(tris)
 {
     initialize_mesh();
 }
 void Mesh::initialize_mesh()
 {
+    printf("triangles: %lu\n", tris.size());
     bool isStatic = true;
 
     varray = std::make_unique<VertexArray>();
     vbuffer = std::make_unique<VertexBuffer>(verts.data(), sizeof(Vertex)*verts.size(), isStatic);
-    ibuffer = std::make_unique<IndexBuffer>(tris.data(), tris.size(), isStatic);
+    ibuffer = std::make_unique<IndexBuffer>(tris.data(), tris.size()*sizeof(unsigned short), isStatic);
 
     varray->add_buffer(*vbuffer);
     varray->add_buffer(*ibuffer);
@@ -36,9 +37,10 @@ void Mesh::initialize_mesh()
 Mesh::~Mesh() = default; // for smart ptr
 void Mesh::refresh_mesh()
 {
-    varray->bind();
+    vbuffer->bind();
     vbuffer->update_data(verts.data(), sizeof(Vertex)*verts.size());
-    ibuffer->update_data(tris.data(), tris.size());
+    ibuffer->bind();
+    ibuffer->update_data(tris.data(), tris.size()*sizeof(unsigned short));
 }
 void Mesh::calculate_bounds()
 {

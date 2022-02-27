@@ -68,7 +68,9 @@ void Renderer::fix_aspect(int w, int h)
     UIGroup::aspectRatio->scale = reverseAspect;
 
 #if USE_GLFM
-    GLCall(glViewport(0, 0, w, h));
+    printf("size: %d, %d\n",w,h);
+    //GLCall(glViewport(0, 0, w, h));
+    GLCall(glViewport(0, 0, 1200, 600));
 #endif
     aspectChanged->fire();
     
@@ -283,7 +285,8 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
         tex->bind();
         shader.set_uniform1i("u_tex", tex->get_slot());
     }
-    GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
+    GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_SHORT, nullptr));
+    //GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 
 }
 void Renderer::draw(Object &obj)
@@ -355,8 +358,9 @@ void Renderer::draw(UIImage &img)
         img.texture->bind();
         shader->set_uniform1i("u_tex", img.texture->get_slot());
     }
-    
-    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+    //GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+    //GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, nullptr));
+    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr));
 }
 void Renderer::draw(UIText &text)
 {
@@ -384,7 +388,8 @@ void Renderer::draw(UIText &text)
     text.shader()->set_uniform1i("u_tex", text.font->fontTex->get_slot());
 
 
-    GLCall(glDrawElements(GL_TRIANGLES, text.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
+    GLCall(glDrawElements(GL_TRIANGLES, text.mesh->tris.size(), GL_UNSIGNED_SHORT, nullptr));
+    //GLCall(glDrawElements(GL_TRIANGLES, text.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 }
 void Renderer::set_clear_color(float r, float g, float b, float a)
 {

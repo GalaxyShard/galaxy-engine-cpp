@@ -28,7 +28,7 @@ class Mesh
 
     public:
         std::vector<Vertex> verts;
-        std::vector<unsigned int> tris;
+        std::vector<unsigned short> tris;
         Vector3 aabbMin, aabbMax;
 
         void initialize_mesh();
@@ -37,7 +37,7 @@ class Mesh
         void calculate_normals();
 
         Mesh();
-        Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris);
+        Mesh(std::vector<Vertex> verts, std::vector<unsigned short> tris);
         ~Mesh();
 
         Mesh(const Mesh&) = delete;

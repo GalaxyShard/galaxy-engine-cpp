@@ -22,7 +22,7 @@ void glfmMain(GLFMDisplay *display)
     glfmSetDisplayConfig(display,
         GLFMRenderingAPIOpenGLES2,
         GLFMColorFormatRGBA8888,
-        GLFMDepthFormat24,
+        GLFMDepthFormat16,
         GLFMStencilFormatNone,
         GLFMMultisampleNone
     );

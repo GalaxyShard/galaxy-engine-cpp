@@ -3,23 +3,39 @@
 #include <unordered_map>
 
 extern std::unordered_map<AttributeType, int> typeToBytes;
+
+//#if USE_GLFW
+//static unsigned int globalVAO = -1;
+//#endif
+
 VertexArray::VertexArray()
 {
+//#if USE_GLFW
+//    static bool notInit = 1;
+//    if (notInit)
+//    {
+//        notInit = 0;
+//        GLCall(glGenVertexArrays(1, &globalVAO));
+//        GLCall(glBindVertexArray(globalVAO));
+//        for (int i = 0; i < 3; ++i)
+//        {
+//            GLCall(glEnableVertexAttribArray(i));
+//        }
+//    }
+//#endif
 #if OS_IOS
     GLCall(glGenVertexArraysOES(1, &rendererID));
 
 #elif USE_GLFW
     GLCall(glGenVertexArrays(1, &rendererID));
 #endif
-    bind();
+    //bind();
 }
 VertexArray::~VertexArray()
 {
 #if OS_IOS
     GLCall(glDeleteVertexArraysOES(1, &rendererID));
-//#elif OS_WEB
 #elif USE_GLFW
-
     GLCall(glDeleteVertexArrays(1, &rendererID));
 #endif
 }
@@ -33,7 +49,7 @@ void VertexArray::add_buffer(IndexBuffer &buffer)
 }
 void VertexArray::add_buffer(VertexBuffer &buffer)
 {
-    bind();
+    //bind();
     buffer.bind();
 #if OS_WEB
     vbo = &buffer;
@@ -42,7 +58,6 @@ void VertexArray::add_buffer(VertexBuffer &buffer)
 static void apply_layout(const VertexLayout &layout)
 {
     long offset = 0;
-    
     int index = 0;
     for (auto &a : layout.get_attributes())
     {
@@ -57,6 +72,7 @@ void VertexArray::add_layout(VertexLayout layout)
 {
 #if OS_WEB
     vertexLayout = layout;
+    bind();
 #else
     bind();
     apply_layout(layout);
@@ -68,9 +84,7 @@ void VertexArray::bind() const
     GLCall(glBindVertexArrayOES(rendererID));
 #elif USE_GLFW
     GLCall(glBindVertexArray(rendererID));
-#endif
-
-#if OS_WEB
+#elif OS_WEB
     if (ibo && vbo)
     {
         ibo->bind();

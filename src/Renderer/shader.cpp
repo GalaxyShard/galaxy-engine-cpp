@@ -25,11 +25,11 @@ namespace
             GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize));
             char log[logSize];
             GLCall(glGetShaderInfoLog(shader, logSize, nullptr, log));
-            printf("ERROR compiling shader\n%s\n", log);
+            printf("ERROR compiling shader\n%s\nShader: \'%s\'\n", log, source);
 
             GLCall(glDeleteShader(shader));
-            throw("");
-            //assert(false);
+            assert(false);
+            //throw("");
         }
         return shader;
     }
@@ -65,6 +65,7 @@ void Shader::parse(std::istream &stream)
 Shader::Shader(const std::string& path)
 {
     auto stream = std::ifstream(path, std::ios::binary);
+    //printf("loading path: %s\n", path.c_str());
     parse(stream);
 }
 AssetRef<Shader> Shader::load(const std::string &path)
