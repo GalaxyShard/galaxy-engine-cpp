@@ -6,9 +6,9 @@ struct Listener;
 class Signal final
 {
 private:
-    //typedef void (*empty_func)();
     std::unordered_map<int, Callback> listeners;
-    std::vector<int> eraseQueue;
+    // Forgot why this was used at all
+    //std::vector<int> eraseQueue;
     int nextID = 0;
 
     friend class Event;
@@ -16,29 +16,11 @@ public:
     int connect_int(Callback callback);
     void disconnect_int(int id);
     std::unique_ptr<Listener> connect(Callback callback);
-
-    //int connect_int(empty_func func);
-    //template <typename T>
-    //int connect_int(T *inst, void(T::*func)())
-    //{
-    //    int id = nextID;
-    //    listeners.insert(std::make_pair(id, Callback(inst, func)));
-    //    ++nextID;
-    //    return id;
-    //}
-    //void disconnect_int(int id);
-    //std::unique_ptr<Listener> connect(empty_func func);
-//
-    //template <typename T>
-    //std::unique_ptr<Listener> connect(T *inst, void(T::*func)())
-    //{
-    //    return std::make_unique<Listener>(this, connect_int(inst, func));
-    //}
 };
 class Event final
 {
 public:
-    // possibly use unique pointer, all references are raw so no need for ref counting
+    // possibly use no pointer
     std::unique_ptr<Signal> signal = std::make_unique<Signal>();
     void fire() const;
 };
@@ -70,32 +52,21 @@ template<typename T>
 class SignalT final
 {
 private:
-    //typedef void (*signal_func)(T data);
     int nextID = 0;
     std::unordered_map<int, ArgCallback<T>> listeners;
-    std::vector<int> eraseQueue;
+    //std::vector<int> eraseQueue;
 
     friend class EventT<T>;
 public:
     int connect_int(ArgCallback<T> callback);
     void disconnect_int(int id);
     std::unique_ptr<ListenerT<T>> connect(ArgCallback<T> callback);
-
-    //int connect_int(signal_func func);
-    //template <typename U>
-    //int connect_int(U *inst, void(U::*func)(T data));
-//
-    //void disconnect_int(int id);
-    //std::unique_ptr<ListenerT<T>> connect(signal_func func);
-//
-    //template <typename U>
-    //std::unique_ptr<ListenerT<T>> connect(U *inst, void(U::*func)(T data));
 };
 template<typename T>
 class EventT final
 {
 public:
-    // possibly use raw pointer, all references to this are weak so there is no need for counting
+    // possibly use no pointer
     std::unique_ptr<SignalT<T>> signal = std::make_unique<SignalT<T>>();
     void fire(T data) const;
 };

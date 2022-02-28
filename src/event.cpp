@@ -11,25 +11,15 @@ std::unique_ptr<Listener> Signal::connect(Callback callback)
 {
     return std::make_unique<Listener>(this, connect_int(callback));
 }
-//int Signal::connect_int(empty_func func)
-//{
-//    int id = nextID;
-//    listeners.insert(std::make_pair(id, Callback(func)));
-//    ++nextID;
-//    return id;
-//}
-//std::unique_ptr<Listener> Signal::connect(empty_func func)
-//{
-//    return std::make_unique<Listener>(this, connect_int(func));
-//}
 void Signal::disconnect_int(int id)
 {
-    eraseQueue.push_back(id);
+    listeners.erase(id);
+    //eraseQueue.push_back(id);
 }
 void Event::fire() const
 {
-    for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
-    signal->eraseQueue.clear();
+    //for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
+    //signal->eraseQueue.clear();
     
     for (auto &&[id, listener] : signal->listeners)
     {

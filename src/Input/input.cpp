@@ -44,22 +44,18 @@ namespace
             i->second.callback(action);
         }
     }
-    //KeyCode exitRebindKey = KeyCode::Escape;
     bool (*onRebindFinish)(KeyCode key);
     const char *changingBind;
 
     void process_key_rebind(KeyCode key)
     {
-        //if (key != exitRebindKey) Input::rebind(changingBind, key);
-        //if (onRebindFinish) onRebindFinish();
-        
         if (onRebindFinish)
         {
             if (onRebindFinish(key))
                 Input::rebind(changingBind, key);
+            onRebindFinish = nullptr;
         }
         else Input::rebind(changingBind, key);
-        onRebindFinish = nullptr;
     }
     UIImage *image_in_pos(Vector2 pos)
     {
@@ -81,24 +77,17 @@ namespace
             if (img)
             {
                 heldImages[touchID] = img;
-                //if (img->onTouchDown)
                 img->onTouchDown();
             }
         }
         else if (heldImages[touchID])
         {
             UIImage *&img = heldImages[touchID];
-            //if (img->onTouchUp)
             img->onTouchUp();
             
-            // check incase image was deleted inside onTouchUp
-            if (img && img->onClick)
-            {
-                if (img->is_within(pos))
-                {
-                    img->onClick();
-                }
-            }
+            // check img incase it was deleted inside onTouchUp
+            if (img && img->onClick && img->is_within(pos))
+                img->onClick();
             heldImages[touchID] = nullptr;
         }
     }
@@ -194,7 +183,6 @@ void Input::add_bind(const char *bind, KeyCode key, input_callback callback)
 {
     if (bindMap.count(bind) == 1)
     {
-        //fprintf(stderr, "WARNING: bind \'%s\' is already used\n", bind);
         Debug::logerror("WARNING: bind \'%o\' is already used\n", bind);
         return;
     }
@@ -259,6 +247,7 @@ void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
 #endif
 }
 SignalT<TouchData>& Input::touch_changed() { return *onTouchEvent.signal; }
+
 static void init()
 {
 #if USE_GLFM
