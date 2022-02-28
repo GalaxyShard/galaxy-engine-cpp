@@ -15,14 +15,13 @@ int SignalT<T>::connect_int(ArgCallback<T> callback)
 template<typename T>
 void SignalT<T>::disconnect_int(int id)
 {
-    listeners.erase(id);
-    //eraseQueue.push_back(id);
+    eraseQueue.push_back(id);
 }
 template <typename T>
 void EventT<T>::fire(T data) const
 {
-    //for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
-    //signal->eraseQueue.clear();
+    for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
+    signal->eraseQueue.clear();
     for (auto &&[id, listener] : signal->listeners)
     {
         listener(data);

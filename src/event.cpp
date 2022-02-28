@@ -13,13 +13,12 @@ std::unique_ptr<Listener> Signal::connect(Callback callback)
 }
 void Signal::disconnect_int(int id)
 {
-    listeners.erase(id);
-    //eraseQueue.push_back(id);
+    eraseQueue.push_back(id);
 }
 void Event::fire() const
 {
-    //for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
-    //signal->eraseQueue.clear();
+    for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
+    signal->eraseQueue.clear();
     
     for (auto &&[id, listener] : signal->listeners)
     {

@@ -7,8 +7,8 @@ class Signal final
 {
 private:
     std::unordered_map<int, Callback> listeners;
-    // Forgot why this was used at all
-    //std::vector<int> eraseQueue;
+    std::vector<int> eraseQueue;
+    int queueSize = 0;
     int nextID = 0;
 
     friend class Event;
@@ -54,7 +54,7 @@ class SignalT final
 private:
     int nextID = 0;
     std::unordered_map<int, ArgCallback<T>> listeners;
-    //std::vector<int> eraseQueue;
+    std::vector<int> eraseQueue;
 
     friend class EventT<T>;
 public:
