@@ -81,15 +81,15 @@ namespace
             if (img)
             {
                 heldImages[touchID] = img;
-                if (img->onTouchDown)
-                    img->onTouchDown();
+                //if (img->onTouchDown)
+                img->onTouchDown();
             }
         }
         else if (heldImages[touchID])
         {
             UIImage *&img = heldImages[touchID];
-            if (img->onTouchUp)
-                img->onTouchUp();
+            //if (img->onTouchUp)
+            img->onTouchUp();
             
             // check incase image was deleted inside onTouchUp
             if (img && img->onClick)

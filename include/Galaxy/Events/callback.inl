@@ -7,9 +7,17 @@ Callback::Callback(T func_or_lambda)
     memcpy(raw, &func_or_lambda, sizeof(T));
     indirection = [](char *buffer) { (*(decltype(func_or_lambda)*)buffer)(); };
 }
+template<typename T>
+ArgCallback<T>::operator bool() const
+{
+    return indirection;
+}
 
 template<typename T>
 ArgCallback<T>::ArgCallback() : indirection(0) {}
+template<typename T>
+ArgCallback<T>::ArgCallback(std::nullptr_t) : indirection(0) {}
+
 template<typename T>
 template<typename U>
 ArgCallback<T>::ArgCallback(U func_or_lambda)

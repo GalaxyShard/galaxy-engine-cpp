@@ -49,8 +49,8 @@ void UIText::build_mesh()
 
     verts = std::vector<Vertex>(text.size()*4);
     tris = std::vector<unsigned int>(text.size()*6);
-    tris.clear();
-    tris.reserve(text.size());
+    //tris.clear();
+    //tris.reserve(text.size());
 
     // scale is bounding box
     //const int fontSize = 72, lineHeight = 72;

@@ -1,16 +1,12 @@
 #pragma once
 #include <Galaxy/Renderer/texture.hpp>
-#include <Galaxy/Events/event.hpp>
+#include <Galaxy/Events/callback.hpp>
 #include <vector>
 
 class Shader;
 class Mesh;
 class Scene;
 class UIGroup;
-//template <typename T>
-//class ArgCallback;
-
-//enum ImageState { NONE, TOUCH_DOWN, TOUCH_UP, CLICK };
 
 class UIImage
 {
@@ -36,18 +32,16 @@ public:
     Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
     Vector4 tint = Vector4(1, 1, 1, 1);
 
-    //ArgCallback<ImageState> handler;
-    //Callback onTouchDown;
-    //Callback onTouchUp;
-    //Callback onClick;
-    // onTouchDown is called on left click if the cursor is over the image
-    void(*onTouchDown)() = 0;
+    //void(*onTouchDown)() = 0;
+    //void(*onTouchUp)() = 0;
+    //void(*onClick)() = 0;
 
-    // onTouchUp is called after releasing left click if onTouchDown was called
-    void(*onTouchUp)() = 0;
-
+    // onTouchDown is called on click if the cursor is over the image
+    // onTouchUp is called after releasing click if onTouchDown was called
     // onClick is called if onTouchDown was called and the cursor is still over the image
-    void(*onClick)() = 0;
+    Callback onTouchDown;
+    Callback onTouchUp;
+    Callback onClick;
 
     static UIImage *get_held(int id);
     static UIImage *get_held();

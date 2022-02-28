@@ -30,6 +30,15 @@ PS4: GNM (low level), GNMX (high level)
 */
 
 extern const char *gameName;
+struct AutoCleanup
+{
+    ~AutoCleanup()
+    {
+        Debug::log("Cleaning up engine\n");
+        Init::fire_cleanup();
+    }
+};
+auto autoCleanup = std::make_unique<AutoCleanup>();
 
 #if USE_GLFM
 #define SWAP_BUFFERS() glfmSwapBuffers(glfmDisplay);
@@ -107,7 +116,6 @@ void initialize()
     }
 
 #endif
-    //printf("GL %s\n", glGetString(GL_VERSION));
     Debug::log("GL %o\n", glGetString(GL_VERSION));
 /*
     enables transparency & sets the equation
@@ -132,12 +140,11 @@ void initialize()
         
         redraw();
     });
-    glfmSetSurfaceDestroyedFunc(glfmDisplay, [](GLFMDisplay*)
-    {
-        //printf("Cleanup fired\n");
-        Debug::log("Cleanup fired\n");
-        Init::fire_cleanup();
-    });
+    //glfmSetSurfaceDestroyedFunc(glfmDisplay, [](GLFMDisplay*)
+    //{
+    //    Debug::log("Cleanup fired\n");
+    //    Init::fire_cleanup();
+    //});
 #endif
 #if USE_GLFW
     Init::fire();
@@ -145,7 +152,6 @@ void initialize()
     {
         redraw();
     }
-    Init::fire_cleanup();
     glfwTerminate();
 #endif
 }
