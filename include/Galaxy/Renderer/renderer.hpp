@@ -16,6 +16,7 @@ struct ObjRendererECS
 {
     Material *mat = 0;
     Mesh *mesh = 0;
+    Vector3 i_minBounds, i_maxBounds;
 };
 
 class RendererSystem : public System<RendererSystem, ObjRendererECS, TransformECS>

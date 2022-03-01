@@ -126,7 +126,7 @@ Matrix4x4 add_r_c(Matrix3x3 m)
 }
 void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 {
-    Matrix3x3 rotation = Matrix3x3::rotate(transform.rotation);
+    Matrix3x3 rotation = Matrix3x3::rotate(transform.i_rotation);
 
     // Rotate camera after translating
     // The transpose of a rotation is equal to the inverse
@@ -137,9 +137,15 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
     {
         //Vector3 min = renderer.mesh->aabbMin+transform.pos;
         //Vector3 max = renderer.mesh->aabbMax+transform.pos;
-        Vector3 min = renderer.mesh->aabbMin;
-        Vector3 max = renderer.mesh->aabbMax;
+        //Vector3 min = renderer.mesh->aabbMin;
+        //Vector3 max = renderer.mesh->aabbMax;
+        Vector3 &min = renderer.i_minBounds;
+        Vector3 &max = renderer.i_maxBounds;
+        if (transform.dirty)
         {
+            min = renderer.mesh->aabbMin;
+            max = renderer.mesh->aabbMax;
+            transform.dirty = 0;
             Vector3 obbPoints[8] = {
                 Vector3(min.x, min.y, min.z),
                 Vector3(min.x, max.y, min.z),
@@ -154,7 +160,7 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
             max = Vector3(-Math::INF, -Math::INF, -Math::INF);
             for (int i = 0; i < 8; ++i)
             {
-                obbPoints[i] = rotation*(obbPoints[i]*transform.scale) + transform.pos;
+                obbPoints[i] = rotation*(obbPoints[i]*transform.scale()) + transform.pos();
                 for (int j = 0; j < 3; ++j)
                 {
                     min[j] = std::min(min[j], obbPoints[i][j]);
@@ -163,8 +169,6 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
             }
         }
         
-        //Vector3 min = renderer.aabbMin();
-        //Vector3 max = renderer.aabbMax();
         auto checkPlane = [&](Vector4 frustumPlane)
         {
             frustumPlane = frustumPlane / ((Vector3)frustumPlane).magnitude();
@@ -190,72 +194,6 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
             || checkPlane(viewProj[2])
             || checkPlane(viewProj[3] - viewProj[2]))
                 return;
-
-        //std::vector<Vector3> obbPoints = {
-        //    Vector3(min.x, min.y, min.z),
-        //    Vector3(min.x, max.y, min.z),
-        //    Vector3(max.x, min.y, min.z),
-        //    Vector3(max.x, max.y, min.z),
-        //    Vector3(max.x, max.y, max.z),
-        //    Vector3(max.x, min.y, max.z),
-        //    Vector3(min.x, max.y, max.z),
-        //    Vector3(min.x, min.y, max.z)
-        //};
-        // near*2.f/(right-left)
-        //float fovy = atanf(Camera::main->projection[1][1])*2;
-        //std::vector<Vector3> frustumPoints = {
-        //    Vector3(, , ),
-        //    Vector3(, , ),
-        //    Vector3(, , ),
-        //    Vector3(, , ),
-        //    Vector3(, , ),
-        //    Vector3(, , ),
-        //    Vector3(, , ),
-        //    Vector3(, , )
-        //};
-        //for (int i = 0; i < obbPoints.size(); ++i)
-        //    obbPoints[i] = viewSpace * obbPoints[i];
-        //
-        //float obbMin;
-        //float obbMax;
-        //float frustumMin;
-        //float frustumMax;
-        //auto testAxis = [&](Vector3 axis)
-        //{
-        //    min_max_dot(obbPoints, axis, obbMin, obbMax);
-        //    min_max_dot(frustumPoints, axis, frustumMin, frustumMax);
-        //    //return (obbMin < frustumMax) && (frustumMin < obbMax);
-        //    return true;
-        //};
-        //if (!testAxis(Vector3(0,0,1))) return;
-        //Vector3 norm_x = rotation*Vector3(1,0,0);
-        //if (!testAxis(norm_x)) return;
-        //Vector3 norm_y = rotation*Vector3(0,1,0);
-        //if (!testAxis(norm_y)) return;
-        //Vector3 norm_z = rotation*Vector3(0,0,1);
-        //if (!testAxis(norm_z)) return;
-//
-        //if (!testAxis(Vector3::cross(norm_x, Vector3(0,1,0)))
-        //    || !testAxis(Vector3::cross(norm_y, Vector3(0,1,0)))
-        //    || !testAxis(Vector3::cross(norm_z, Vector3(0,1,0)))
-        //    || !testAxis(Vector3::cross(norm_x, Vector3(1,0,0)))
-        //    || !testAxis(Vector3::cross(norm_y, Vector3(1,0,0)))
-        //    || !testAxis(Vector3::cross(norm_z, Vector3(1,0,0))))
-        //        return;
-//
-        //float proj22 = Camera::main->projection[2][2];
-        //float proj23 = Camera::main->projection[2][3];
-        //float zNear = (2.f*proj23)/(2.f*proj22-2.f);
-        //float zFar = ((proj22-1.f)*zNear)/(proj22+1.f);
-//
-        //if (!testAxis(Vector3(0,0,1))
-        //    || !testAxis(Vector3())
-        //    || !testAxis(Vector3())
-        //    || !testAxis(Vector3())
-        //    || !testAxis(Vector3())) return;
-        //min_max_dot(obbPoints, , obbMin, obbMax);
-        //viewSpace * renderer.mesh->aabbMin;
-        //viewSpace * renderer.mesh->aabbMax;
     }
     
     Material &mat = *renderer.mat;
@@ -267,9 +205,9 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
     Matrix4x4 rotation4x4 = add_r_c(rotation);
    
     Matrix4x4 model =
-        Matrix4x4::translate(transform.pos * filteredAspect)
+        Matrix4x4::translate(transform.pos() * filteredAspect)
         * rotation4x4
-        * Matrix4x4::scale(transform.scale * filteredAspect);
+        * Matrix4x4::scale(transform.scale() * filteredAspect);
 
     Matrix4x4 mvp = Camera::main->projection * view * model;
 
@@ -293,7 +231,8 @@ void Renderer::draw(Object &obj)
 {
     // hack: rewrite this
     ObjRendererECS renderer = ObjRendererECS{.mat=obj.material, .mesh=obj.mesh};
-    TransformECS transform = TransformECS{.pos=obj.position,.scale=obj.scale,.rotation=obj.rotation};
+    //TransformECS transform = TransformECS{.pos=obj.position,.scale=obj.scale,.rotation=obj.rotation};
+    TransformECS transform = TransformECS(obj.position,obj.scale,obj.rotation);
     RendererSystem().draw(renderer, transform);
 }
 
