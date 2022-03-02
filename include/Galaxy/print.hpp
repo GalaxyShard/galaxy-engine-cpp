@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
-namespace Debug
+namespace Log
 {
     template<typename T>
     void print_overload(std::ostream &stream, T &obj);
@@ -18,12 +18,10 @@ namespace Debug
     */
     template <typename... Args>
     void print(std::ostream &stream, const std::string &format, const Args& ...args);
-
-    template <typename... Args>
-    void log(const std::string &format, const Args& ...args);
-    template <typename... Args>
-    void logerror(const std::string &format, const Args& ...args);
-
 };
+template <typename... Args>
+void logmsg(const std::string &format, const Args& ...args);
+template <typename... Args>
+void logerr(const std::string &format, const Args& ...args);
 
 #include "print.inl"

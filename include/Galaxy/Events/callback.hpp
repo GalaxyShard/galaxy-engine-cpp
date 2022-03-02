@@ -15,18 +15,19 @@ public:
     void operator()();
     operator bool() const;
 };
-template<typename T>
+template<typename... Args>
 class ArgCallback
 {
 private:
     char raw[8];
-    void (*indirection)(char*, T);
+    void (*indirection)(char*, Args...);
 public:
     ArgCallback();
     ArgCallback(std::nullptr_t);
     template<typename U>
     ArgCallback(U func_or_lambda);
-    void operator()(T data);
+    //void operator()(T data);
+    void operator()(Args ...data);
     operator bool() const;
 };
 #include "callback.inl"

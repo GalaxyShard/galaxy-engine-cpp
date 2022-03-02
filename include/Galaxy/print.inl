@@ -1,12 +1,12 @@
 
 
 template<typename T>
-void Debug::print_overload(std::ostream &stream, T &obj)
+void Log::print_overload(std::ostream &stream, T &obj)
 {
     stream << obj;
 }
 template<typename T>
-void Debug::print_overload(std::ostream &stream, std::vector<T> &obj)
+void Log::print_overload(std::ostream &stream, std::vector<T> &obj)
 {
     int size = obj.size()-1;
     for (int i = 0; i < size; ++i)
@@ -14,11 +14,11 @@ void Debug::print_overload(std::ostream &stream, std::vector<T> &obj)
     stream << obj[size];
 }
 template <unsigned int I, typename... Args>
-inline std::enable_if_t<I == sizeof...(Args)> Debug::print_element(std::ostream &stream, const std::string &format, std::tuple<Args...> &args, int index)
+inline std::enable_if_t<I == sizeof...(Args)> Log::print_element(std::ostream &stream, const std::string &format, std::tuple<Args...> &args, int index)
 { stream << format.substr(index); }
 
 template <unsigned int I, typename... Args>
-inline std::enable_if_t<I < sizeof...(Args)> Debug::print_element(std::ostream &stream, const std::string &format, std::tuple<Args...> &args, int index)
+inline std::enable_if_t<I < sizeof...(Args)> Log::print_element(std::ostream &stream, const std::string &format, std::tuple<Args...> &args, int index)
 {
     auto start = format.find("%", index);
     auto end = format.find("o", start);
@@ -34,19 +34,19 @@ inline std::enable_if_t<I < sizeof...(Args)> Debug::print_element(std::ostream &
 }
 
 template <typename... Args>
-void Debug::print(std::ostream &stream, const std::string &format, const Args& ...args)
+void Log::print(std::ostream &stream, const std::string &format, const Args& ...args)
 {
     auto args_tuple = std::tuple<Args...>(args...);
     print_element<0, Args...>(stream, format, args_tuple);
     stream.flush();
 }
 template <typename... Args>
-void Debug::log(const std::string &format, const Args& ...args)
+void logmsg(const std::string &format, const Args& ...args)
 {
-    print(std::cout, format, args...);
+    Log::print(std::cout, format, args...);
 }
 template <typename... Args>
-void Debug::logerror(const std::string &format, const Args& ...args)
+void logerr(const std::string &format, const Args& ...args)
 {
-    print(std::cerr, format, args...);
+    Log::print(std::cerr, format, args...);
 }

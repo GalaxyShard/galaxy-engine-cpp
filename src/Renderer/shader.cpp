@@ -13,7 +13,7 @@ namespace
     
     unsigned int compile_shader(unsigned int type, const char *source)
     {
-        GLCall(unsigned int shader = glCreateShader(type));
+        unsigned int shader = GLCall(glCreateShader(type));
         GLCall(glShaderSource(shader, 1, &source, nullptr));
         GLCall(glCompileShader(shader));
 
@@ -23,14 +23,12 @@ namespace
         {
             int logSize;
             GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize));
-            char log[logSize];
-            GLCall(glGetShaderInfoLog(shader, logSize, nullptr, log));
-            //printf("ERROR compiling shader\n%s\nShader: \'%s\'\n", log, source);
-            Debug::log("ERROR compiling shader\n%o\nShader: \'%o\'\n", (char*)log, source);
+            auto log = std::make_unique<char[]>(logSize);
+            GLCall(glGetShaderInfoLog(shader, logSize, nullptr, log.get()));
+            logmsg("ERROR compiling shader\n%o\nShader: \'%o\'\n", log.get(), source);
 
             GLCall(glDeleteShader(shader));
             assert(false);
-            //throw("");
         }
         return shader;
     }
@@ -66,7 +64,6 @@ void Shader::parse(std::istream &stream)
 Shader::Shader(const std::string& path)
 {
     auto stream = std::ifstream(path, std::ios::binary);
-    //printf("loading path: %s\n", path.c_str());
     parse(stream);
 }
 AssetRef<Shader> Shader::load(const std::string &path)
@@ -83,10 +80,8 @@ unsigned int Shader::create_program()
         {
             if (fallback == nullptr)
             {
-                //fprintf(stderr, "Error creating program and fallback is null\n");
-                Debug::logerror("Error creating program and fallback is null\n");
-                //assert(false);
-                throw("");
+                logerr("Error creating program and fallback is null\n");
+                assert(false);
             }
             vertex = fallback->vertex;
             fragment = fallback->fragment;
@@ -107,13 +102,11 @@ unsigned int Shader::create_program()
         {
             int logSize;
             GLCall(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logSize));
-            char log[logSize];
-            GLCall(glGetProgramInfoLog(program, logSize, nullptr, log));
-            fprintf(stderr, "ERROR creating shader program\n%s\n", log);
-
+            auto log = std::make_unique<char[]>(logSize);
+            GLCall(glGetProgramInfoLog(program, logSize, nullptr, log.get()));
+            logerr("ERROR creating shader program\n%o\n", log.get());
             GLCall(glDeleteProgram(program));
-            //assert(false);
-            throw("");
+            assert(false);
         }
         GLCall(glValidateProgram(program));
         return program;

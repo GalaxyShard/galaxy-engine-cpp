@@ -34,18 +34,18 @@ struct AutoCleanup
 {
     ~AutoCleanup()
     {
-        Debug::log("Cleaning up engine\n");
+        logmsg("Cleaning up engine\n");
         Init::fire_cleanup();
     }
 };
 auto autoCleanup = std::make_unique<AutoCleanup>();
 
 #if USE_GLFM
-#define SWAP_BUFFERS() glfmSwapBuffers(glfmDisplay);
+#define SWAP_BUFFERS() glfmSwapBuffers(glfmDisplay)
 #endif
 #if USE_GLFW
 static GLFWwindow *window;
-#define SWAP_BUFFERS() glfwSwapBuffers(window);
+#define SWAP_BUFFERS() glfwSwapBuffers(window)
 static bool init_glfw()
 {
     glfwSetErrorCallback([](int code, const char *err)
@@ -116,7 +116,7 @@ void initialize()
     }
 
 #endif
-    Debug::log("GL %o\n", glGetString(GL_VERSION));
+    logmsg("GL %o\n", glGetString(GL_VERSION));
 /*
     enables transparency & sets the equation
     first multiplies the new/source color by the source alpha,

@@ -68,9 +68,7 @@ void Renderer::fix_aspect(int w, int h)
     UIGroup::aspectRatio->scale = reverseAspect;
 
 #if USE_GLFM
-    //printf("size: %d, %d\n",w,h);
     GLCall(glViewport(0, 0, w, h));
-    //GLCall(glViewport(0, 0, 1200, 600));
 #endif
     aspectChanged->fire();
     
@@ -141,11 +139,11 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
         //Vector3 max = renderer.mesh->aabbMax;
         Vector3 &min = renderer.i_minBounds;
         Vector3 &max = renderer.i_maxBounds;
-        if (transform.dirty)
+        if (renderer.dirty)
         {
             min = renderer.mesh->aabbMin;
             max = renderer.mesh->aabbMax;
-            transform.dirty = 0;
+            renderer.dirty = 0;
             Vector3 obbPoints[8] = {
                 Vector3(min.x, min.y, min.z),
                 Vector3(min.x, max.y, min.z),
@@ -369,18 +367,16 @@ void Renderer::draw_all(bool fireEvents)
     clear();
     for (Object *obj : *Object::allObjects) draw(*obj);
     renderSystem->run(&RendererSystem::draw, *ECSManager::main);
-    //if (objectsCulled)
-    //printf("Culled: %d\n", objectsCulled);
     objectsCulled = 0;
 
 /*
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
+    GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)); // wireframe
 */
     GLCall(glClear(GL_DEPTH_BUFFER_BIT));
     if (Camera::main->isPerspective)
     {
         GLCall(glDisable(GL_DEPTH_TEST));
-        GLCall(glEnable(GL_BLEND))
+        GLCall(glEnable(GL_BLEND));
     }
     
     auto &uiObjs = UIObject::uiObjects;

@@ -127,9 +127,8 @@ AudioPlayer::AudioPlayer(AudioData *data)
     else if (data->channels == 2 && data->bitsPerSample == 16) format = AL_FORMAT_STEREO16;
     else
     {
-        //fprintf(stderr, "Unrecognized bits per sample (%d) and channels (%d)\n", data->bitsPerSample, data->channels);
-        Debug::logerror("Unrecognized bits per sample (%o) and channels (%o)\n", data->bitsPerSample, data->channels);
-        throw("Audio error");
+        logerr("Unrecognized bits per sample (%o) and channels (%o)\n", data->bitsPerSample, data->channels);
+        assert(false);
     }
 
     alBufferData(soundBuffer, format, data->rawAudio.data(), data->rawAudio.size(), data->sampleRate);

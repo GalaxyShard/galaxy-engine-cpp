@@ -23,13 +23,15 @@ private:
 public:
     int getID() const { return fd; }
 };
-typedef void(*ClientStatusCallback)(const Connection&);
+//typedef void(*ClientStatusCallback)(const Connection&);
+typedef ArgCallback<const Connection&> ClientStatusCallback;
 class Server
 {
 private:
     static std::unique_ptr<Server> inst;
     std::vector<Connection> clients;
-    std::unordered_map<std::string, void(*)(NetworkReader, Connection)> rpcs;
+    //std::unordered_map<std::string, void(*)(NetworkReader, Connection)> rpcs;
+    std::unordered_map<std::string, ArgCallback<NetworkReader, Connection>> rpcs;
     int listener = -1, shutdownPipe = -1;
 
     std::thread serverThread;
@@ -58,7 +60,8 @@ public:
 
     static void send_all(const char *msg, const NetworkWriter &data);
     static void send(Connection conn, const char *msg, const NetworkWriter &data);
-    static void register_rpc(std::string name, void(*func)(NetworkReader, Connection));
+    //static void register_rpc(std::string name, void(*func)(NetworkReader, Connection));
+    static void register_rpc(std::string name, ArgCallback<NetworkReader, Connection> func);
 
     static bool is_active();
 };
@@ -68,7 +71,8 @@ public:
     enum ErrorCode : short { NONE, GENERAL };
 private:
     static std::unique_ptr<Client> inst;
-    std::unordered_map<std::string, void(*)(NetworkReader)> rpcs;
+    //std::unordered_map<std::string, void(*)(NetworkReader)> rpcs;
+    std::unordered_map<std::string, ArgCallback<NetworkReader>> rpcs;
     int serverConn = -1, shutdownPipe = -1;
 
     std::unique_ptr<std::thread> clientThread;
@@ -98,7 +102,8 @@ public:
     static void set_shutdown_callback(void(*func)());
     static void set_error_callback(void(*func)());
 
-    static void register_rpc(std::string name, void(*func)(NetworkReader));
+    //static void register_rpc(std::string name, void(*func)(NetworkReader));
+    static void register_rpc(std::string name, ArgCallback<NetworkReader> func);
     static void send(const char *msg, const NetworkWriter &data);
 
     static bool is_active();
