@@ -7,7 +7,6 @@ IndexBuffer::IndexBuffer(const void *data, unsigned int bytes, bool isStatic)
     bind();
     unsigned int drawMode = (isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
     GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, bytes, data, drawMode));
-    //GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, bytes*sizeof(unsigned int), data, drawMode));
 }
 IndexBuffer::~IndexBuffer()
 {
@@ -17,7 +16,6 @@ void IndexBuffer::update_data(const void* data, unsigned int bytes)
 {
     bind();
     GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, bytes, data, GL_STATIC_DRAW));
-    //GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, bytes*sizeof(unsigned int), data, GL_STATIC_DRAW));
     indexCount = bytes;
 }
 void IndexBuffer::bind() const

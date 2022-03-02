@@ -16,16 +16,11 @@ private:
     unsigned int indexCount;
 public:
     IndexBuffer(const void *data, unsigned int bytes, bool isStatic=0);
-    //IndexBuffer(const unsigned int *data, unsigned int count, bool isStatic=0);
-    //template <typename T>
-    //IndexBuffer(const T *data, unsigned int count, bool isStatic=0);
     ~IndexBuffer();
     void update_data(const void* data, unsigned int bytes);
 
     void bind() const;
     void unbind() const;
-    //template <typename T>
-    //void update_data(const T* data, unsigned int count);
     inline unsigned int get_count() { return indexCount; }
 };
 class VertexBuffer : public Buffer

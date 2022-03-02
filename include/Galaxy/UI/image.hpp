@@ -32,10 +32,6 @@ public:
     Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
     Vector4 tint = Vector4(1, 1, 1, 1);
 
-    //void(*onTouchDown)() = 0;
-    //void(*onTouchUp)() = 0;
-    //void(*onClick)() = 0;
-
     // onTouchDown is called on click if the cursor is over the image
     // onTouchUp is called after releasing click if onTouchDown was called
     // onClick is called if onTouchDown was called and the cursor is still over the image

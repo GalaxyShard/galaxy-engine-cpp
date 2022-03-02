@@ -44,8 +44,7 @@ std::string Assets::data_path()
     auto path = std::string() + getenv("HOME") + "/Documents";
     #elif OS_WEB
     auto path = std::string(); // TODO
-    logerr("Error: no data path implemented\n");
-    assert(false);
+    assert(false && "Error: no data path implemented");
     #else
     static_assert(false, "Platform not implemented");
     #endif
@@ -60,21 +59,18 @@ FileContent Assets::file_contents(const char *path, bool assertOnFail)
     auto stream = std::ifstream(path, std::ios::binary | std::ios::ate);
     if (!stream)
     {
-        //if (assertOnFail) assert(false);
-        if (assertOnFail) throw("Failed to open stream");
+        if (assertOnFail) assert(false && "Failed to open stream");
         else return {0, nullptr};
     }
     unsigned int length = stream.tellg();
 
     stream.seekg(0);
     char *contents = new char[length+1];
-    //stream.read(contents, length);
     if (!stream.read(contents, length))
     {
-        if (assertOnFail) throw("Failed to read stream");
+        if (assertOnFail) assert(false && "Failed to read stream");
         else return {0, nullptr};
     }
-    //assert(stream.good());
     contents[length] = '\0';
     return {length+1, contents};
 }

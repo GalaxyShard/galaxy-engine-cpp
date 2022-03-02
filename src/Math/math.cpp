@@ -13,4 +13,3 @@ float Math::lerp(float start, float goal, float t)
 {
     return start + (goal - start) * t;
 }
-//float Math::sqr(float v) { return v*v; }

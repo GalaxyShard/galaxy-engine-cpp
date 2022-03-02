@@ -33,8 +33,6 @@ void Server::process_messages()
         {
             std::string &msg = inst->queuedMessages[0];
             int connID = b_cast<int>(&msg[0]);
-            //memcpy(&connID, &msg[0], 4);
-            //int connID = *(int *)&msg[0];
             unsigned long index = msg.find('\0', sizeof(connID));
             if (index == std::string::npos)
             {

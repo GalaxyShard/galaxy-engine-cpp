@@ -15,7 +15,6 @@ std::unordered_map<AttributeType, int> typeToBytes =
 };
 void VertexLayout::add_attribute(VertexAttribute a)
 {
-    //assert(a.type != AttributeType::NONE);
     attributes.push_back(a);
     stride += a.count * typeToBytes[a.type];
 }

@@ -60,8 +60,7 @@ static void remove(T *data, std::vector<T*> &instances)
             break;
         }
     }
-    if (instID == -1) throw("Instance not found");
-    //assert(instID != -1);
+    assert(instID != -1 && "Instance not found");
     std::swap(instances[instID], instances.back());
     instances.pop_back();
 }

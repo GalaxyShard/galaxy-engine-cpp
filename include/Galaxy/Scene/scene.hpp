@@ -71,8 +71,7 @@ public:
     {
         auto type = std::type_index(typeid(T));
         if (components.count(type))
-            throw("Already added component to scene");
-            //assert(false);
+            assert(false && "Already added component to scene");
         components[type].data = new T();
         components[type].destructor = [](void *data)
         {

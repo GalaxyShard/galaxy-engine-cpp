@@ -56,8 +56,7 @@ Texture::Texture(const std::string &path, DisplayMode mode)
     auto image = (const unsigned char*)fileContents.str;
 
     unsigned char *localBuffer = stbi_load_from_memory(image, fileContents.length, &width, &height, &bpp, 4);
-    //assert(localBuffer);
-    if (!localBuffer) throw("Failed to load image");
+    assert(localBuffer && "Failed to load image");
     init_texture(localBuffer, mode);
 }
 Texture::~Texture()

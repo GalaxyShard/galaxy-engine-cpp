@@ -4,25 +4,8 @@
 
 extern std::unordered_map<AttributeType, int> typeToBytes;
 
-//#if USE_GLFW
-//static unsigned int globalVAO = -1;
-//#endif
-
 VertexArray::VertexArray()
 {
-//#if USE_GLFW
-//    static bool notInit = 1;
-//    if (notInit)
-//    {
-//        notInit = 0;
-//        GLCall(glGenVertexArrays(1, &globalVAO));
-//        GLCall(glBindVertexArray(globalVAO));
-//        for (int i = 0; i < 3; ++i)
-//        {
-//            GLCall(glEnableVertexAttribArray(i));
-//        }
-//    }
-//#endif
 #if OS_IOS
     GLCall(glGenVertexArraysOES(1, &rendererID));
 

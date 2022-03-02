@@ -203,11 +203,9 @@ Matrix4x4 Matrix4x4::ortho(float left, float right, float bottom, float top, flo
     // probably -1~1 for NO, which is OpenGL, and 0~1 for ZO, which is DirectX
 
     // prevent division by 0
-    if (zNear==zFar || top==bottom || left==right)
-        throw("division by 0");
-    //assert(zNear != zFar);
-    //assert(top != bottom);
-    //assert(left != right);
+    assert(zNear != zFar);
+    assert(top != bottom);
+    assert(left != right);
 
     float mul = leftHanded ? 1 : -1; // right handed is negative z
 

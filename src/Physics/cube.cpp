@@ -81,26 +81,6 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         Matrix3x3 rot0 = Matrix3x3::rotate(_rotation);
         Matrix3x3 rot1 = Matrix3x3::rotate(cube->_rotation);
 
-        //constexpr int NUM_AXES = 15;
-        //Vector3 axes[NUM_AXES]; // normals
-        //axes[0] = rot0*Vector3(0,1,0);
-        //axes[1] = rot0*Vector3(0,0,1);
-        //axes[2] = rot0*Vector3(1,0,0);
-//
-        //axes[3] = rot1*Vector3(0,1,0);
-        //axes[4] = rot1*Vector3(0,0,1);
-        //axes[5] = rot1*Vector3(1,0,0);
-//
-        //axes[6] = Vector3::cross(, );
-        //axes[7] = Vector3::cross(, );
-        //axes[8] = Vector3::cross(, );
-        //axes[9] = Vector3::cross(, );
-        //axes[10] = Vector3::cross(, );
-        //axes[11] = Vector3::cross(, );
-        //axes[12] = Vector3::cross(, );
-        //axes[13] = Vector3::cross(, );
-        //axes[14] = Vector3::cross(, );
-
         float minDot[2], maxDot[2];
         std::vector<Vector3> points[2];
         get_points(points[0], this);
@@ -110,30 +90,12 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         Vector3 mtv;
         float mtvMag = Math::INF;
         
-        //int timesCalled = 0;
         auto testAxis = [&](Vector3 axis)
         {
             // Cube points
             min_max_dot(points[0], axis, minDot[0], maxDot[0]);
             min_max_dot(points[1], axis, minDot[1], maxDot[1]);
 
-            //for (int j = 0; j < 2; ++j)
-            //{
-                //min_max_dot(points[j], axis, minDot[j], maxDot[j]);
-                //minDot[j] = Vector3::dot(points[j][0], axis);
-                //maxDot[j] = minDot[j];
-                //// Projections
-                //for (int k = 1; k < points[j].size(); ++k)
-                //{
-                //    float product = Vector3::dot(points[j][k], axis);
-                //    if (minDot[j] > product)
-                //        minDot[j] = product;
-                    //
-                //    if (maxDot[j] < product)
-                //        maxDot[j] = product;
-                //}
-            //}
-            
             /*
                 tests
                 <-min0--max0----min1--max1----> 0   correct
@@ -194,50 +156,6 @@ CollisionData CubeCollider::is_colliding(Collider *other)
 
         #pragma endregion
 
-
-        // Axes
-        //for (int i = 0; i < NUM_AXES; ++i)
-        //{
-        //    // Cube points
-        //    for (int j = 0; j < 2; ++j)
-        //    {
-        //        minDot[j] = Vector3::dot(points[j][0], axes[i]);
-        //        maxDot[j] = minDot[j];
-        //        // Projections
-        //        for (int k = 1; k < points[j].size(); ++k)
-        //        {
-        //            float product = Vector3::dot(points[j][k], axes[i]);
-        //            if (minDot[j] > product)
-        //                minDot[j] = product;
-                    //
-        //            if (maxDot[j] < product)
-        //                maxDot[j] = product;
-        //        }
-        //    }
-        //    /*
-        //        tests
-        //        <-min0--max0----min1--max1----> 0   correct
-        //        <-min0--min1----max0--max1----> 1   correct
-        //        <-min1--max1----min0--max0----> 0   correct
-        //        <-min1--min0----max1--max0----> 1   correct
-        //    */
-        //    // Use projections
-        //    if ((minDot[1]>=maxDot[0])
-        //        || (minDot[0]>=maxDot[1]))
-        //    {
-        //        return CollisionData();
-        //    }
-        //    else
-        //    {
-        //        float overlap = (maxDot[0] < maxDot[1]) ? (minDot[1]-maxDot[0]) : -(minDot[0]-maxDot[1]);
-        //        if (abs(mtvMag) > abs(overlap))
-        //        {
-        //            mtvMag = overlap;
-        //            mtv = axes[i]*(mtvMag);
-        //        }
-        //    }
-        //}
-        
         return CollisionData(mtv);
     }
     if (auto sphere = dynamic_cast<SphereCollider*>(other))

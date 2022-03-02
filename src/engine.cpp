@@ -140,11 +140,6 @@ void initialize()
         
         redraw();
     });
-    //glfmSetSurfaceDestroyedFunc(glfmDisplay, [](GLFMDisplay*)
-    //{
-    //    Debug::log("Cleanup fired\n");
-    //    Init::fire_cleanup();
-    //});
 #endif
 #if USE_GLFW
     Init::fire();

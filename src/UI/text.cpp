@@ -40,8 +40,6 @@ void UIText::refresh()
     build_mesh();
     mesh->refresh_mesh();
 }
-//static float xcoord(int pixel, float size) { return pixel / size + (1.f / (size * 2.f)); }
-//static float ycoord(int pixel, float size) { return xcoord(size-pixel, size); }
 void UIText::build_mesh()
 {
     auto &tris = mesh->tris;
@@ -49,11 +47,8 @@ void UIText::build_mesh()
 
     verts = std::vector<Vertex>(text.size()*4);
     tris = std::vector<unsigned int>(text.size()*6);
-    //tris.clear();
-    //tris.reserve(text.size());
 
     // scale is bounding box
-    //const int fontSize = 72, lineHeight = 72;
     const int fontSize = 72;
 
 

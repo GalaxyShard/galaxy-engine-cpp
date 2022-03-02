@@ -7,8 +7,6 @@
 #include <fstream>
 #include <sstream>
 
-
-//using std::vector;
 Mesh::Mesh() { } // for smart ptr
 Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris) : verts(verts), tris(tris)
 {
@@ -47,7 +45,6 @@ void Mesh::calculate_bounds()
         return;
     aabbMin = Vector3(Math::INF, Math::INF, Math::INF);
     aabbMax = Vector3(-Math::INF, -Math::INF, -Math::INF);
-    //aabbMax = Vector3(Math::NEGINF, Math::NEGINF, Math::NEGINF);
     using std::min; using std::max;
     for (int i = 0; i < verts.size(); ++i)
     {
@@ -90,7 +87,6 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
 
     std::vector<Vector2> texCoords;
     std::vector<Vector3> normals, vertices;
-    //std::vector<int> triangles;
     struct Face
     {
         int triangle[3] = {-1,-1,-1};
@@ -105,7 +101,7 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
         switch (c0)
         {
         case '#': continue;
-        case 'o': throw("Multiple meshes not supported");
+        case 'o': assert(false && "Multiple meshes not supported");
 
         case 'v':
         {
@@ -113,7 +109,6 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
             std::vector<std::string> v = split_str(line, ' ');
             if (c1 == ' ') // vertex
             {
-                //mesh->verts.push_back(Vertex(
                 vertices.push_back(Vector3(
                     std::stof(v[1]),
                     std::stof(v[2]),
@@ -142,8 +137,7 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
             if (tris.size() != 3)
             {
                 // TODO: triangulate
-                //assert(false);
-                throw("Cannot triangulate mesh automatically");
+                assert(false && "Mesh is not triangulated");
             }
             Face face;
             int i = 0;
@@ -154,28 +148,18 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
                 if (vert_tex_norm.size() == 1)
                 {
                     face.triangle[i] = std::stoi(str)-1;
-                    //mesh->tris.push_back(std::stoi(str)-1);
-                    //triangles.push_back(std::stoi(str)-1);
                 }
                 else
                 {
                     auto vert = vert_tex_norm[0];
                     int vertIndex = std::stoi(vert)-1;
                     face.triangle[i] = vertIndex;
-                    //mesh->tris.push_back(vertIndex);
-                    //triangles.push_back(vertIndex);
                     
                     auto tex = vert_tex_norm[1];
                     if (!tex.empty())
                     {
                         int uvIndex = std::stoi(tex)-1;
                         face.uv[i] = uvIndex;
-                        //if (mesh->verts[vertIndex].texCoord != texCoords[uvIndex])
-                        //{
-                            //assert(mesh->verts[vertIndex].texCoord == Vector2(0,0));
-                            //mesh->verts[vertIndex].texCoord = texCoords[uvIndex];
-                        //}
-                        //mesh->verts[vertIndex].texCoord = texCoords[uvIndex];
                     }
                     if (vert_tex_norm.size() < 3)
                     {
@@ -187,12 +171,6 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
                     {
                         int normalIndex = std::stoi(normal)-1;
                         face.normal[i] = normalIndex;
-                        //if (mesh->verts[vertIndex].normal != normal[normalIndex])
-                        //{
-                            //assert(mesh->verts[vertIndex].normal == Vector3(0,0,0));
-                            //mesh->verts[vertIndex].normal = normals[normalIndex];
-                        //}
-                        //mesh->verts[vertIndex].normal = normals[normalIndex];
                     }
                 }
                 ++i;
@@ -218,10 +196,6 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
             int vertIndex = mesh->verts.size();
             mesh->verts.push_back(vert);
             mesh->tris.push_back(vertIndex);
-
-            // todo: fix ordering
-            //mesh->tris.push_back(face.triangle[j]);
-            //mesh->tris.push_back(i+j);
         }
         ++i;
     }

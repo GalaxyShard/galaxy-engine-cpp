@@ -18,11 +18,6 @@ struct Vertex
     Vertex(float x, float y, float z) : pos(x, y, z) { }
     Vertex(Vector3 pos, Vector2 texCoord = Vector2(), Vector3 normal = Vector3()) : pos(pos), texCoord(texCoord), normal(normal) { }
 };
-//#if OS_WEB
-//typedef unsigned short TriangleIndex;
-//#else
-//typedef unsigned int TriangleIndex;
-//#endif
 class Mesh
 {
     private:

@@ -10,7 +10,6 @@
     #include <AL/alc.h>
 #endif
 #include <internalinit.hpp>
-//#include <emscripten.h>
 
 static ALCdevice *alcDevice;
 

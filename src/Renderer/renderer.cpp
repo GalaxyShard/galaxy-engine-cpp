@@ -78,7 +78,6 @@ void Renderer::bind_uniforms(std::unordered_map<int, Uniform> &uniforms)
 {
     for (const auto &[i, uniform] : uniforms)
     {
-        //const int i = v.first;
         auto &val = uniform.value;
         auto &type = uniform.type;
 
@@ -88,8 +87,7 @@ void Renderer::bind_uniforms(std::unordered_map<int, Uniform> &uniforms)
         else if (type == Uniform::VEC4) glUniform4fv(i, 1, &val.v4.x);
         else if (type == Uniform::INT) glUniform1i(i, val.i);
         else if (type == Uniform::MAT4x4) glUniformMatrix4fv(i, 1, false, val.m4x4.transpose().value_ptr());
-        //else assert(false && "Case not implemented");
-        else throw("Case not implemented");
+        else assert(false && "Case not implemented");
         GLCall();
     }
 
@@ -99,19 +97,6 @@ void Renderer::bind_material(Material *mat)
     bind_uniforms(mat->uniforms);
 }
 static int objectsCulled = 0;
-//static bool shouldCull(ObjRendererECS &renderer, TransformECS &transform)
-//{
-//    // very basic inaccurate frustum culling
-//    Vector3 normal = Matrix3x3::rotate(Camera::main->rotation) * Vector3(0,0,-1);
-//    Vector3 toWorld = transform.pos - Camera::main->position;
-//    if (Vector3::dot(normal, renderer.mesh->aabbMin + toWorld) < 0 
-//        && Vector3::dot(normal, renderer.mesh->aabbMax + toWorld) < 0)
-//    {
-//        ++objectsCulled;
-//        return true;
-//    }
-//    return false;
-//}
 Matrix4x4 add_r_c(Matrix3x3 m)
 {
     const float *p = m.value_ptr();
@@ -133,10 +118,6 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 
     if (Camera::main->isPerspective)
     {
-        //Vector3 min = renderer.mesh->aabbMin+transform.pos;
-        //Vector3 max = renderer.mesh->aabbMax+transform.pos;
-        //Vector3 min = renderer.mesh->aabbMin;
-        //Vector3 max = renderer.mesh->aabbMax;
         Vector3 &min = renderer.i_minBounds;
         Vector3 &max = renderer.i_maxBounds;
         if (renderer.dirty)
@@ -221,7 +202,6 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
         tex->bind();
         shader.set_uniform1i("u_tex", tex->get_slot());
     }
-    //GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_SHORT, nullptr));
     GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 
 }
@@ -229,48 +209,9 @@ void Renderer::draw(Object &obj)
 {
     // hack: rewrite this
     ObjRendererECS renderer = ObjRendererECS{.mat=obj.material, .mesh=obj.mesh};
-    //TransformECS transform = TransformECS{.pos=obj.position,.scale=obj.scale,.rotation=obj.rotation};
     TransformECS transform = TransformECS(obj.position,obj.scale,obj.rotation);
     RendererSystem().draw(renderer, transform);
 }
-
-//void Renderer::draw(Object &obj)
-//{
-//    obj.mesh->varray->bind();
-//
-//    Material &mat = *obj.material;
-//    Shader &shader = *mat.shader;
-//    Texture *tex = mat.mainTex;
-//    shader.bind();
-    //
-//    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(reverseAspect.x, reverseAspect.y, 1);
-//
-//    Matrix4x4 rotation = Matrix4x4::rotate(obj.rotation);
-//    Matrix4x4 model =
-//        Matrix4x4::translate(obj.position * filteredAspect)
-//        * rotation
-//        * Matrix4x4::scale(obj.scale * filteredAspect);
-//
-//
-//    // Rotate camera after translating
-//    // The transpose of a rotation is equal to the inverse
-//    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
-//        * Matrix4x4::translate(-Camera::main->position);
-//
-//
-//    bind_material(obj.material);
-//    shader.set_uniform_mat4x4("u_mvp", Camera::main->projection * view * model);
-//    shader.set_uniform_mat4x4("u_model", model);
-//    shader.set_uniform_mat4x4("u_rotation", rotation);
-//    shader.set_uniform3f("u_camPos", Camera::main->position);
-//    if (tex)
-//    {
-//        tex->bind();
-//        shader.set_uniform1i("u_tex", tex->get_slot());
-//    }
-    //GLCall(glDrawElements(GL_TRIANGLES, obj.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
-//}
-
 void Renderer::draw(UIImage &img)
 {
     UIImage::mesh()->varray->bind();
@@ -296,8 +237,6 @@ void Renderer::draw(UIImage &img)
         shader->set_uniform1i("u_tex", img.texture->get_slot());
     }
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-    //GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, nullptr));
-    //GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr));
 }
 void Renderer::draw(UIText &text)
 {
@@ -324,8 +263,6 @@ void Renderer::draw(UIText &text)
     text.font->fontTex->bind();
     text.shader()->set_uniform1i("u_tex", text.font->fontTex->get_slot());
 
-
-    //GLCall(glDrawElements(GL_TRIANGLES, text.mesh->tris.size(), GL_UNSIGNED_SHORT, nullptr));
     GLCall(glDrawElements(GL_TRIANGLES, text.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 }
 void Renderer::set_clear_color(float r, float g, float b, float a)

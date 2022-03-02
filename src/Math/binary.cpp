@@ -55,19 +55,12 @@ signed char BinaryReader::read<signed char>()
 template<>
 int BinaryReader::read<int>()
 {
-    //int val = b_cast<int>(&buffer[nextIndex]);
-    //int val = *(int*)&buffer[nextIndex];
     nextIndex += 4;
     return to_native_endian32(&buffer[nextIndex-4], Endian::BIG);
-    //return ntohl(val);
 }
 template<>
 std::string BinaryReader::read<std::string>()
 {
-    //unsigned short length = *(unsigned short*)&buffer[nextIndex];
-    //unsigned short length = b_cast<unsigned short>(&buffer[nextIndex]);
-    //length = ntohs(length);
-    //nextIndex += length+2;
     char length = buffer[nextIndex];
     nextIndex += length+1;
     return buffer.substr(nextIndex-length, length);
@@ -79,26 +72,17 @@ float BinaryReader::read<float>()
     // Force IEEE-754
     static_assert(std::numeric_limits<float>::is_iec559);
     
-    //auto b0 = read<unsigned char>();
-    //auto b1 = read<unsigned char>();
-    //auto b2 = read<unsigned char>();
-    //auto b3 = read<unsigned char>();
-
-    //unsigned char rawBytes[4] = {b0,b1,b2,b3};
     unsigned char rawBytes[4];
     rawBytes[0] = read<unsigned char>();
     rawBytes[1] = read<unsigned char>();
     rawBytes[2] = read<unsigned char>();
     rawBytes[3] = read<unsigned char>();
-    //int one = 1;
-    //if (*(unsigned char*)&one == 1)
     if (sys_endian() == LITTLE)
     {
         std::swap(rawBytes[0], rawBytes[3]);
         std::swap(rawBytes[1], rawBytes[2]);
     }
     return b_cast<float>(rawBytes);
-    //return *(float*)rawBytes;
 
     //// bytes are left to right
     //unsigned char b0 = read<unsigned char>();
@@ -148,18 +132,12 @@ void BinaryWriter::write<int>(int data)
 {
     int newData = set_endian32((char*)&data, sys_endian(), Endian::BIG);
     buffer.append((char*)&newData, sizeof(int));
-    //int bigEndian = htonl(data);
-    //buffer.append((char*)&bigEndian, sizeof(int));
 }
 template<>
 void BinaryWriter::write<std::string>(std::string data)
 {
-    //unsigned short length = (unsigned short)data.size();
-    //length = htons(length);
-    //char length = (char)data.size();
-    //buffer += length + data;
     write((unsigned char)data.size());
-    buffer += data; // no endian checks, probably should
+    buffer += data; // no endian checks, todo: test
 }
 
 template<>
