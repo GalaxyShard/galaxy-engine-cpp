@@ -33,12 +33,14 @@ add_definitions(-DGL_SILENCE_DEPRECATION)
 add_definitions(-DGLES_SILENCE_DEPRECATION)
 add_definitions(-DGLFW_INCLUDE_GLCOREARB)
 add_definitions(-DOPENAL_DEPRECATED=)
-add_definitions(-Wall)
-add_definitions(-Wno-unused)
-add_definitions(-Wno-shorten-64-to-32)
-#add_definitions(-pedantic)
-#add_definitions(-Wextra)
-#add_definitions(-Weverything)
+add_definitions(-Wall -pedantic -Wextra)
+add_definitions(-Werror)
+
+# For testing
+#add_definitions(-Weverything
+#    -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation
+#    -Wno-newline-eof -Wno-zero-as-null-pointer-constant
+#    -Wno-old-style-cast)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(EMSCRIPTEN 1)

@@ -15,13 +15,13 @@ struct Vector2
     float& operator[](int i){ return (&x)[i]; }
     const float& operator[](int i) const { return (&x)[i]; }
 
-    DECLARE_MATH_OPERATORS(Vector2, Vector2);
-    DECLARE_MATH_OPERATORS(Vector2, float);
+    DECLARE_MATH_OPERATORS(Vector2, Vector2)
+    DECLARE_MATH_OPERATORS(Vector2, float)
 
     bool operator ==(const Vector2 &v2) const;
-    DEFINE_MATH_OPERATORS(Vector2);
-    DEFINE_MATH_OPERATORS(float);
-    DEFINE_NOT_EQ(Vector2);
+    DEFINE_MATH_OPERATORS(Vector2)
+    DEFINE_MATH_OPERATORS(float)
+    DEFINE_NOT_EQ(Vector2)
 
     operator Vector3() const;
     operator Vector4() const;
@@ -30,7 +30,7 @@ struct Vector2
     float sqr_magnitude() const;
     float magnitude() const;
 
-    friend auto operator<<(std::ostream &, const Vector2 &) -> std::ostream&;
+    friend std::ostream& operator<<(std::ostream &, const Vector2 &);
 };
 struct Vector2Int
 {
@@ -40,19 +40,19 @@ struct Vector2Int
     int& operator[](int i){ return (&x)[i]; }
     const int& operator[](int i) const { return (&x)[i]; }
 
-    DECLARE_MATH_OPERATORS(Vector2Int, Vector2Int);
-    DECLARE_MATH_OPERATORS(Vector2Int, int);
+    DECLARE_MATH_OPERATORS(Vector2Int, Vector2Int)
+    DECLARE_MATH_OPERATORS(Vector2Int, int)
 
     bool operator ==(const Vector2Int &v2) const;
-    DEFINE_MATH_OPERATORS(Vector2Int);
-    DEFINE_MATH_OPERATORS(int);
-    DEFINE_NOT_EQ(Vector2Int);
+    DEFINE_MATH_OPERATORS(Vector2Int)
+    DEFINE_MATH_OPERATORS(int)
+    DEFINE_NOT_EQ(Vector2Int)
 
     operator Vector2() const;
     operator Vector3() const;
     operator Vector4() const;
 
-    friend auto operator<<(std::ostream &, const Vector2 &) -> std::ostream&;
+    friend std::ostream& operator<<(std::ostream &, const Vector2 &);
 };
 struct Vector3
 {
@@ -62,13 +62,13 @@ struct Vector3
     float& operator[](int i);
     const float& operator[](int i) const;
 
-    DECLARE_MATH_OPERATORS(Vector3, Vector3);
-    DECLARE_MATH_OPERATORS(Vector3, float);
+    DECLARE_MATH_OPERATORS(Vector3, Vector3)
+    DECLARE_MATH_OPERATORS(Vector3, float)
 
     bool operator ==(const Vector3 &v2) const;
-    DEFINE_MATH_OPERATORS(Vector3);
-    DEFINE_MATH_OPERATORS(float);
-    DEFINE_NOT_EQ(Vector3);
+    DEFINE_MATH_OPERATORS(Vector3)
+    DEFINE_MATH_OPERATORS(float)
+    DEFINE_NOT_EQ(Vector3)
 
     float sqr_magnitude() const;
     float magnitude() const;
@@ -83,7 +83,7 @@ struct Vector3
     operator Vector2() const;
     operator Vector4() const;
 
-    friend auto operator<<(std::ostream &os, const Vector3 &v) -> std::ostream&;
+    friend std::ostream& operator<<(std::ostream &os, const Vector3 &v);
 };
 struct Vector4
 {
@@ -92,13 +92,13 @@ struct Vector4
     const float& operator[](int i) const;
     Vector4(float x = 0, float y = 0, float z = 0, float w = 0);
 
-    DECLARE_MATH_OPERATORS(Vector4, Vector4);
-    DECLARE_MATH_OPERATORS(Vector4, float);
-    DEFINE_MATH_OPERATORS(Vector4);
-    DEFINE_MATH_OPERATORS(float);
+    DECLARE_MATH_OPERATORS(Vector4, Vector4)
+    DECLARE_MATH_OPERATORS(Vector4, float)
+    DEFINE_MATH_OPERATORS(Vector4)
+    DEFINE_MATH_OPERATORS(float)
 
     bool operator ==(const Vector4 &) const;
-    DEFINE_NOT_EQ(Vector4);
+    DEFINE_NOT_EQ(Vector4)
 
     float sqr_magnitude() const;
     float magnitude() const;
@@ -107,7 +107,7 @@ struct Vector4
     operator Vector2() const;
     operator Vector3() const;
 
-    friend auto operator<<(std::ostream &, const Vector4 &) -> std::ostream&;
+    friend std::ostream& operator<<(std::ostream &, const Vector4 &);
 };
 struct Quaternion
 {
@@ -122,5 +122,5 @@ struct Quaternion
 
     static Quaternion identity();
 
-    friend auto operator<<(std::ostream &os, const Quaternion &v) -> std::ostream&;
+    friend std::ostream& operator<<(std::ostream &os, const Quaternion &v);
 };

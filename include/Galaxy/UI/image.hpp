@@ -13,9 +13,9 @@ class UIImage
 private:
     static std::unique_ptr<std::vector<UIImage *>> images;
     
+    Scene *scene;
     unsigned int imageID, rendererID;
     int renderOrder = 0;
-    Scene *scene;
 
     static Mesh *mesh();
     Shader *shader();

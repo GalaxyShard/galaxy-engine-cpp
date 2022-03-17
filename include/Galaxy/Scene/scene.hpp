@@ -27,13 +27,13 @@ struct SceneComponent
 class Scene
 {
 private:
-    std::string name;
-    bool destroyingScene = 0;
-    
     std::vector<Object*> objInstances;
     std::vector<UIImage*> imgInstances;
     std::vector<UIText*> textInstances;
     std::vector<UIGroup*> groupInstances;
+
+    std::string name;
+    bool destroyingScene = 0;
 
     std::unordered_map<std::type_index, SceneComponent> components;
     static std::unordered_map<std::string, SceneInfo> sceneEvents;

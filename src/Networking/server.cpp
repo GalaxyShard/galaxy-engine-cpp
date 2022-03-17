@@ -104,7 +104,7 @@ void Server::server_thread()
                 inst->internalMsgs.push_back(writer.get_buffer());
             }
         }
-        for (int i = 2; i < descriptors.size(); ++i)
+        for (unsigned int i = 2; i < descriptors.size(); ++i)
         {
             pollfd &client = descriptors[i];
             if (client.revents & POLLHUP)
@@ -115,7 +115,7 @@ void Server::server_thread()
                 descriptors.erase(descriptors.begin() + i);
                 --i;
                 int index = -1;
-                for (int i = 0; i < inst->clients.size(); ++i)
+                for (unsigned int i = 0; i < inst->clients.size(); ++i)
                 {
                     if (inst->clients[i].fd == clientFD)
                     {

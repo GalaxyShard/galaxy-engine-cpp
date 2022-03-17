@@ -8,7 +8,6 @@ class Signal final
 private:
     std::unordered_map<int, Callback> listeners;
     std::vector<int> eraseQueue;
-    int queueSize = 0;
     int nextID = 0;
 
     friend class Event;

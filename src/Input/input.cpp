@@ -33,6 +33,7 @@ namespace
     
     void process_key(KeyCode key, bool action, int mods)
     {
+        (void)mods;
         if (lastKeyStates[key] == action)
             return;
         
@@ -40,9 +41,7 @@ namespace
         auto iterator = callbacks.equal_range(key);
 
         for (auto i = iterator.first; i != iterator.second; ++i)
-        {
             i->second.callback(action);
-        }
     }
     bool (*onRebindFinish)(KeyCode key);
     const char *changingBind;
@@ -70,6 +69,7 @@ namespace
     }
     void process_click(int touchID, bool action, int mods, Vector2 pos)
     {
+        (void)mods;
         lastTouchID = touchID;
         if (action)
         {
@@ -138,6 +138,7 @@ namespace
     }
     void rebind_callback(GLFWwindow*, int key, int scancode, int action, int mods)
     {
+        (void)mods, (void)scancode;
         if (action != GLFW_PRESS) return;
         process_key_rebind((KeyCode)key);
         glfwSetKeyCallback(glfwGetCurrentContext(), &key_callback);
@@ -145,6 +146,7 @@ namespace
     bool isMouseHeld = 0;
     void mouse_callback(GLFWwindow*, int button, int action, int mods)
     {
+        (void)button;
         if (action == GLFW_REPEAT) return;
         isMouseHeld = action;
         process_click(0, action, mods, Input::mousePos);

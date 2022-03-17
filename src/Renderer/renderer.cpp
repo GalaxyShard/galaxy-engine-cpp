@@ -322,7 +322,7 @@ void Renderer::draw_all(bool fireEvents)
         std::sort(uiObjs->begin(), uiObjs->end(), [](UIObject *a, UIObject *b)
         { return a->render_order() < b->render_order(); });
 
-        for (int i = 0; i < uiObjs->size(); ++i)
+        for (unsigned int i = 0; i < uiObjs->size(); ++i)
         {
             (*uiObjs)[i]->renderer_id() = i;
         }

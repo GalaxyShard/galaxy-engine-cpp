@@ -121,7 +121,7 @@ int Shader::u_location(const char *uniform)
     return uniformCache[uniform];
 }
 #define DEFINE_SET_UNIFORM(func, ...) int location = u_location(uniform); \
-    if (location != -1) GLCall(glUniform##func(location, ##__VA_ARGS__));
+    if (location != -1) GLCall(glUniform##func(location, __VA_ARGS__));
 void Shader::set_uniform3f(const char *uniform, Vector3 v)
 {
     DEFINE_SET_UNIFORM(3f, v.x, v.y, v.z);

@@ -16,7 +16,7 @@ extern const std::unordered_map<int, const char*> glErrorStringMap;
 static inline bool gl_check_errors(int line, const char *fileName)
 {
     bool errored = 0;
-    while (int e = glGetError())
+    while (unsigned int e = glGetError())
     {
         errored = 1;
         logerr("(%o:%o) GL error: %o\n", fileName, line, (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));

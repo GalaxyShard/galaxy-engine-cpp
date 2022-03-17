@@ -62,7 +62,7 @@ public:
 
     void add_attribute(VertexAttribute a);
     inline const std::vector<VertexAttribute> get_attributes() const { return attributes; }
-        inline const int get_stride() const { return stride; }
+        inline int get_stride() const { return stride; }
 };
 class VertexArray : public Buffer
 {

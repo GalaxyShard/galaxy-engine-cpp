@@ -20,11 +20,11 @@ int UIObject::add_text(UIText *text)
     sortObjects = 1;
     return uiObjects->size()-1;
 }
-void UIObject::remove(int id)
+void UIObject::remove(unsigned int id)
 {
     delete (*uiObjects)[id];
     uiObjects->erase(uiObjects->begin() + id);
-    for (int i = id; i < uiObjects->size(); ++i)
+    for (unsigned int i = id; i < uiObjects->size(); ++i)
     {
         (*uiObjects)[i]->renderer_id() = i;
     }

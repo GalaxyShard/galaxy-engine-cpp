@@ -7,14 +7,14 @@ struct UIObject
 {
     static std::unique_ptr<std::vector<UIObject*>> uiObjects;
     void *data;
-    enum Type { UIIMAGE, UITEXT } type;
-
+    enum Type : unsigned char { UIIMAGE, UITEXT } type;
+    
     unsigned int &renderer_id();
     int &render_order();
 
     static int add_image(UIImage *img);
     static int add_text(UIText *text);
-    static void remove(int id);
+    static void remove(unsigned int id);
     
     static bool sortObjects;
 

@@ -259,6 +259,7 @@ Matrix4x4 Matrix4x4::perspective(float fovy, float aspect, float near, float far
 }
 Matrix4x4 Matrix4x4::frustum(float left, float right, float bottom, float top, float near, float far, bool leftHanded)
 {
+    (void)leftHanded; // ignore for now
     return Matrix4x4(
         near*2.f/(right-left), 0,                     0,                     near*(left+right)/(left-right),
         0,                     near*2.f/(top-bottom), 0,                     near*(bottom+top)/(bottom-top),

@@ -37,9 +37,9 @@ class Object
 {
 private:
     static std::unique_ptr<std::vector<Object*>> allObjects;
-    static bool sortObjects;
     unsigned int objectIndex;
     int renderOrder = 0;
+    static bool sortObjects;
 
     Scene *scene=0;
     friend class Renderer;
@@ -74,7 +74,7 @@ public:
     T* get_component()
     {
         static_assert(std::is_base_of<ObjComponent, T>::value, "Class must be an ObjComponent");
-        for (int i = 0; i < components.size(); ++i)
+        for (unsigned int i = 0; i < components.size(); ++i)
         {
             if (T *component = dynamic_cast<T*>(components[i].get()))
                 return component;

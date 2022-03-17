@@ -39,7 +39,7 @@ T* ECSManager::get_sys()
 template<typename T>
 unsigned int ECSManager::comp_id()
 {
-    static int id = nextCompID++;
+    static unsigned int id = nextCompID++;
     if (id >= sizeof(ComponentMask)*8)
         throw("Too many components");
     return id;

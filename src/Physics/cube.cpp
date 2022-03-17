@@ -177,7 +177,7 @@ void CubeCollider::fix_bounding_box()
     get_points(points, this);
     aabbMin = Vector3();
     aabbMax = Vector3();
-    for (int i = 0; i < points.size(); ++i)
+    for (unsigned int i = 0; i < points.size(); ++i)
     {
         Vector3 &point = points[i];
         using std::min; using std::max;

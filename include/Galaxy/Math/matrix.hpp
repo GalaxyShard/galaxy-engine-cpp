@@ -58,11 +58,11 @@ struct Matrix3x3
     Matrix3x3 transpose() const;
     Matrix3x3 inverse() const;
 
-    DECLARE_MATH_OPERATORS(Matrix3x3, Matrix3x3);
-    DECLARE_MATH_OPERATORS(Matrix3x3, float);
+    DECLARE_MATH_OPERATORS(Matrix3x3, Matrix3x3)
+    DECLARE_MATH_OPERATORS(Matrix3x3, float)
 
     bool operator==(const Matrix3x3 &) const;
-    DEFINE_NOT_EQ(Matrix3x3);
+    DEFINE_NOT_EQ(Matrix3x3)
 
     Vector3 operator*(const Vector3 &) const;
 
@@ -98,11 +98,11 @@ struct Matrix4x4
     Matrix4x4 transpose() const;
     Matrix4x4 inverse() const;
 
-    DECLARE_MATH_OPERATORS(Matrix4x4, Matrix4x4);
-    DECLARE_MATH_OPERATORS(Matrix4x4, float);
+    DECLARE_MATH_OPERATORS(Matrix4x4, Matrix4x4)
+    DECLARE_MATH_OPERATORS(Matrix4x4, float)
 
     bool operator==(const Matrix4x4 &) const;
-    DEFINE_NOT_EQ(Matrix4x4);
+    DEFINE_NOT_EQ(Matrix4x4)
 
     Vector4 operator*(const Vector4 &) const;
 

@@ -9,6 +9,8 @@ bool Object::sortObjects = 0;
 
 Object::Object(Mesh *mesh, Material *mat, bool isStatic) : mesh(mesh), material(mat)
 {
+    (void)isStatic;
+    
     allObjects->push_back(this);
     objectIndex = allObjects->size() - 1;
     sortObjects = 1;

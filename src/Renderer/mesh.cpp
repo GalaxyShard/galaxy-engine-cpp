@@ -46,9 +46,9 @@ void Mesh::calculate_bounds()
     aabbMin = Vector3(Math::INF, Math::INF, Math::INF);
     aabbMax = Vector3(-Math::INF, -Math::INF, -Math::INF);
     using std::min; using std::max;
-    for (int i = 0; i < verts.size(); ++i)
+    for (unsigned int i = 0; i < verts.size(); ++i)
     {
-        for (int j = 0; j < 3; ++j)
+        for (unsigned int j = 0; j < 3; ++j)
         {
             aabbMin[j] = min(aabbMin[j], verts[i].pos[j]);
             aabbMax[j] = max(aabbMax[j], verts[i].pos[j]);

@@ -213,7 +213,7 @@ void Client::shutdown()
         writer.write<int>(HOST_FD);
         Server::inst->internalMsgs.push_back(writer.get_buffer());
         auto &clients = Server::inst->clients;
-        for (int i = 0; i < clients.size(); ++i)
+        for (unsigned int i = 0; i < clients.size(); ++i)
         {
             if (clients[i].fd == HOST_FD)
             {

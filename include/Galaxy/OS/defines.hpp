@@ -65,7 +65,11 @@
 
 #if OS_MOBILE || OS_WEB
     #define USE_GLFM 1
+#else
+    #define USE_GLFM 0
 #endif
 #if OS_PC
     #define USE_GLFW 1
+#else
+    #define USE_GLFW 0
 #endif

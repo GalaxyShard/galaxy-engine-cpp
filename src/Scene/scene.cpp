@@ -52,7 +52,7 @@ template<typename T>
 static void remove(T *data, std::vector<T*> &instances)
 {
     int instID = -1;
-    for (int i = 0; i < instances.size(); ++i)
+    for (unsigned int i = 0; i < instances.size(); ++i)
     {
         if (instances[i] == data)
         {
