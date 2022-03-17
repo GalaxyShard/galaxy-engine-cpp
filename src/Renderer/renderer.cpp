@@ -97,7 +97,7 @@ void Renderer::bind_material(Material *mat)
     bind_uniforms(mat->uniforms);
 }
 static int objectsCulled = 0;
-Matrix4x4 add_r_c(Matrix3x3 m)
+static Matrix4x4 add_r_c(Matrix3x3 m)
 {
     const float *p = m.value_ptr();
     return Matrix4x4(
@@ -293,7 +293,7 @@ void Renderer::draw_all(bool fireEvents)
         auto &objs = Object::allObjects;
         std::sort(objs->begin(), objs->end(), [](Object *a, Object *b)
         { return a->renderOrder < b->renderOrder; });
-        int id = 0;
+        unsigned int id = 0;
         for (auto &obj : *objs)
         {
             obj->objectIndex = id;

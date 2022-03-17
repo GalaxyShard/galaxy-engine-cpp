@@ -32,10 +32,10 @@ private:
     std::vector<UIText*> textInstances;
     std::vector<UIGroup*> groupInstances;
 
+    std::unordered_map<std::type_index, SceneComponent> components;
     std::string name;
     bool destroyingScene = 0;
 
-    std::unordered_map<std::type_index, SceneComponent> components;
     static std::unordered_map<std::string, SceneInfo> sceneEvents;
 
     void remove_inst(Object *data);

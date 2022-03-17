@@ -52,5 +52,13 @@ public:
     T* operator->() { return data; }
     T& operator*() { return *data; }
 };
+class Mesh;
+class Shader;
+class Texture;
+class AudioData;
+extern template class AssetRef<Mesh>;
+extern template class AssetRef<Shader>;
+extern template class AssetRef<Texture>;
+extern template class AssetRef<AudioData>;
 template<typename T>
 std::unique_ptr<std::unordered_map<std::string, WeakAssetRef<T>>> AssetRef<T>::loadedAssets = std::make_unique<std::unordered_map<std::string, WeakAssetRef<T>>>();

@@ -46,3 +46,17 @@ public:
     std::string& get_buffer() { return buffer; }
     const std::string& get_buffer() const { return buffer; }
 };
+struct Vector3;
+template<> unsigned char BinaryReader::read<unsigned char>();
+template<> signed char BinaryReader::read<signed char>();
+template<> int BinaryReader::read<int>();
+template<> std::string BinaryReader::read<std::string>();
+template<> float BinaryReader::read<float>();
+template<> Vector3 BinaryReader::read<Vector3>();
+
+template<> void BinaryWriter::write<signed char>(signed char data);
+template<> void BinaryWriter::write<unsigned char>(unsigned char data);
+template<> void BinaryWriter::write<int>(int data);
+template<> void BinaryWriter::write<std::string>(std::string data);
+template<> void BinaryWriter::write<float>(float data);
+template<> void BinaryWriter::write<Vector3>(Vector3 data);

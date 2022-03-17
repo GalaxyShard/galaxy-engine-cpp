@@ -112,7 +112,7 @@ Rigidbody::~Rigidbody()
     std::swap(back, allRigidbodies[id]);
     allRigidbodies.pop_back();
 
-    ObjComponent::~ObjComponent();
+    //ObjComponent::~ObjComponent();
 }
 Collider::Collider()
 {
@@ -125,7 +125,7 @@ Collider::~Collider()
     back->id = id;
     std::swap(back, allColliders[id]);
     allColliders.pop_back();
-    ObjComponent::~ObjComponent();
+    //ObjComponent::~ObjComponent();
 }
 
 void Rigidbody::add_force(Vector3 force)

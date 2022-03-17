@@ -17,9 +17,9 @@ class AssetRef;
 class Shader
 {
     private:
+        std::unordered_map<const char*, int> uniformCache = {};
         unsigned int vertex = 0, fragment = 0, program = 0;
 
-        std::unordered_map<const char*, int> uniformCache = {};
         void parse(std::istream &stream);
         unsigned int create_program();
 

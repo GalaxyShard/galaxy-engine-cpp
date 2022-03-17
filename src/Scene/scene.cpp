@@ -51,7 +51,8 @@ Scene::~Scene()
 template<typename T>
 static void remove(T *data, std::vector<T*> &instances)
 {
-    int instID = -1;
+    //unsigned int instID = -1U;
+    unsigned int instID = ~0U;
     for (unsigned int i = 0; i < instances.size(); ++i)
     {
         if (instances[i] == data)
@@ -60,7 +61,7 @@ static void remove(T *data, std::vector<T*> &instances)
             break;
         }
     }
-    assert(instID != -1 && "Instance not found");
+    assert(instID != ~0U && "Instance not found");
     std::swap(instances[instID], instances.back());
     instances.pop_back();
 }

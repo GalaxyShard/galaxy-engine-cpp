@@ -12,10 +12,7 @@ class UIImage
 {
 private:
     static std::unique_ptr<std::vector<UIImage *>> images;
-    
     Scene *scene;
-    unsigned int imageID, rendererID;
-    int renderOrder = 0;
 
     static Mesh *mesh();
     Shader *shader();
@@ -29,8 +26,6 @@ public:
     Texture *texture = 0;
     Material *material = 0;
     UIGroup *group = 0;
-    Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
-    Vector4 tint = Vector4(1, 1, 1, 1);
 
     // onTouchDown is called on click if the cursor is over the image
     // onTouchUp is called after releasing click if onTouchDown was called
@@ -38,6 +33,14 @@ public:
     Callback onTouchDown;
     Callback onTouchUp;
     Callback onClick;
+    
+    Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
+    Vector4 tint = Vector4(1, 1, 1, 1);
+
+private:
+    unsigned int imageID, rendererID;
+    int renderOrder = 0;
+public:
 
     static UIImage *get_held(int id);
     static UIImage *get_held();

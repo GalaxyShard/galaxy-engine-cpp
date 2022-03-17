@@ -17,7 +17,7 @@ protected:
     friend class ECSManager;
     friend struct Entity;
 public:
-    virtual ~SystemBase() = default;
+    //virtual ~SystemBase() = 0;
 };
 struct EntityData
 {
@@ -78,10 +78,7 @@ template<typename T, typename... Args>
 class System : public SystemBase
 {
 public:
-    //std::vector<Entity>& entities() { return _entities; }
-    //std::set<EntityID>& entities() { return _entities; }
     static ComponentMask mask(ECSManager &manager);
-    //void for_each(Args&... args);
     void run(void (T::*)(Args&...), ECSManager &manager);
 };
 #include "ecs.inl"

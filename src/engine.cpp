@@ -38,7 +38,7 @@ struct AutoCleanup
         Init::fire_cleanup();
     }
 };
-auto autoCleanup = std::make_unique<AutoCleanup>();
+static auto autoCleanup = std::make_unique<AutoCleanup>();
 
 #if USE_GLFM
 #define SWAP_BUFFERS() glfmSwapBuffers(glfmDisplay)
@@ -66,10 +66,10 @@ static bool init_glfw()
         return 0;
     }
     glfwMakeContextCurrent(window);
-    glfwSetWindowRefreshCallback(window, [](GLFWwindow* window)
+    glfwSetWindowRefreshCallback(window, [](GLFWwindow*)
     {
         int w, h;
-        glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
+        glfwGetWindowSize(window, &w, &h);
         InternalTime::start_frame();
         Renderer::fix_aspect(w, h);
         Renderer::draw_all(1);

@@ -34,13 +34,14 @@ add_definitions(-DGLES_SILENCE_DEPRECATION)
 add_definitions(-DGLFW_INCLUDE_GLCOREARB)
 add_definitions(-DOPENAL_DEPRECATED=)
 add_definitions(-Wall -pedantic -Wextra)
-add_definitions(-Werror)
+#add_definitions(-Werror)
 
 # For testing
 #add_definitions(-Weverything
 #    -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation
-#    -Wno-newline-eof -Wno-zero-as-null-pointer-constant
-#    -Wno-old-style-cast)
+#    -Wno-newline-eof -Wno-zero-as-null-pointer-constant -Wno-documentation-unknown-command
+#    -Wno-old-style-cast -Wno-shorten-64-to-32 -Wno-shadow-field-in-constructor
+#    -Wno-sign-conversion -Wno-missing-prototypes)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(EMSCRIPTEN 1)
@@ -65,7 +66,7 @@ if (APPLE)
         add_fw(OpenAL)
     endif()
 endif()
-target_precompile_headers(engine PRIVATE include/pch.h)
+target_precompile_headers(engine PRIVATE src/pch.h)
 if ((APPLE AND NOT IOS) OR WIN32)
     target_link_libraries(engine ${proj_dir}/lib/libglfw3.a)
 endif()

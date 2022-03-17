@@ -11,12 +11,13 @@ class UIText
 {
 private:
     static Shader *shader();
-    unsigned int rendererID;
-    int renderOrder = 0;
 
     std::unique_ptr<Mesh> mesh;
     Font *font;
     Scene *scene;
+
+    unsigned int rendererID;
+    int renderOrder = 0;
 
     void build_mesh();
 
@@ -28,13 +29,13 @@ public:
     UIText(std::string text, Font *font = Font::defaultFont);
     ~UIText();
 
-    Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
-
+    Vector2 pos;
+    Vector2 scale = Vector2(1,1);
+    Vector2 anchor = Vector2(-1,-1);
+    Vector2 pivot = Vector2(1, 1);
     // not implemented
     bool wrap = 0;
     bool scaleToFit = 1; // scales to the max size that can fit
-
-    Vector2 pivot = Vector2(1, 1);
 
     inline int get_render_order() { return renderOrder; }
     void set_render_order(int order);

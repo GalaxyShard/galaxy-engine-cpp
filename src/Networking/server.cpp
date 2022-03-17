@@ -115,11 +115,11 @@ void Server::server_thread()
                 descriptors.erase(descriptors.begin() + i);
                 --i;
                 int index = -1;
-                for (unsigned int i = 0; i < inst->clients.size(); ++i)
+                for (unsigned int j = 0; j < inst->clients.size(); ++j)
                 {
-                    if (inst->clients[i].fd == clientFD)
+                    if (inst->clients[j].fd == clientFD)
                     {
-                        index = i;
+                        index = j;
                         break;
                     }
                 }

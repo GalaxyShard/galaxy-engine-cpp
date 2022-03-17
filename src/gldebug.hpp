@@ -1,17 +1,17 @@
 #pragma once
 #include <Galaxy/OS/defines.hpp>
 #if USE_GLFM
-    #include <glfm.h>
+    #include <External/glfm.h>
     extern GLFMDisplay *glfmDisplay;
 #endif
 #if USE_GLFW
-    #include <GLFW/glfw3.h>
+    #include <External/GLFW/glfw3.h>
 #endif
 #ifdef DEBUG
 #include <stdio.h>
 #include <unordered_map>
 #include <assert.h>
-extern const std::unordered_map<int, const char*> glErrorStringMap;
+extern const std::unordered_map<unsigned int, const char*> glErrorStringMap;
 
 static inline bool gl_check_errors(int line, const char *fileName)
 {
