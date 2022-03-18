@@ -20,6 +20,8 @@ include(initialize.cmake)
 include_directories(${proj_dir}/src)
 include_directories(${proj_dir}/include)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if (RELEASE_BUILD)
     add_definitions(-O3)
 else()
@@ -49,6 +51,9 @@ endif()
 
 if (EMSCRIPTEN)
     add_library(engine STATIC ${ENGINE_SRC})
+    add_definitions(-Wno-nested-anon-types) # for GLFM
+    remove_definitions(-Wall -pedantic -Wextra)
+    add_definitions(-Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function)
 endif()
 
 if (APPLE)
@@ -59,6 +64,7 @@ if (APPLE)
 
     if (IOS)
         add_definitions(-fembed-bitcode)
+        add_definitions(-Wno-nested-anon-types) # for GLFM
     else()
         add_fw(Cocoa)
         add_fw(IOKit)

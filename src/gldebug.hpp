@@ -1,7 +1,7 @@
 #pragma once
 #include <Galaxy/OS/defines.hpp>
 #if USE_GLFM
-    #include <External/glfm.h>
+    #include <External/GLFM/glfm.h>
     extern GLFMDisplay *glfmDisplay;
 #endif
 #if USE_GLFW
