@@ -8,32 +8,29 @@
 #include <fstream>
 #include <internalinit.hpp>
 #include <gldebug.hpp>
-namespace
+static unsigned int compile_shader(unsigned int type, const char *source)
 {
-    
-    unsigned int compile_shader(unsigned int type, const char *source)
+    unsigned int shader = GLCall(glCreateShader(type));
+    GLCall(glShaderSource(shader, 1, &source, nullptr));
+    GLCall(glCompileShader(shader));
+
+    int success;
+    GLCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
+    if (!success)
     {
-        unsigned int shader = GLCall(glCreateShader(type));
-        GLCall(glShaderSource(shader, 1, &source, nullptr));
-        GLCall(glCompileShader(shader));
+        int logSize;
+        GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize));
+        auto log = std::make_unique<char[]>(logSize);
+        GLCall(glGetShaderInfoLog(shader, logSize, nullptr, log.get()));
+        logmsg("ERROR compiling shader\n%o\nShader: \'%o\'\n", log.get(), source);
 
-        int success;
-        GLCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
-        if (!success)
-        {
-            int logSize;
-            GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize));
-            auto log = std::make_unique<char[]>(logSize);
-            GLCall(glGetShaderInfoLog(shader, logSize, nullptr, log.get()));
-            logmsg("ERROR compiling shader\n%o\nShader: \'%o\'\n", log.get(), source);
-
-            GLCall(glDeleteShader(shader));
-            assert(false);
-        }
-        return shader;
+        GLCall(glDeleteShader(shader));
+        assert(false);
     }
-    std::unique_ptr<Shader> fallback;
+    return shader;
 }
+static std::unique_ptr<Shader> fallback;
+
 void Shader::parse(std::istream &stream)
 {
     std::string source[2];
@@ -75,41 +72,41 @@ AssetRef<Shader> Shader::load(const std::string &path)
 void Shader::bind() { GLCall(glUseProgram(program)); }
 unsigned int Shader::create_program()
 {
-        GLCall(unsigned int program = glCreateProgram());
-        if (vertex == 0 || fragment == 0)
+    GLCall(unsigned int program = glCreateProgram());
+    if (vertex == 0 || fragment == 0)
+    {
+        if (fallback == nullptr)
         {
-            if (fallback == nullptr)
-            {
-                logerr("Error creating program and fallback is null\n");
-                assert(false);
-            }
-            vertex = fallback->vertex;
-            fragment = fallback->fragment;
-        }
-        GLCall(glAttachShader(program, vertex));
-        GLCall(glAttachShader(program, fragment));
-
-        #if USE_GLFM
-            glBindAttribLocation(program, 0, "pos");
-            glBindAttribLocation(program, 1, "texCoord");
-            glBindAttribLocation(program, 2, "normal");
-        #endif
-        GLCall(glLinkProgram(program));
-        
-        int success;
-        GLCall(glGetProgramiv(program, GL_LINK_STATUS, &success));
-        if (!success)
-        {
-            int logSize;
-            GLCall(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logSize));
-            auto log = std::make_unique<char[]>(logSize);
-            GLCall(glGetProgramInfoLog(program, logSize, nullptr, log.get()));
-            logerr("ERROR creating shader program\n%o\n", log.get());
-            GLCall(glDeleteProgram(program));
+            logerr("Error creating program and fallback is null\n");
             assert(false);
         }
-        GLCall(glValidateProgram(program));
-        return program;
+        vertex = fallback->vertex;
+        fragment = fallback->fragment;
+    }
+    GLCall(glAttachShader(program, vertex));
+    GLCall(glAttachShader(program, fragment));
+
+    #if USE_GLFM
+        glBindAttribLocation(program, 0, "pos");
+        glBindAttribLocation(program, 1, "texCoord");
+        glBindAttribLocation(program, 2, "normal");
+    #endif
+    GLCall(glLinkProgram(program));
+    
+    int success;
+    GLCall(glGetProgramiv(program, GL_LINK_STATUS, &success));
+    if (!success)
+    {
+        int logSize;
+        GLCall(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logSize));
+        auto log = std::make_unique<char[]>(logSize);
+        GLCall(glGetProgramInfoLog(program, logSize, nullptr, log.get()));
+        logerr("ERROR creating shader program\n%o\n", log.get());
+        GLCall(glDeleteProgram(program));
+        assert(false);
+    }
+    GLCall(glValidateProgram(program));
+    return program;
 }
 int Shader::u_location(const char *uniform)
 {

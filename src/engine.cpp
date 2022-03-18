@@ -105,16 +105,13 @@ void initialize()
     if (!init_glfw()) return;
 #endif
 #if OS_WEB
-    
-    bool enabled = emscripten_webgl_enable_extension(
-        emscripten_webgl_get_current_context(),
-        "OES_element_index_uint"
-    );
-    if (!enabled)
     {
-        assert(false && "Failed to enable extension");
+        bool enabled = emscripten_webgl_enable_extension(
+            emscripten_webgl_get_current_context(),
+            "OES_element_index_uint"
+        );
+        assert(enabled && "Failed to enable extension");
     }
-
 #endif
     logmsg("GL %o\n", glGetString(GL_VERSION));
 /*
