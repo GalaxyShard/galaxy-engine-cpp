@@ -12,8 +12,6 @@
     void operator *=(const t &v2) { *this = *this * v2; } \
     void operator /=(const t &v2) { *this = *this / v2; }
 
-#define DEFINE_NOT_EQ(t) bool operator !=(const t &v2) const { return !(*this == v2); }
-
 namespace Math
 {
     float min(float a, float b);

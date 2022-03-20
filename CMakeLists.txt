@@ -7,7 +7,6 @@ message("Platform: '${CMAKE_SYSTEM_NAME}'")
 if (CMAKE_SYSTEM_NAME MATCHES "iOS")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
-    #set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
     add_definitions(-arch arm64)
 endif()
 project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
@@ -36,7 +35,7 @@ add_definitions(-DGLES_SILENCE_DEPRECATION)
 add_definitions(-DGLFW_INCLUDE_GLCOREARB)
 add_definitions(-DOPENAL_DEPRECATED=)
 add_definitions(-Wall -pedantic -Wextra)
-#add_definitions(-Werror)
+add_definitions(-Wno-unused-parameter -Wno-unused-function)
 
 # For testing
 #add_definitions(-Weverything
@@ -51,9 +50,8 @@ endif()
 
 if (EMSCRIPTEN)
     add_library(engine STATIC ${ENGINE_SRC})
-    add_definitions(-Wno-nested-anon-types) # for GLFM
-    remove_definitions(-Wall -pedantic -Wextra)
-    add_definitions(-Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function)
+    # For glfm
+    add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
 endif()
 
 if (APPLE)
@@ -65,6 +63,7 @@ if (APPLE)
     if (IOS)
         add_definitions(-fembed-bitcode)
         add_definitions(-Wno-nested-anon-types) # for GLFM
+        add_definitions(-Wno-shorten-64-to-32) # for Xcode
     else()
         add_fw(Cocoa)
         add_fw(IOKit)
@@ -73,6 +72,6 @@ if (APPLE)
     endif()
 endif()
 target_precompile_headers(engine PRIVATE src/pch.h)
-if ((APPLE AND NOT IOS) OR WIN32)
+if (APPLE AND NOT IOS)
     target_link_libraries(engine ${proj_dir}/lib/libglfw3.a)
 endif()

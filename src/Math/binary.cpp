@@ -7,6 +7,11 @@ static_assert(sizeof(short) == 2);
 static_assert(sizeof(long long) == 8);
 static_assert(sizeof(float) == 4);
 static_assert(sizeof(double) == 8);
+
+static_assert((int)~0 == -1); // Two's complement
+//static_assert((int)(2147483648) == -2147483648); // Conversion check
+//static_assert(2147483647 == (int)(-2147483648-1)); // Overflow check
+
 Endian sys_endian()
 {
     int one=1;
@@ -15,9 +20,8 @@ Endian sys_endian()
 short set_endian16(char *buffer, Endian from, Endian to)
 {
     if (from != to)
-    {
         std::swap(buffer[0], buffer[1]);
-    }
+
     return b_cast<short>(buffer);
 }
 int set_endian32(char *buffer, Endian from, Endian to)

@@ -5,13 +5,15 @@
 class Callback
 {
 private:
-    char raw[8];
-    void (*indirection)(char*);
+    void *raw;
+    void (*indirection)(void*);
 public:
     Callback();
     Callback(std::nullptr_t);
+
     template<typename T>
     Callback(T func_or_lambda);
+
     void operator()();
     operator bool() const;
 };
@@ -19,14 +21,15 @@ template<typename... Args>
 class ArgCallback
 {
 private:
-    char raw[8];
-    void (*indirection)(char*, Args...);
+    void *raw;
+    void (*indirection)(void*, Args...);
 public:
     ArgCallback();
     ArgCallback(std::nullptr_t);
-    template<typename U>
-    ArgCallback(U func_or_lambda);
-    //void operator()(T data);
+
+    template<typename T>
+    ArgCallback(T func_or_lambda);
+    
     void operator()(Args ...data);
     operator bool() const;
 };

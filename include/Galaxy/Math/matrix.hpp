@@ -62,7 +62,8 @@ struct Matrix3x3
     DECLARE_MATH_OPERATORS(Matrix3x3, float)
 
     bool operator==(const Matrix3x3 &) const;
-    DEFINE_NOT_EQ(Matrix3x3)
+    bool operator !=(const Matrix3x3 &v) const { return !(*this == v); }
+    //DEFINE_NOT_EQ(Matrix3x3)
 
     Vector3 operator*(const Vector3 &) const;
 
@@ -102,7 +103,8 @@ struct Matrix4x4
     DECLARE_MATH_OPERATORS(Matrix4x4, float)
 
     bool operator==(const Matrix4x4 &) const;
-    DEFINE_NOT_EQ(Matrix4x4)
+    bool operator !=(const Matrix4x4 &v) const { return !(*this == v); }
+    //DEFINE_NOT_EQ(Matrix4x4)
 
     Vector4 operator*(const Vector4 &) const;
 

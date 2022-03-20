@@ -18,10 +18,12 @@ struct Vector2
     DECLARE_MATH_OPERATORS(Vector2, Vector2)
     DECLARE_MATH_OPERATORS(Vector2, float)
 
-    bool operator ==(const Vector2 &v2) const;
+    bool operator ==(const Vector2 &) const;
+    bool operator !=(const Vector2 &v) const { return !(*this == v); }
     DEFINE_MATH_OPERATORS(Vector2)
     DEFINE_MATH_OPERATORS(float)
-    DEFINE_NOT_EQ(Vector2)
+    //DEFINE_NOT_EQ(Vector2)
+
 
     operator Vector3() const;
     operator Vector4() const;
@@ -43,10 +45,12 @@ struct Vector2Int
     DECLARE_MATH_OPERATORS(Vector2Int, Vector2Int)
     DECLARE_MATH_OPERATORS(Vector2Int, int)
 
-    bool operator ==(const Vector2Int &v2) const;
+    bool operator ==(const Vector2Int &) const;
+    bool operator !=(const Vector2Int &v) const { return !(*this == v); }
+
     DEFINE_MATH_OPERATORS(Vector2Int)
     DEFINE_MATH_OPERATORS(int)
-    DEFINE_NOT_EQ(Vector2Int)
+    //DEFINE_NOT_EQ(Vector2Int)
 
     operator Vector2() const;
     operator Vector3() const;
@@ -65,10 +69,12 @@ struct Vector3
     DECLARE_MATH_OPERATORS(Vector3, Vector3)
     DECLARE_MATH_OPERATORS(Vector3, float)
 
-    bool operator ==(const Vector3 &v2) const;
+    bool operator ==(const Vector3 &) const;
+    bool operator !=(const Vector3 &v) const { return !(*this == v); }
+
     DEFINE_MATH_OPERATORS(Vector3)
     DEFINE_MATH_OPERATORS(float)
-    DEFINE_NOT_EQ(Vector3)
+    //DEFINE_NOT_EQ(Vector3)
 
     float sqr_magnitude() const;
     float magnitude() const;
@@ -98,7 +104,8 @@ struct Vector4
     DEFINE_MATH_OPERATORS(float)
 
     bool operator ==(const Vector4 &) const;
-    DEFINE_NOT_EQ(Vector4)
+    bool operator !=(const Vector4 &v) const { return !(*this == v); }
+    //DEFINE_NOT_EQ(Vector4)
 
     float sqr_magnitude() const;
     float magnitude() const;

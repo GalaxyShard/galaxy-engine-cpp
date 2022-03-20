@@ -8,7 +8,6 @@
     #include <External/GLFW/glfw3.h>
 #endif
 #ifdef DEBUG
-#include <stdio.h>
 #include <unordered_map>
 #include <assert.h>
 extern const std::unordered_map<unsigned int, const char*> glErrorStringMap;
