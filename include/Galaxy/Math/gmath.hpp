@@ -1,5 +1,6 @@
 #pragma once
 #include <limits>
+#include <vector>
 #define DECLARE_MATH_OPERATORS(t1, t2) \
     t1 operator +(const t2 &) const; \
     t1 operator -(const t2 &) const; \
@@ -19,6 +20,9 @@ namespace Math
     float clamp(float v, float min, float max);
     inline float sqr(float v) { return v*v; }
 
+    template <typename T>
+    void insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b));
+
     template<typename T>
     bool within(T v, T min, T max) { return v >= min && v <= max; }
 
@@ -28,4 +32,29 @@ namespace Math
 
     constexpr float to_deg = 180.0f / PI;
     constexpr float to_rad = PI / 180.0f;
+}
+template <typename T>
+void Math::insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b))
+{
+    for (unsigned int i = 1; i < array.size(); ++i)
+    {
+        if (predicate(array[i], array[i-1]))
+        {
+            T element = array[i];
+            int j = i;
+            while (j > 0 && predicate(element, array[j]))
+            {
+                --j;
+                array[j+1] = array[j];
+            }
+            array[j] = element;
+            //int j = i-1;
+            //while (j >= 0 && predicate(element, array[j]))
+            //{
+            //    array[j+1] = array[j];
+            //    --j;
+            //}
+            //array[j+1] = element;
+        }
+    }
 }

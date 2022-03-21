@@ -5,7 +5,7 @@
 
 #include <gldebug.hpp>
 auto Object::allObjects = std::make_unique<std::vector<Object*>>();
-bool Object::sortObjects = 0;
+//bool Object::sortObjects = 0;
 
 Object::Object(Mesh *mesh, Material *mat, bool isStatic) : mesh(mesh), material(mat)
 {
@@ -13,7 +13,7 @@ Object::Object(Mesh *mesh, Material *mat, bool isStatic) : mesh(mesh), material(
     
     allObjects->push_back(this);
     objectIndex = allObjects->size() - 1;
-    sortObjects = 1;
+    //sortObjects = 1;
 
     scene = Scene::activeScene;
     if (scene)
@@ -28,5 +28,5 @@ Object::~Object()
     obj2->objectIndex = objectIndex;
     allObjects->pop_back();
     
-    sortObjects = 1;
+    //sortObjects = 1;
 }

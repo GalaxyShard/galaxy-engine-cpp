@@ -39,7 +39,7 @@ private:
     static std::unique_ptr<std::vector<Object*>> allObjects;
     Scene *scene=0;
     unsigned int objectIndex;
-    int renderOrder = 0;
+    //int renderOrder = 0;
 
     friend class Renderer;
 public:
@@ -50,12 +50,12 @@ public:
 
     Vector3 position, scale = Vector3(1, 1, 1);
     Vector3 rotation;
-private:
-    static bool sortObjects;
+//private:
+//    static bool sortObjects;
 public:
 
-    void render_order(int order) { renderOrder = order; }
-    int render_order() { return renderOrder; }
+    //void render_order(int order) { renderOrder = order; }
+    //int render_order() { return renderOrder; }
         
     Object(Mesh *mesh, Material *mat, bool isStatic = false);
     ~Object();

@@ -36,9 +36,8 @@ void delete_vector(std::vector<T*> &vector)
 Scene::~Scene()
 {
     for (auto &[id, comp] : components)
-    {
         comp.destructor(comp.data);
-    }
+    
     components.clear();
     destroyingScene = 1;
     delete_vector(objInstances);
@@ -51,7 +50,6 @@ Scene::~Scene()
 template<typename T>
 static void remove(T *data, std::vector<T*> &instances)
 {
-    //unsigned int instID = -1U;
     unsigned int instID = ~0U;
     for (unsigned int i = 0; i < instances.size(); ++i)
     {

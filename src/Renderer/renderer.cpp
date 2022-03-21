@@ -96,7 +96,6 @@ void Renderer::bind_material(Material *mat)
 {
     bind_uniforms(mat->uniforms);
 }
-static int objectsCulled = 0;
 static Matrix4x4 add_r_c(Matrix3x3 m)
 {
     const float *p = m.value_ptr();
@@ -160,7 +159,6 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
             }
             if (Vector3::dot(frustumPlane, vertex)+planeConstant < 0)
             {
-                ++objectsCulled;
                 return 1;
             }
             return 0;
@@ -288,23 +286,45 @@ void Renderer::draw_all(bool fireEvents)
         GLCall(glEnable(GL_DEPTH_TEST));
         GLCall(glDisable(GL_BLEND));
     }
-    if (Object::sortObjects)
+    else
     {
-        auto &objs = Object::allObjects;
-        std::sort(objs->begin(), objs->end(), [](Object *a, Object *b)
-        { return a->renderOrder < b->renderOrder; });
-        unsigned int id = 0;
-        for (auto &obj : *objs)
+        auto &objs = *Object::allObjects;
+        auto predicate = [](Object *a, Object *b)
+        { return a->position.z < b->position.z; };
+
+        for (unsigned int i = 1; i < objs.size(); ++i)
         {
-            obj->objectIndex = id;
-            ++id;
+            if (predicate(objs[i], objs[i-1]))
+            {
+                Object *element = objs[i];
+                unsigned int j = i;
+                while (j > 0 && predicate(element, objs[j]))
+                {
+                    --j;
+                    objs[j+1] = objs[j];
+                    objs[j+1]->objectIndex = j+1;
+                }
+                objs[j] = element;
+                objs[j]->objectIndex = j;
+            }
         }
-        Object::sortObjects = 0;
     }
+    //if (Object::sortObjects)
+    //{
+    //    auto &objs = Object::allObjects;
+    //    std::sort(objs->begin(), objs->end(), [](Object *a, Object *b)
+    //    { return a->renderOrder < b->renderOrder; });
+    //    unsigned int id = 0;
+    //    for (auto &obj : *objs)
+    //    {
+    //        obj->objectIndex = id;
+    //        ++id;
+    //    }
+    //    Object::sortObjects = 0;
+    //}
     clear();
     for (Object *obj : *Object::allObjects) draw(*obj);
     renderSystem->run(&RendererSystem::draw, *ECSManager::main);
-    objectsCulled = 0;
 
 /*
     GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)); // wireframe
@@ -319,13 +339,12 @@ void Renderer::draw_all(bool fireEvents)
     auto &uiObjs = UIObject::uiObjects;
     if (UIObject::sortObjects)
     {
-        std::sort(uiObjs->begin(), uiObjs->end(), [](UIObject *a, UIObject *b)
+        Math::insertion_sort<UIObject*>(*uiObjs, [](UIObject *a, UIObject *b)
         { return a->render_order() < b->render_order(); });
 
         for (unsigned int i = 0; i < uiObjs->size(); ++i)
-        {
             (*uiObjs)[i]->renderer_id() = i;
-        }
+        
         UIObject::sortObjects = 0;
     }
     for (auto &ui : *uiObjs)
