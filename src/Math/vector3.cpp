@@ -29,7 +29,9 @@ DEFINE_OP(/);
 
 
 Vector3 Vector3::operator-() const { return Vector3(-x, -y, -z); }
-bool Vector3::operator ==(const Vector3 &v2) const { return x == v2.x && y == v2.y; }
+bool Vector3::operator ==(const Vector3 &v) const
+{ return Math::approx(x,v.x) && Math::approx(y,v.y) && Math::approx(z,v.z); }
+//bool Vector3::operator ==(const Vector3 &v2) const { return x == v2.x && y == v2.y; }
 /*
     graph: https://www.desmos.com/calculator/bgesi0457d
        /|
@@ -78,13 +80,13 @@ Vector3 Vector3::move_towards(Vector3 pos, Vector3 goal, float speed)
 {
     Vector3 to = goal - pos;
     float sqrdist = to.sqr_magnitude();
-    if (sqrdist == 0 || sqrdist <= speed*speed) return goal;
+    if (sqrdist == 0.f || sqrdist <= speed*speed) return goal;
 
-    float inverseDist = 1.0f / std::sqrt(sqrdist);
+    float inverseDist = 1.f / std::sqrt(sqrdist);
     return pos + to * (inverseDist * speed);
 }
 Vector3::operator Vector2() const { return Vector2(x, y); }
-Vector3::operator Vector4() const { return Vector4(x, y, z, 0); }
+Vector3::operator Vector4() const { return Vector4(x, y, z, 0.f); }
 
 std::ostream& operator<<(std::ostream &os, const Vector3 &v)
 { return os << v.x << ", " << v.y << ", " << v.z; }

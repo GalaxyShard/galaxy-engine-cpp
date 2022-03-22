@@ -15,15 +15,22 @@ void Signal::disconnect_int(int id)
 {
     eraseQueue.push_back(id);
 }
-void Event::fire() const
+void Event::fire()
 {
-    for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
-    signal->eraseQueue.clear();
+    for (auto id : signal.eraseQueue)
+        signal.listeners.erase(id);
+    signal.eraseQueue.clear();
     
-    for (auto &&[id, listener] : signal->listeners)
-    {
+    for (auto &[id, listener] : signal.listeners)
         listener();
-    }
+    
+    //for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
+    //signal->eraseQueue.clear();
+    
+    //for (auto &&[id, listener] : signal->listeners)
+    //{
+    //    listener();
+    //}
 }
 Listener::Listener() { }
 Listener::Listener(Signal *sig, int id) : signal(sig), id(id) { }

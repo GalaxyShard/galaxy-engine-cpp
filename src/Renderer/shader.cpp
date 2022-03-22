@@ -29,7 +29,8 @@ static unsigned int compile_shader(unsigned int type, const char *source)
     }
     return shader;
 }
-static std::unique_ptr<Shader> fallback;
+//static std::unique_ptr<Shader> fallback;
+static Shader *fallback = nullptr;
 
 void Shader::parse(std::istream &stream)
 {
@@ -145,6 +146,7 @@ Shader::~Shader()
 
 static void init()
 {
-    fallback = std::make_unique<Shader>(Assets::gpath()+SHADER_FOLDER+"/fallback.shader");
+    //fallback = std::make_unique<Shader>(Assets::gpath()+SHADER_FOLDER+"/fallback.shader");
+    fallback = new Shader(Assets::gpath()+SHADER_FOLDER+"/fallback.shader");
 }
 INTERNAL_INIT_FUNC(init);

@@ -1,8 +1,3 @@
-set(proj_dir ${CMAKE_CURRENT_LIST_DIR})
-set(bin_dir ${CMAKE_CURRENT_BINARY_DIR})
-set(src_dir ${proj_dir}/src)
-file(RELATIVE_PATH relative_bin_dir "${proj_dir}/bin" "${bin_dir}")
-
 message("Platform: '${CMAKE_SYSTEM_NAME}'")
 if (CMAKE_SYSTEM_NAME MATCHES "iOS")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
@@ -13,6 +8,11 @@ project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
 message("Platform: '${CMAKE_SYSTEM_NAME}'")
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
+
+set(proj_dir ${CMAKE_CURRENT_LIST_DIR})
+set(bin_dir ${CMAKE_CURRENT_BINARY_DIR})
+set(src_dir ${proj_dir}/src)
+file(RELATIVE_PATH relative_bin_dir "${proj_dir}/bin" "${bin_dir}")
 
 include(initialize.cmake)
 
@@ -25,15 +25,11 @@ if (RELEASE_BUILD)
     add_definitions(-O3)
 else()
     add_definitions(-O3)
-    add_definitions(-DDEBUG)
-    add_definitions(-DCMAKE_BUILD_TYPE=Debug)
-    add_definitions(-g)
+    add_definitions(-DDEBUG -DCMAKE_BUILD_TYPE=Debug -g)
 endif()
 
-add_definitions(-DGL_SILENCE_DEPRECATION)
-add_definitions(-DGLES_SILENCE_DEPRECATION)
-add_definitions(-DGLFW_INCLUDE_GLCOREARB)
-add_definitions(-DOPENAL_DEPRECATED=)
+add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
+    -DGLFW_INCLUDE_GLCOREARB -DOPENAL_DEPRECATED=)
 add_definitions(-Wall -pedantic -Wextra)
 add_definitions(-Wno-unused-parameter -Wno-unused-function)
 
@@ -42,8 +38,8 @@ add_definitions(-Wno-unused-parameter -Wno-unused-function)
 #    -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation
 #    -Wno-newline-eof -Wno-zero-as-null-pointer-constant -Wno-documentation-unknown-command
 #    -Wno-old-style-cast -Wno-shorten-64-to-32 -Wno-shadow-field-in-constructor
-#    -Wno-sign-conversion -Wno-missing-prototypes)
-
+#    -Wno-sign-conversion -Wno-missing-prototypes -Wno-ctad-maybe-unsupported
+#    -Wno-padded)
 if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(EMSCRIPTEN 1)
 endif()
@@ -51,7 +47,11 @@ endif()
 if (EMSCRIPTEN)
     add_library(engine STATIC ${ENGINE_SRC})
     # For glfm
-    add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
+    set_source_files_properties(
+        src/External/GLFM
+        PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments
+    )
+    #add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
 endif()
 
 if (APPLE)
@@ -62,7 +62,11 @@ if (APPLE)
 
     if (IOS)
         add_definitions(-fembed-bitcode)
-        add_definitions(-Wno-nested-anon-types) # for GLFM
+        set_source_files_properties(
+            src/External/GLFM
+            PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types
+        )
+        #add_definitions(-Wno-nested-anon-types) # for GLFM
         add_definitions(-Wno-shorten-64-to-32) # for Xcode
     else()
         add_fw(Cocoa)

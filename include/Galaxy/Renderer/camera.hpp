@@ -7,7 +7,8 @@ class Camera
 {
 private:
 public:
-    static std::unique_ptr<Camera> main;
+    //static std::unique_ptr<Camera> main;
+    static Camera *main;
     
     Vector3 position;
     Vector3 rotation;

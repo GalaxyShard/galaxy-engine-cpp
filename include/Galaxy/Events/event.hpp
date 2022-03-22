@@ -20,8 +20,9 @@ class Event final
 {
 public:
     // possibly use no pointer
-    std::unique_ptr<Signal> signal = std::make_unique<Signal>();
-    void fire() const;
+    Signal signal;
+    //std::unique_ptr<Signal> signal = std::make_unique<Signal>();
+    void fire();
 };
 struct Listener
 {
@@ -66,8 +67,9 @@ class EventT final
 {
 public:
     // possibly use no pointer
-    std::unique_ptr<SignalT<T>> signal = std::make_unique<SignalT<T>>();
-    void fire(T data) const;
+    SignalT<T> signal;
+    //std::unique_ptr<SignalT<T>> signal = std::make_unique<SignalT<T>>();
+    void fire(T data);
 };
 template<typename T>
 struct ListenerT

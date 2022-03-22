@@ -29,7 +29,8 @@ template<typename T>
 class AssetRef
 {
 private:
-    static std::unique_ptr<std::unordered_map<std::string, WeakAssetRef<T>>> loadedAssets;
+    //static std::unique_ptr<std::unordered_map<std::string, WeakAssetRef<T>>> loadedAssets;
+    static std::unordered_map<std::string, WeakAssetRef<T>> *loadedAssets;
     T *data = 0;
     unsigned short *refCount = 0;
     std::string path;
@@ -61,4 +62,5 @@ extern template class AssetRef<Shader>;
 extern template class AssetRef<Texture>;
 extern template class AssetRef<AudioData>;
 template<typename T>
-std::unique_ptr<std::unordered_map<std::string, WeakAssetRef<T>>> AssetRef<T>::loadedAssets = std::make_unique<std::unordered_map<std::string, WeakAssetRef<T>>>();
+//std::unique_ptr<std::unordered_map<std::string, WeakAssetRef<T>>> AssetRef<T>::loadedAssets = std::make_unique<std::unordered_map<std::string, WeakAssetRef<T>>>();
+std::unordered_map<std::string, WeakAssetRef<T>> *AssetRef<T>::loadedAssets = new std::unordered_map<std::string, WeakAssetRef<T>>();

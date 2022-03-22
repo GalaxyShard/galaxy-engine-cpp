@@ -43,10 +43,14 @@ namespace
     }
     INTERNAL_INIT_FUNC(init);
 
-    auto aspectChanged = std::make_unique<Event>();
-    auto preRender = std::make_unique<Event>();
-    auto postSimulation = std::make_unique<Event>();
-    auto postRender = std::make_unique<Event>();
+    //auto aspectChanged = std::make_unique<Event>();
+    //auto preRender = std::make_unique<Event>();
+    //auto postSimulation = std::make_unique<Event>();
+    //auto postRender = std::make_unique<Event>();
+    auto aspectChanged = new Event();
+    auto preRender = new Event();
+    auto postSimulation = new Event();
+    auto postRender = new Event();
 }
 int Renderer::screenWidth, Renderer::screenHeight;
 Vector2 Renderer::aspectRatio, Renderer::reverseAspect;
@@ -288,7 +292,7 @@ void Renderer::draw_all(bool fireEvents)
     }
     else
     {
-        auto &objs = *Object::allObjects;
+        auto &objs = Object::allObjects;
         auto predicate = [](Object *a, Object *b)
         { return a->position.z < b->position.z; };
 
@@ -323,7 +327,7 @@ void Renderer::draw_all(bool fireEvents)
     //    Object::sortObjects = 0;
     //}
     clear();
-    for (Object *obj : *Object::allObjects) draw(*obj);
+    for (Object *obj : Object::allObjects) draw(*obj);
     renderSystem->run(&RendererSystem::draw, *ECSManager::main);
 
 /*
@@ -354,7 +358,7 @@ void Renderer::draw_all(bool fireEvents)
     }
     if (fireEvents) postRender->fire();
 }
-Signal &Renderer::aspect_ratio_changed() { return *aspectChanged->signal; }
-Signal &Renderer::pre_render() { return *preRender->signal; }
-Signal &Renderer::post_simulation() { return *postSimulation->signal; }
-Signal &Renderer::post_render() { return *postRender->signal; }
+Signal &Renderer::aspect_ratio_changed() { return  aspectChanged->signal; }
+Signal &Renderer::pre_render() { return preRender->signal; }
+Signal &Renderer::post_simulation() { return postSimulation->signal; }
+Signal &Renderer::post_render() { return postRender->signal; }

@@ -9,7 +9,11 @@ float& Vector4::operator[](int i) { return (&x)[i]; }
 const float& Vector4::operator[](int i) const { return (&x)[i]; }
 
 bool Vector4::operator==(const Vector4 &v) const
-{ return this->x == v.x && this->y == v.y && this->z == v.z && this->w == v.w; }
+{
+    return Math::approx(x,v.x) && Math::approx(y,v.y)
+        && Math::approx(z,v.z) && Math::approx(w,v.w);
+}
+//{ return this->x == v.x && this->y == v.y && this->z == v.z && this->w == v.w; }
 
 std::ostream& operator<<(std::ostream &os, const Vector4 &v)
 { return os << v.x << ", " << v.y << ", " << v.z << ", " << v.w; }

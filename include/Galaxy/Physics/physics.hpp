@@ -20,8 +20,8 @@ private:
 public:
     Vector3 velocity, angularVelocity;
     float mass = 1;
-    float drag = 0.01;
-    float angularDrag = 0.01;
+    float drag = 0.01f;
+    float angularDrag = 0.01f;
     bool freezeRotation = 1;
     
     Rigidbody();

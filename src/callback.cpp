@@ -2,7 +2,7 @@
 
 Callback::Callback() : indirection(0) {}
 Callback::Callback(std::nullptr_t) : indirection(0) {}
-void Callback::operator()()
+void Callback::operator()() const
 {
     if (indirection)
         indirection(raw);

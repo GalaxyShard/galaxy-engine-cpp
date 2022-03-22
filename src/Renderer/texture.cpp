@@ -12,9 +12,10 @@ static constexpr unsigned int MAX_SLOTS = 8;
 #else
 static constexpr unsigned int MAX_SLOTS = 16;
 #endif
-static constexpr unsigned int NO_SLOT = -1U;
+static constexpr unsigned int NO_SLOT = ~0U;
 static unsigned int nextSlot = 0;
-static auto boundTextures = std::make_unique<std::unordered_map<int, Texture*>>();
+//static auto boundTextures = std::make_unique<std::unordered_map<int, Texture*>>();
+static auto boundTextures = new std::unordered_map<int, Texture*>();
 
 void Texture::init_texture(unsigned char *localBuffer, DisplayMode displayMode)
 {

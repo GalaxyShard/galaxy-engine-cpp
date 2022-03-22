@@ -4,16 +4,19 @@
 #include <iostream>
 
 #include <gldebug.hpp>
-auto Object::allObjects = std::make_unique<std::vector<Object*>>();
+//auto Object::allObjects = std::make_unique<std::vector<Object*>>();
+auto Object::allObjects = std::vector<Object*>();
 //bool Object::sortObjects = 0;
 
 Object::Object(Mesh *mesh, Material *mat, bool isStatic) : mesh(mesh), material(mat)
 {
     (void)isStatic;
     
-    allObjects->push_back(this);
-    objectIndex = allObjects->size() - 1;
+    //allObjects->push_back(this);
+    //objectIndex = allObjects->size() - 1;
     //sortObjects = 1;
+    allObjects.push_back(this);
+    objectIndex = allObjects.size() - 1;
 
     scene = Scene::activeScene;
     if (scene)
@@ -23,10 +26,13 @@ Object::~Object()
 {
     scene->remove_inst(this);
 
-    Object *obj2 = allObjects->back();
-    std::swap((*allObjects)[objectIndex], allObjects->back());
+    //Object *obj2 = allObjects->back();
+    //std::swap((*allObjects)[objectIndex], allObjects->back());
+    //allObjects->pop_back();
+    Object *obj2 = allObjects.back();
+    std::swap(allObjects[objectIndex], allObjects.back());
+    allObjects.pop_back();
     obj2->objectIndex = objectIndex;
-    allObjects->pop_back();
     
     //sortObjects = 1;
 }

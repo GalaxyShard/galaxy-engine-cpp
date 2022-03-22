@@ -6,8 +6,10 @@
 
 #include <internalinit.hpp>
 
-auto UIGroup::aspectRatio = std::make_unique<UIGroup>();
-auto UIGroup::safeArea = std::make_unique<UIGroup>();
+//auto UIGroup::aspectRatio = std::make_unique<UIGroup>();
+//auto UIGroup::safeArea = std::make_unique<UIGroup>();
+auto UIGroup::aspectRatio = new UIGroup();
+auto UIGroup::safeArea = new UIGroup();
 
 Vector2 UIGroup::world_pos()
 {

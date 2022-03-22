@@ -15,7 +15,7 @@ void InternalTime::start_frame()
     using namespace std::chrono;
     constexpr float maxDelta = 0.1f;
 
-    mDelta = Time::get() - lastTime;
+    mDelta = (float)(Time::get() - lastTime);
     mRawDelta = mDelta;
 
     if (mDelta > maxDelta) mDelta = maxDelta;
@@ -23,5 +23,5 @@ void InternalTime::start_frame()
 }
 void InternalTime::end_frame()
 {
-    mFrameTime = Time::get() - lastTime;
+    mFrameTime = (float)(Time::get() - lastTime);
 }

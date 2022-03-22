@@ -24,7 +24,7 @@ Font::Font(std::string folder)
         {
             auto charData = std::stringstream(line.substr(5));
             std::string name, val;
-            unsigned char id;
+            unsigned char id=0;
             while(std::getline(charData, val, ' '))
             {
                 size_t pos = val.find('=');
@@ -36,11 +36,10 @@ Font::Font(std::string folder)
                 int value = std::stoi(val);
                 if (name == "id")
                 {
-                    int id_local = std::stoi(val);
+                    unsigned int id_local = std::stoul(val);
                     if (id_local > 255) break;
-                    id = id_local;
+                    id = (unsigned char)id_local;
                 }
-
                 else if (name == "x") glyphs[id].x = value;
                 else if (name == "y") glyphs[id].y = value;
                 else if (name == "width") glyphs[id].width = value;
@@ -48,6 +47,7 @@ Font::Font(std::string folder)
                 else if (name == "xoffset") glyphs[id].xoff = value;
                 else if (name == "yoffset") glyphs[id].yoff = value;
                 else if (name == "xadvance") glyphs[id].xadv = value;
+                
             }
             auto &glyph = glyphs[id];
             glyph.xCoord0 = xcoord(glyph.x, w);

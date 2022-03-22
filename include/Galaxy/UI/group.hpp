@@ -10,7 +10,8 @@ class UIGroup
 private:
     Scene *scene;
 public:
-    static std::unique_ptr<UIGroup> aspectRatio, safeArea;
+    //static std::unique_ptr<UIGroup> aspectRatio, safeArea;
+    static UIGroup *aspectRatio, *safeArea;
     UIGroup *parent = 0;
 
     Vector2 pos, scale = Vector2(1,1), anchor = Vector2();

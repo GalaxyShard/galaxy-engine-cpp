@@ -43,7 +43,9 @@ std::ostream& operator<<(std::ostream &os, const Vector2Int &v)
 
 Vector2::Vector2(float x, float y) : x(x), y(y) { }
 Vector2 Vector2::operator -() { return Vector2(-x, -y); }
-bool Vector2::operator ==(const Vector2 &v2) const { return x == v2.x && y == v2.y; }
+//bool Vector2::operator ==(const Vector2 &v2) const { return x == v2.x && y == v2.y; }
+bool Vector2::operator ==(const Vector2 &v2) const
+{ return Math::approx(x,v2.x) && Math::approx(y,v2.y); }
 
 float Vector2::dot(const Vector2 &a, const Vector2 &b) { return a.x*b.x + a.y*b.y; }
 float Vector2::sqr_magnitude() const { return x*x + y*y; }

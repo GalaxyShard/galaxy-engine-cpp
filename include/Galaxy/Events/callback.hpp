@@ -14,7 +14,7 @@ public:
     template<typename T>
     Callback(T func_or_lambda);
 
-    void operator()();
+    void operator()() const;
     operator bool() const;
 };
 template<typename... Args>
@@ -30,7 +30,7 @@ public:
     template<typename T>
     ArgCallback(T func_or_lambda);
     
-    void operator()(Args ...data);
+    void operator()(Args ...data) const;
     operator bool() const;
 };
 #include "callback.inl"

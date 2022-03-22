@@ -24,7 +24,12 @@ namespace Math
     void insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b));
 
     template<typename T>
-    bool within(T v, T min, T max) { return v >= min && v <= max; }
+    inline bool within(T v, T min, T max) { return v >= min && v <= max; }
+
+    template<typename T>
+    inline float abs(T v) { return v < (T)0 ? -v : v; }
+    template<typename T>
+    inline bool approx(T a, T b, T threshold = 0.00001f) { return abs(a-b)<=threshold; }
 
     float lerp(float start, float goal, float t);
     constexpr float PI = 3.14159265359f;

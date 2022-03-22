@@ -18,14 +18,21 @@ void SignalT<T>::disconnect_int(int id)
     eraseQueue.push_back(id);
 }
 template <typename T>
-void EventT<T>::fire(T data) const
+void EventT<T>::fire(T data)
 {
-    for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
-    signal->eraseQueue.clear();
-    for (auto &&[id, listener] : signal->listeners)
-    {
+    for (auto id : signal.eraseQueue)
+        signal.listeners.erase(id);
+    signal.eraseQueue.clear();
+
+    for (auto &&[id, listener] : signal.listeners)
         listener(data);
-    }
+    
+//    for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
+//    signal->eraseQueue.clear();
+//    for (auto &&[id, listener] : signal->listeners)
+//    {
+//        listener(data);
+//    }
 }
 
 template <typename T>

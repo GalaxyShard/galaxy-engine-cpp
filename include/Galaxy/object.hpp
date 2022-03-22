@@ -36,7 +36,8 @@ public:
 class Object
 {
 private:
-    static std::unique_ptr<std::vector<Object*>> allObjects;
+    //static std::unique_ptr<std::vector<Object*>> allObjects;
+    static std::vector<Object*> allObjects;
     Scene *scene=0;
     unsigned int objectIndex;
     //int renderOrder = 0;

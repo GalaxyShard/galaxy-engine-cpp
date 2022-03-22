@@ -13,7 +13,7 @@ class Font
 {
 private:
     AssetRef<Texture> fontTex;
-    std::unordered_map<char, GlyphData> glyphs;
+    std::unordered_map<unsigned char, GlyphData> glyphs;
     friend class UIText;
     friend class Renderer;
 public:

@@ -29,7 +29,7 @@ ArgCallback<Args...>::ArgCallback(T func_or_lambda)
     indirection = [](void *buffer, Args ...data) { (*(T*)&buffer)(data...); };
 }
 template<typename... Args>
-void ArgCallback<Args...>::operator()(Args ...data)
+void ArgCallback<Args...>::operator()(Args ...data) const
 {
     if (indirection)
         indirection(raw, data...);

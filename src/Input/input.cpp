@@ -19,7 +19,8 @@ struct InputData
     InputData(const char *bind, KeyCode key, input_callback callback)
         : bind(bind), key(key), callback(callback) { }
 };
-extern std::unique_ptr<UIImage*[]> heldImages;
+//extern std::unique_ptr<UIImage*[]> heldImages;
+extern UIImage **heldImages;
 extern int lastTouchID;
 
 Vector2 Input::mousePos = Vector2(-1,-1);
@@ -248,7 +249,7 @@ void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
     glfwSetKeyCallback(glfwGetCurrentContext(), &rebind_callback);
 #endif
 }
-SignalT<TouchData>& Input::touch_changed() { return *onTouchEvent.signal; }
+SignalT<TouchData>& Input::touch_changed() { return onTouchEvent.signal; }
 
 static void init()
 {

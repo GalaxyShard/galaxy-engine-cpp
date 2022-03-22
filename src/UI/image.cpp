@@ -20,7 +20,8 @@ Mesh *UIImage::mesh() { return squareMesh.get(); }
 Shader *UIImage::shader() { return (texture ? tintShader : colShader).get(); }
 
 auto UIImage::images = std::make_unique<std::vector<UIImage *>>();
-std::unique_ptr<UIImage*[]> heldImages = std::make_unique<UIImage*[]>(10);
+//std::unique_ptr<UIImage*[]> heldImages = std::make_unique<UIImage*[]>(10);
+UIImage** heldImages = new UIImage*[10];
 int lastTouchID = 0;
 
 UIImage *UIImage::get_held(int id) { return heldImages[id]; }
