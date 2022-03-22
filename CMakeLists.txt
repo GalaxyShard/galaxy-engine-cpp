@@ -46,12 +46,12 @@ endif()
 
 if (EMSCRIPTEN)
     add_library(engine STATIC ${ENGINE_SRC})
+    #set_source_files_properties(
+    #    src/External/GLFM/glfm.h
+    #    PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments
+    #)
     # For glfm
-    set_source_files_properties(
-        src/External/GLFM
-        PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments
-    )
-    #add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
+    add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
 endif()
 
 if (APPLE)
@@ -62,11 +62,11 @@ if (APPLE)
 
     if (IOS)
         add_definitions(-fembed-bitcode)
-        set_source_files_properties(
-            src/External/GLFM
-            PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types
-        )
-        #add_definitions(-Wno-nested-anon-types) # for GLFM
+        #set_source_files_properties(
+        #    src/External/GLFM/glfm.h
+        #    PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types
+        #)
+        add_definitions(-Wno-nested-anon-types) # for GLFM
         add_definitions(-Wno-shorten-64-to-32) # for Xcode
     else()
         add_fw(Cocoa)
