@@ -1,4 +1,7 @@
 #pragma once
+#include <assert.h>
+#include <iostream>
+
 #include "init.hpp"
 #include "object.hpp"
 #include "print.hpp"
@@ -37,5 +40,3 @@
 #include "UI/image.hpp"
 #include "UI/text.hpp"
 #include "UI/group.hpp"
-
-#include <iostream>
