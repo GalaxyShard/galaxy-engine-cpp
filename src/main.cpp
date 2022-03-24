@@ -1,15 +1,4 @@
 #include <gldebug.hpp>
-//#ifdef DEBUG
-//#include <unordered_map>
-//const std::unordered_map<unsigned int, const char*> glErrorStringMap =
-//{
-//    {GL_INVALID_ENUM, "Invalid enum"},
-//    {GL_INVALID_VALUE, "Invalid value"},
-//    {GL_INVALID_OPERATION, "Invalid operation"},
-//    {GL_OUT_OF_MEMORY, "Out of memory"},
-//    {GL_INVALID_FRAMEBUFFER_OPERATION, "Invalid framebuffer operation"},
-//};
-//#endif
 void initialize();
 
 #if USE_GLFM

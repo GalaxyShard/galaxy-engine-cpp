@@ -32,12 +32,18 @@ inline std::enable_if_t<I < sizeof...(Args)> Log::print_element(std::ostream &st
     stream.precision(original);
     print_element<I+1, Args...>(stream, format, args, end+1);
 }
-
 template <typename... Args>
 void Log::print(std::ostream &stream, const std::string &format, const Args& ...args)
 {
-    auto args_tuple = std::tuple<Args...>(args...);
-    print_element<0, Args...>(stream, format, args_tuple);
+    static_assert(sizeof...(Args) == 0, "template specialization error");
+    stream << format;
+    stream.flush();
+}
+template <typename T, typename... Args>
+void Log::print(std::ostream &stream, const std::string &format, const T &arg0, const Args& ...args)
+{
+    auto argsTuple = std::tuple<T, Args...>(arg0, args...);
+    print_element<0, T, Args...>(stream, format, argsTuple);
     stream.flush();
 }
 template <typename... Args>

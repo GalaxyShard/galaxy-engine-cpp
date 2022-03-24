@@ -7,10 +7,13 @@ Entity Entity::create(ECSManager &manager)
     {
         EntityID id = manager.availableIDs.front();
         manager.availableIDs.pop();
-        return Entity{.id=id};
+        return Entity{id};
     }
     EntityID id = (EntityID)manager.entities.size();
-    manager.entities.push_back(EntityData{ .id=id, .components=0 });
+    EntityData data;
+    data.id = (EntityID)manager.entities.size();
+    data.components = 0;
+    manager.entities.push_back(data);
     EntityData &self = manager.entities[id];
 
     for (auto &system : manager.systems)
@@ -22,8 +25,7 @@ Entity Entity::create(ECSManager &manager)
             self.systemsContaining.push_back(system.get());
         }
     }
-
-    return Entity{.id=id};
+    return Entity{id};
 }
 void Entity::destroy(ECSManager &manager)
 {

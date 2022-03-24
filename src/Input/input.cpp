@@ -116,11 +116,16 @@ namespace
         else if (phase==GLFMTouchPhaseCancelled || phase==GLFMTouchPhaseEnded) state = TouchState::RELEASED;
         else if (phase==GLFMTouchPhaseMoved) state = TouchState::MOVED;
         else return 1;
-        TouchData data = TouchData {
-            .id = touch,
-            .pos = Input::mousePos,
-            .state = state
-        };
+        
+        TouchData data = TouchData();
+        data.id = touch;
+        data.pos = Input::mousePos;
+        data.state = state;
+        //TouchData data = TouchData {
+        //    .id = touch,
+        //    .pos = Input::mousePos,
+        //    .state = state
+        //};
         if (lastTouchState.count(touch))
         {
             data.delta = data.pos - lastTouchState[touch].pos;

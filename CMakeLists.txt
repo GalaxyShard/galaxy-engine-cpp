@@ -1,11 +1,27 @@
-message("Platform: '${CMAKE_SYSTEM_NAME}'")
-if (CMAKE_SYSTEM_NAME MATCHES "iOS")
+if (NOT DEFINED PLATFORM)
+    set(PLATFORM "osx" CACHE STRING "")
+endif()
+
+if (PLATFORM MATCHES osx)
+    set(MACOS 1)
+elseif(PLATFORM MATCHES ios)
+    set(CMAKE_SYSTEM_NAME "iOS")
+    set(IOS 1)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     add_definitions(-arch arm64)
+elseif(PLATFORM MATCHES web)
+    set(CMAKE_SYSTEM_NAME "Emscripten")
+    set(EMSCRIPTEN 1)
 endif()
+#message("Platform: '${CMAKE_SYSTEM_NAME}'")
+#if (CMAKE_SYSTEM_NAME MATCHES "iOS")
+#    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
+#    set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
+#    add_definitions(-arch arm64)
+#endif()
 project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
-message("Platform: '${CMAKE_SYSTEM_NAME}'")
+#message("Platform: '${CMAKE_SYSTEM_NAME}'")
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -24,7 +40,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if (RELEASE_BUILD)
     add_definitions(-O3)
 else()
-    add_definitions(-O3)
+    if (PLATFORM MATCHES web)
+        add_definitions(-O3) # WebGL doesnt support debugging
+    else()
+        add_definitions(-Og)
+    endif()
     add_definitions(-DDEBUG -DCMAKE_BUILD_TYPE=Debug -g)
 endif()
 
@@ -33,23 +53,12 @@ add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
 add_definitions(-Wall -pedantic -Wextra)
 add_definitions(-Wno-unused-parameter -Wno-unused-function)
 
-# For testing
-#add_definitions(-Weverything
-#    -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation
-#    -Wno-newline-eof -Wno-zero-as-null-pointer-constant -Wno-documentation-unknown-command
-#    -Wno-old-style-cast -Wno-shorten-64-to-32 -Wno-shadow-field-in-constructor
-#    -Wno-sign-conversion -Wno-missing-prototypes -Wno-ctad-maybe-unsupported
-#    -Wno-padded)
 if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(EMSCRIPTEN 1)
 endif()
 
 if (EMSCRIPTEN)
     add_library(engine STATIC ${ENGINE_SRC})
-    #set_source_files_properties(
-    #    src/External/GLFM/glfm.h
-    #    PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments
-    #)
     # For glfm
     add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
 endif()
@@ -61,13 +70,8 @@ if (APPLE)
     endmacro(add_fw)
 
     if (IOS)
-        add_definitions(-fembed-bitcode)
-        #set_source_files_properties(
-        #    src/External/GLFM/glfm.h
-        #    PROPERTIES COMPILE_FLAGS -Wno-nested-anon-types
-        #)
         add_definitions(-Wno-nested-anon-types) # for GLFM
-        add_definitions(-Wno-shorten-64-to-32) # for Xcode
+        add_definitions(-fembed-bitcode -Wno-shorten-64-to-32) # for Xcode
     else()
         add_fw(Cocoa)
         add_fw(IOKit)
@@ -76,6 +80,6 @@ if (APPLE)
     endif()
 endif()
 target_precompile_headers(engine PRIVATE src/pch.h)
-if (APPLE AND NOT IOS)
+if (MACOS)
     target_link_libraries(engine ${proj_dir}/lib/libglfw3.a)
 endif()

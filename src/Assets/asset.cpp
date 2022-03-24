@@ -89,7 +89,11 @@ AssetRef<T>::AssetRef(T *asset, const std::string &ipath) : path(ipath)
     data = asset;
     refCount = new unsigned short(1);
 
-    loadedAssets->insert(std::make_pair(path, WeakAssetRef<T> { .data=data, .refCount=refCount }));
+    WeakAssetRef<T> weakRef;
+    weakRef.data = data;
+    weakRef.refCount = refCount;
+    loadedAssets->insert(std::make_pair(path, weakRef));
+    //loadedAssets->insert(std::make_pair(path, WeakAssetRef<T> { .data=data, .refCount=refCount }));
 }
 template<typename T>
 AssetRef<T>::~AssetRef()
