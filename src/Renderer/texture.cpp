@@ -14,7 +14,6 @@ static constexpr unsigned int MAX_SLOTS = 16;
 #endif
 static constexpr unsigned int NO_SLOT = ~0U;
 static unsigned int nextSlot = 0;
-//static auto boundTextures = std::make_unique<std::unordered_map<int, Texture*>>();
 static auto boundTextures = new std::unordered_map<int, Texture*>();
 
 void Texture::init_texture(unsigned char *localBuffer, DisplayMode displayMode)
@@ -53,10 +52,10 @@ Texture::Texture(const std::string &path, DisplayMode mode)
     // OpenGL expects images to start from the bottom left corner, normal images start from top left
     stbi_set_flip_vertically_on_load(1);
 
-    auto fileContents = Assets::file_contents(path.c_str());
-    auto image = (const unsigned char*)fileContents.str;
-
-    unsigned char *localBuffer = stbi_load_from_memory(image, fileContents.length, &width, &height, &bpp, 4);
+    //auto fileContents = Assets::file_contents(path.c_str());
+    //auto image = (const unsigned char*)fileContents.str;
+    //unsigned char *localBuffer = stbi_load_from_memory(image, fileContents.length, &width, &height, &bpp, 4);
+    unsigned char *localBuffer = stbi_load(path.c_str(), &width, &height, &bpp, 4);
     assert(localBuffer && "Failed to load image");
     init_texture(localBuffer, mode);
 }

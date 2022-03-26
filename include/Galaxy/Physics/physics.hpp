@@ -3,6 +3,8 @@
 #include <Galaxy/object.hpp>
 #include <unordered_map>
 
+// OUTDATED
+
 struct Ray;
 struct RayResult;
 class Physics

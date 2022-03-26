@@ -200,7 +200,7 @@ void parse_obj(Mesh *&mesh, std::istream &stream)
         ++i;
     }
 }
-AssetRef<Mesh> Mesh::from_obj(const std::string &path)
+AssetRef<Mesh> Mesh::load_obj(const std::string &path)
 {
     if (AssetRef<Mesh>::is_loaded(path))
         return AssetRef<Mesh>::get_loaded(path);

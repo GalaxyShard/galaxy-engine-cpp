@@ -23,24 +23,23 @@ private:
 public:
     int getID() const { return fd; }
 };
-//typedef void(*ClientStatusCallback)(const Connection&);
 typedef ArgCallback<const Connection&> ClientStatusCallback;
 class Server
 {
 private:
     static std::unique_ptr<Server> inst;
     std::vector<Connection> clients;
-    //std::unordered_map<std::string, void(*)(NetworkReader, Connection)> rpcs;
     std::unordered_map<std::string, ArgCallback<NetworkReader, Connection>> rpcs;
     int listener = -1, shutdownPipe = -1;
 
     std::thread serverThread;
     std::mutex clientMutex, queueMutex;
     std::deque<std::string> queuedMessages;
-    std::unique_ptr<Listener> preRenderConn;
+    Listener preRenderConn;
 
     ClientStatusCallback joinCallback;
     ClientStatusCallback leaveCallback;
+    Callback errorCallback;
 
     std::deque<std::string> internalMsgs;
     bool isActive = 0;
@@ -51,16 +50,15 @@ private:
 
     friend class Client;
 public:
-    static const std::vector<Connection>& get_clients();
+    static const std::vector<Connection>* get_clients();
     static void set_join_callback(ClientStatusCallback func);
     static void set_leave_callback(ClientStatusCallback func);
 
-    static bool start(unsigned short port);
+    static void start(unsigned short port, Callback errorCallback);
     static void shutdown();
 
     static void send_all(const char *msg, const NetworkWriter &data);
     static void send(Connection conn, const char *msg, const NetworkWriter &data);
-    //static void register_rpc(std::string name, void(*func)(NetworkReader, Connection));
     static void register_rpc(std::string name, ArgCallback<NetworkReader, Connection> func);
 
     static bool is_active();
@@ -71,7 +69,6 @@ public:
     enum ErrorCode : short { NONE, GENERAL };
 private:
     static std::unique_ptr<Client> inst;
-    //std::unordered_map<std::string, void(*)(NetworkReader)> rpcs;
     std::unordered_map<std::string, ArgCallback<NetworkReader>> rpcs;
     int serverConn = -1, shutdownPipe = -1;
 
@@ -79,9 +76,9 @@ private:
     std::mutex queueMutex, connMutex, shutdownMutex;
     std::deque<std::string> queuedMessages;
 
-    std::unique_ptr<Listener> preRenderConn;
+    Listener preRenderConn;
+    Callback errorCallback;
     void(*shutdownCallback)();
-    void(*errorCallback)();
     bool shuttingDown=0;
     ErrorCode errorCode = NONE;
     bool isActive = 0;
@@ -96,13 +93,11 @@ public:
         start_as_host fakes a connection to the server to speed up the game.
         Start the server before starting the host client
     */
-    static bool start_as_host();
-    static bool start(const char *ip, unsigned short port);
+    static void start_as_host(Callback errorCallback);
+    static void start(const char *ip, unsigned short port, Callback errorCallback);
     static void shutdown();
     static void set_shutdown_callback(void(*func)());
-    static void set_error_callback(void(*func)());
 
-    //static void register_rpc(std::string name, void(*func)(NetworkReader));
     static void register_rpc(std::string name, ArgCallback<NetworkReader> func);
     static void send(const char *msg, const NetworkWriter &data);
 

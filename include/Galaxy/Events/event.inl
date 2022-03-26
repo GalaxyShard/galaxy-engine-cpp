@@ -1,8 +1,8 @@
 
 template<typename T>
-std::unique_ptr<ListenerT<T>> SignalT<T>::connect(ArgCallback<T> callback)
+ListenerT<T> SignalT<T>::connect(ArgCallback<T> callback)
 {
-    return std::make_unique<ListenerT<T>>(this, connect_int(callback));
+    return ListenerT<T>(this, connect_int(callback));
 }
 template<typename T>
 int SignalT<T>::connect_int(ArgCallback<T> callback)
@@ -26,13 +26,6 @@ void EventT<T>::fire(T data)
 
     for (auto &&[id, listener] : signal.listeners)
         listener(data);
-    
-//    for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
-//    signal->eraseQueue.clear();
-//    for (auto &&[id, listener] : signal->listeners)
-//    {
-//        listener(data);
-//    }
 }
 
 template <typename T>
@@ -48,6 +41,25 @@ template <typename T>
 ListenerT<T>::ListenerT() { }
 template <typename T>
 ListenerT<T>::ListenerT(SignalT<T> *sig, int id) : signal(sig), id(id) { }
+template <typename T>
+ListenerT<T>::ListenerT(ListenerT &&v) : signal(std::move(v.signal)), id(std::move(v.id))
+{
+    v.signal = 0;
+    v.id = -1;
+}
+template <typename T>
+ListenerT<T>& ListenerT<T>::operator=(ListenerT &&v)
+{
+    if (&v != this)
+    {
+        signal = v.signal;
+        id = v.id;
+        v.signal = 0;
+        v.id = -1;
+    }
+    return *this;
+}
+
 template <typename T>
 ListenerT<T>::~ListenerT()
 {

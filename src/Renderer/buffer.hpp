@@ -1,19 +1,17 @@
 #pragma once
 #include <Galaxy/OS/defines.hpp>
 #include <vector>
-class Buffer
+class GraphicsBuffer
 {
-protected:
-    unsigned int rendererID;
 public:
-    Buffer() { }
-    Buffer(const Buffer&) = delete;
-    void operator=(const Buffer&) = delete;
+    GraphicsBuffer() { }
+    GraphicsBuffer(const GraphicsBuffer&) = delete;
+    void operator=(const GraphicsBuffer&) = delete;
 };
-class IndexBuffer : public Buffer
+class IndexBuffer : public GraphicsBuffer
 {
 private:
-    unsigned int indexCount;
+    unsigned int rendererID, indexCount;
 public:
     IndexBuffer(const void *data, unsigned int bytes, bool isStatic=0);
     ~IndexBuffer();
@@ -23,9 +21,10 @@ public:
     void unbind() const;
     inline unsigned int get_count() { return indexCount; }
 };
-class VertexBuffer : public Buffer
+class VertexBuffer : public GraphicsBuffer
 {
 private:
+    unsigned int rendererID;
 public:
     VertexBuffer(const void *data, unsigned int size, bool isStatic=0);
     ~VertexBuffer();
@@ -34,6 +33,7 @@ public:
     void bind() const;
     void unbind() const;
 };
+// hack: uses raw OpenGL values
 enum class AttributeType
 {
     NONE = 0,
@@ -62,15 +62,17 @@ public:
 
     void add_attribute(VertexAttribute a);
     inline const std::vector<VertexAttribute> get_attributes() const { return attributes; }
-        inline int get_stride() const { return stride; }
+    inline int get_stride() const { return stride; }
 };
-class VertexArray : public Buffer
+class VertexArray : public GraphicsBuffer
 {
 private:
 #if OS_WEB
     IndexBuffer *ibo = 0;
     VertexBuffer *vbo = 0;
     VertexLayout vertexLayout;
+#else
+    unsigned int rendererID;
 #endif
 public:
     VertexArray();

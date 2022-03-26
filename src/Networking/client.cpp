@@ -114,7 +114,6 @@ void Client::client_thread(const char *ip, unsigned short port)
 
             {
                 auto lock = std::lock_guard(inst->connMutex);
-                //if (inst->serverConn >= 0)
                 bytesRead = recv(inst->serverConn, buffer, bufferSize, 0);
             }
             check_socket(bytesRead);
@@ -125,28 +124,26 @@ void Client::client_thread(const char *ip, unsigned short port)
     }
 #endif
 }
-bool Client::start(const char *ip, unsigned short port)
+void Client::start(const char *ip, unsigned short port, Callback errorCallback)
 {
 #if !OS_WEB
-    if (inst.get())
-        return 0;
-    
-    inst = std::unique_ptr<Client>(new Client());
+    if (inst)
+        return;
+
+    inst = std::unique_ptr<Client>(new Client()); // private ctor, no make_unique
+    inst->errorCallback = errorCallback;
     
     inst->clientThread = std::make_unique<std::thread>(client_thread, ip, port);
     inst->preRenderConn = Renderer::pre_render().connect(&pre_render);
-    return 1;
-#else
-    return 0;
 #endif
 }
-bool Client::start_as_host()
+void Client::start_as_host(Callback errorCallback)
 {
 #if !OS_WEB
-    if (inst.get() || !Server::inst.get())
-        return 0;
+    if (inst || !Server::inst)
+        return;
     
-    inst = std::unique_ptr<Client>(new Client());
+    inst = std::unique_ptr<Client>(new Client()); // private ctor, no make_unique
     inst->serverConn = HOST_FD;
 
     // Fake a message to the server
@@ -156,38 +153,22 @@ bool Client::start_as_host()
     Server::inst->internalMsgs.push_back(writer.get_buffer());
     inst->isActive = 1;
     Server::inst->clients.push_back(HOST_FD);
-    return 1;
-#else
-    return 0;
 #endif
 }
 void Client::set_shutdown_callback(void(*func)())
 {
 #if !OS_WEB
-    if (!inst.get())
-    {
-        logerr("Error: shutdown callback set before starting client\n");
-        return;
-    }
+    if (!inst)
+        return logerr("set_shutdown_callback called before starting client\n");
     inst->shutdownCallback = func;
-#endif
-}
-void Client::set_error_callback(void(*func)())
-{
-#if !OS_WEB
-    if (!inst.get())
-    {
-        logerr("Error: error callback set before starting client\n");
-        return;
-    }
-    inst->errorCallback = func;
 #endif
 }
 void Client::shutdown()
 {
 #if !OS_WEB
-    if (!inst.get())
+    if (!inst)
         return;
+
     inst->shutdownCallback();
     inst->isActive = 0;
     {
@@ -206,7 +187,7 @@ void Client::shutdown()
     if (inst->clientThread && inst->clientThread->joinable())
         inst->clientThread->join();
     
-    if (Server::inst.get())
+    if (Server::inst)
     {
         NetworkWriter writer;
         writer.write<unsigned char>(CLIENT_LEAVE);
@@ -225,27 +206,20 @@ void Client::shutdown()
     inst = 0;
 #endif
 }
-//void Client::register_rpc(std::string name, void(*func)(NetworkReader))
 void Client::register_rpc(std::string name, ArgCallback<NetworkReader> func)
 {
 #if !OS_WEB
-    if (!inst.get())
-    {
-        logerr("Error: rpc registered before starting client\n");
-        return;
-    }
+    if (!inst)
+        return logerr("register_rpc called before starting client\n");
     inst->rpcs[name] = func;
 #endif
 }
 void Client::send(const char *msg, const NetworkWriter &data)
 {
 #if !OS_WEB
-    if (!inst.get())
-    {
-        logerr("Error: send can only be called after starting client\n");
-        return;
-    }
-    if (Server::inst.get())
+    if (!inst)
+        return logerr("send called before starting client\n");
+    if (Server::inst)
     {
         // directly run function if host
         Server::inst->rpcs[msg](NetworkReader(data.get_buffer()), Connection(HOST_FD));
@@ -260,5 +234,5 @@ void Client::send(const char *msg, const NetworkWriter &data)
 }
 bool Client::is_active()
 {
-    return inst.get() && inst->isActive;
+    return inst && inst->isActive;
 }

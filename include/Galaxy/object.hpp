@@ -2,6 +2,7 @@
 #include <Galaxy/Math/vector.hpp>
 #include <vector>
 #include <unordered_map>
+#include <Galaxy/types.hpp>
 class Material;
 class Mesh;
 class Scene;
@@ -9,21 +10,23 @@ class Shader;
 class Texture;
 struct Uniform;
 
-struct TransformECS
-{
-    Vector3 i_pos;
-    Vector3 i_scale = Vector3(1,1,1);
-    Vector3 i_rotation;
+// TransformECS OUTDATED
+//struct TransformECS
+//{
+//    Vector3 i_pos;
+//    Vector3 i_scale = Vector3(1,1,1);
+//    Vector3 i_rotation;
 
-    TransformECS(){}
-    TransformECS(Vector3 pos,Vector3 scale,Vector3 rotation)
-        :i_pos(pos),i_scale(scale),i_rotation(rotation){}
-    inline Vector3 const& pos() { return i_pos; }
-    inline Vector3 const& scale() { return i_scale; }
-    inline Vector3 const& rotation() { return i_rotation; }
-};
+//    TransformECS(){}
+//    TransformECS(Vector3 pos,Vector3 scale,Vector3 rotation)
+//        :i_pos(pos),i_scale(scale),i_rotation(rotation){}
+//    inline Vector3 const& pos() { return i_pos; }
+//    inline Vector3 const& scale() { return i_scale; }
+//    inline Vector3 const& rotation() { return i_rotation; }
+//};
 
 class Object;
+// ObjComponent OUTDATED
 class ObjComponent
 {
 private:
@@ -36,33 +39,37 @@ public:
 class Object
 {
 private:
-    //static std::unique_ptr<std::vector<Object*>> allObjects;
     static std::vector<Object*> allObjects;
     Scene *scene=0;
-    unsigned int objectIndex;
-    //int renderOrder = 0;
-
-    friend class Renderer;
 public:
     std::vector<std::unique_ptr<ObjComponent>> components;
-
     Mesh *mesh=0;
     Material *material=0;
 
     Vector3 position, scale = Vector3(1, 1, 1);
     Vector3 rotation;
-//private:
-//    static bool sortObjects;
-public:
+private:
+    Vector3 minBounds, maxBounds;
+    unsigned int objectIndex, sceneID;
+    ucharG dirty = 0xff;
 
-    //void render_order(int order) { renderOrder = order; }
-    //int render_order() { return renderOrder; }
-        
-    Object(Mesh *mesh, Material *mat, bool isStatic = false);
+    Object() = default;
+
+    friend class Renderer;
+    friend class Scene;
+public:
+    // Call when scale/rotation changes
+    void dirtyBounds() { dirty |= 1; }
+    
+    //Object(Mesh *mesh, Material *mat, bool isStatic = false);
+    static Object* create(Mesh *mesh, Material *mat);
+    static void destroy(Object *obj);
     ~Object();
 
     Object(const Object&) = delete;
-    void operator=(const Object&) = delete;
+    Object& operator=(const Object&) = delete;
+    Object(Object&&) = delete;
+    Object& operator=(Object&&) = delete;
 
     template<typename T>
     T* add_component()

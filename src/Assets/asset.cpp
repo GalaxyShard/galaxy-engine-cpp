@@ -20,7 +20,6 @@ const char *get_resource_path_platform()
     return "bin/web/res";
 }
 #endif
-const char *get_bundle_identifier();
 extern const char *gameName;
 
 std::string Assets::resource_path()
@@ -50,37 +49,6 @@ std::string Assets::data_path()
     #endif
     return path;
 }
-FileContent::~FileContent()
-{
-    delete[] str;
-}
-FileContent Assets::file_contents(const char *path, bool assertOnFail)
-{
-    auto stream = std::ifstream(path, std::ios::binary | std::ios::ate);
-    if (!stream)
-    {
-        if (assertOnFail) assert(false && "Failed to open stream");
-        else return {0, nullptr};
-    }
-    unsigned int length = stream.tellg();
-
-    stream.seekg(0);
-    char *contents = new char[length+1];
-    if (!stream.read(contents, length))
-    {
-        if (assertOnFail) assert(false && "Failed to read stream");
-        else return {0, nullptr};
-    }
-    contents[length] = '\0';
-    return {length+1, contents};
-}
-FileContent Assets::file_contents(const std::string &path, bool assertOnFail)
-{
-    return file_contents(path.c_str(), assertOnFail);
-}
-
-
-
 template<typename T>
 AssetRef<T>::AssetRef() {  }
 template<typename T>
@@ -93,7 +61,6 @@ AssetRef<T>::AssetRef(T *asset, const std::string &ipath) : path(ipath)
     weakRef.data = data;
     weakRef.refCount = refCount;
     loadedAssets->insert(std::make_pair(path, weakRef));
-    //loadedAssets->insert(std::make_pair(path, WeakAssetRef<T> { .data=data, .refCount=refCount }));
 }
 template<typename T>
 AssetRef<T>::~AssetRef()

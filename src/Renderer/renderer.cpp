@@ -25,7 +25,7 @@
 #include <array>
 namespace
 {
-    RendererSystem *renderSystem;
+    //RendererSystem *renderSystem;
     void init()
     {
         int w, h;
@@ -39,14 +39,10 @@ namespace
         Camera::main->projection = Matrix4x4::ortho(-1.f, 1.f, -1.f, 1.f, -100000.f, 100000.f, 0);
         Renderer::fix_aspect(w, h);
         
-        renderSystem = ECSManager::main->reg_sys<RendererSystem>();
+        //renderSystem = ECSManager::main->reg_sys<RendererSystem>();
     }
     INTERNAL_INIT_FUNC(init);
 
-    //auto aspectChanged = std::make_unique<Event>();
-    //auto preRender = std::make_unique<Event>();
-    //auto postSimulation = std::make_unique<Event>();
-    //auto postRender = std::make_unique<Event>();
     auto aspectChanged = new Event();
     auto preRender = new Event();
     auto postSimulation = new Event();
@@ -110,9 +106,106 @@ static Matrix4x4 add_r_c(Matrix3x3 m)
         0,    0,    0,    1
     );
 }
-void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
+//void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
+//{
+//    Matrix3x3 rotation = Matrix3x3::rotate(transform.i_rotation);
+//
+//    // Rotate camera after translating
+//    // The transpose of a rotation is equal to the inverse
+//    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
+//        * Matrix4x4::translate(-Camera::main->position);
+//
+//    if (Camera::main->isPerspective)
+//    {
+//        Vector3 &min = renderer.i_minBounds;
+//        Vector3 &max = renderer.i_maxBounds;
+//        if (renderer.dirty)
+//        {
+//            min = renderer.mesh->aabbMin;
+//            max = renderer.mesh->aabbMax;
+//            renderer.dirty = 0;
+//            Vector3 obbPoints[8] = {
+//                Vector3(min.x, min.y, min.z),
+//                Vector3(min.x, max.y, min.z),
+//                Vector3(max.x, min.y, min.z),
+//                Vector3(max.x, max.y, min.z),
+//                Vector3(max.x, max.y, max.z),
+//                Vector3(max.x, min.y, max.z),
+//                Vector3(min.x, max.y, max.z),
+//                Vector3(min.x, min.y, max.z)
+//            };
+//            min = Vector3(Math::INF, Math::INF, Math::INF);
+//            max = Vector3(-Math::INF, -Math::INF, -Math::INF);
+//            for (int i = 0; i < 8; ++i)
+//            {
+//                obbPoints[i] = rotation*(obbPoints[i]*transform.scale()) + transform.pos();
+//                for (int j = 0; j < 3; ++j)
+//                {
+//                    min[j] = std::min(min[j], obbPoints[i][j]);
+//                    max[j] = std::max(max[j], obbPoints[i][j]);
+//                }
+//            }
+//        }
+        //
+//        auto checkPlane = [&](Vector4 frustumPlane)
+//        {
+//            frustumPlane = frustumPlane / ((Vector3)frustumPlane).magnitude();
+//            float planeConstant = frustumPlane.w;
+//            Vector3 vertex;
+//            for (int i = 0; i < 3; ++i)
+//            {
+//                if (frustumPlane[i] < 0) vertex[i] = min[i];
+//                else vertex[i] = max[i];
+//            }
+//            if (Vector3::dot(frustumPlane, vertex)+planeConstant < 0)
+//            {
+//                return 1;
+//            }
+//            return 0;
+//        };
+//        Matrix4x4 viewProj = (Camera::main->projection * view);
+//        if (checkPlane(viewProj[3] + viewProj[0])
+//            || checkPlane(viewProj[3] - viewProj[0])
+//            || checkPlane(viewProj[3] - viewProj[1])
+//            || checkPlane(viewProj[3] + viewProj[1])
+//            || checkPlane(viewProj[2])
+//            || checkPlane(viewProj[3] - viewProj[2]))
+//                return;
+//    }
+    //
+//    Material &mat = *renderer.mat;
+//    Shader &shader = *mat.shader;
+//    Texture *tex = mat.mainTex;
+//
+//    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(Renderer::reverseAspect.x, Renderer::reverseAspect.y, 1);
+//
+//    Matrix4x4 rotation4x4 = add_r_c(rotation);
+   //
+//    Matrix4x4 model =
+//        Matrix4x4::translate(transform.pos() * filteredAspect)
+//        * rotation4x4
+//        * Matrix4x4::scale(transform.scale() * filteredAspect);
+//
+//    Matrix4x4 mvp = Camera::main->projection * view * model;
+//
+//    renderer.mesh->varray->bind();
+//    shader.bind();
+//    Renderer::bind_material(renderer.mat);
+//    shader.set_uniform_mat4x4("u_mvp", mvp);
+//    shader.set_uniform_mat4x4("u_model", model);
+//    shader.set_uniform_mat4x4("u_rotation", rotation4x4);
+//    shader.set_uniform3f("u_camPos", Camera::main->position);
+//    if (tex)
+//    {
+//        tex->bind();
+//        shader.set_uniform1i("u_tex", tex->get_slot());
+//    }
+//    GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
+//
+//}
+void Renderer::draw(Object &obj)
 {
-    Matrix3x3 rotation = Matrix3x3::rotate(transform.i_rotation);
+    Matrix3x3 rotation = Matrix3x3::rotate(obj.rotation);
 
     // Rotate camera after translating
     // The transpose of a rotation is equal to the inverse
@@ -121,13 +214,13 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
 
     if (Camera::main->isPerspective)
     {
-        Vector3 &min = renderer.i_minBounds;
-        Vector3 &max = renderer.i_maxBounds;
-        if (renderer.dirty)
+        //Vector3 min = obj.minBounds;
+        //Vector3 max = obj.maxBounds;
+        if (obj.dirty & 1)
         {
-            min = renderer.mesh->aabbMin;
-            max = renderer.mesh->aabbMax;
-            renderer.dirty = 0;
+            obj.dirty &= ~1;
+            Vector3 &min = obj.mesh->aabbMin;
+            Vector3 &max = obj.mesh->aabbMax;
             Vector3 obbPoints[8] = {
                 Vector3(min.x, min.y, min.z),
                 Vector3(min.x, max.y, min.z),
@@ -142,7 +235,7 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
             max = Vector3(-Math::INF, -Math::INF, -Math::INF);
             for (int i = 0; i < 8; ++i)
             {
-                obbPoints[i] = rotation*(obbPoints[i]*transform.scale()) + transform.pos();
+                obbPoints[i] = rotation*(obbPoints[i] * obj.scale);
                 for (int j = 0; j < 3; ++j)
                 {
                     min[j] = std::min(min[j], obbPoints[i][j]);
@@ -150,6 +243,8 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
                 }
             }
         }
+        Vector3 min = obj.minBounds + obj.position;
+        Vector3 max = obj.maxBounds + obj.position;
         
         auto checkPlane = [&](Vector4 frustumPlane)
         {
@@ -177,7 +272,7 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
                 return;
     }
     
-    Material &mat = *renderer.mat;
+    Material &mat = *obj.material;
     Shader &shader = *mat.shader;
     Texture *tex = mat.mainTex;
 
@@ -186,15 +281,15 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
     Matrix4x4 rotation4x4 = add_r_c(rotation);
    
     Matrix4x4 model =
-        Matrix4x4::translate(transform.pos() * filteredAspect)
+        Matrix4x4::translate(obj.position * filteredAspect)
         * rotation4x4
-        * Matrix4x4::scale(transform.scale() * filteredAspect);
+        * Matrix4x4::scale(obj.scale * filteredAspect);
 
     Matrix4x4 mvp = Camera::main->projection * view * model;
 
-    renderer.mesh->varray->bind();
+    obj.mesh->varray->bind();
     shader.bind();
-    Renderer::bind_material(renderer.mat);
+    Renderer::bind_material(obj.material);
     shader.set_uniform_mat4x4("u_mvp", mvp);
     shader.set_uniform_mat4x4("u_model", model);
     shader.set_uniform_mat4x4("u_rotation", rotation4x4);
@@ -204,15 +299,11 @@ void RendererSystem::draw(ObjRendererECS &renderer, TransformECS &transform)
         tex->bind();
         shader.set_uniform1i("u_tex", tex->get_slot());
     }
-    GLCall(glDrawElements(GL_TRIANGLES, renderer.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
+    GLCall(glDrawElements(GL_TRIANGLES, obj.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 
-}
-void Renderer::draw(Object &obj)
-{
-    // hack: rewrite this
-    ObjRendererECS renderer = ObjRendererECS{.mat=obj.material, .mesh=obj.mesh};
-    TransformECS transform = TransformECS(obj.position,obj.scale,obj.rotation);
-    RendererSystem().draw(renderer, transform);
+    //ObjRendererECS renderer = ObjRendererECS{.mat=obj.material, .mesh=obj.mesh};
+    //TransformECS transform = TransformECS(obj.position,obj.scale,obj.rotation);
+    //RendererSystem().draw(renderer, transform);
 }
 void Renderer::draw(UIImage &img)
 {
@@ -243,8 +334,8 @@ void Renderer::draw(UIImage &img)
 void Renderer::draw(UIText &text)
 {
     UIText::shader()->bind();
-    float charSize = Math::min(text.scale.x/text.text.size()*2.5f, text.scale.y);
-    float textWidth = charSize*text.text.size()/2.5f;
+    float charSize = Math::min(text.scale.x/text.str.size()*2.5f, text.scale.y);
+    float textWidth = charSize*text.str.size()/2.5f;
 
     Vector2 world_pos = text.calc_world_pos()
         + (text.scale/2*Vector2(text.pivot.x, text.pivot.y)
@@ -313,22 +404,9 @@ void Renderer::draw_all(bool fireEvents)
             }
         }
     }
-    //if (Object::sortObjects)
-    //{
-    //    auto &objs = Object::allObjects;
-    //    std::sort(objs->begin(), objs->end(), [](Object *a, Object *b)
-    //    { return a->renderOrder < b->renderOrder; });
-    //    unsigned int id = 0;
-    //    for (auto &obj : *objs)
-    //    {
-    //        obj->objectIndex = id;
-    //        ++id;
-    //    }
-    //    Object::sortObjects = 0;
-    //}
     clear();
     for (Object *obj : Object::allObjects) draw(*obj);
-    renderSystem->run(&RendererSystem::draw, *ECSManager::main);
+    //renderSystem->run(&RendererSystem::draw, *ECSManager::main);
 
 /*
     GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)); // wireframe
@@ -343,18 +421,18 @@ void Renderer::draw_all(bool fireEvents)
     auto &uiObjs = UIObject::uiObjects;
     if (UIObject::sortObjects)
     {
-        Math::insertion_sort<UIObject*>(*uiObjs, [](UIObject *a, UIObject *b)
-        { return a->render_order() < b->render_order(); });
+        Math::insertion_sort<UIObject>(*uiObjs, [](UIObject a, UIObject b)
+        { return a.render_order() < b.render_order(); });
 
         for (unsigned int i = 0; i < uiObjs->size(); ++i)
-            (*uiObjs)[i]->renderer_id() = i;
+            (*uiObjs)[i].renderer_id() = i;
         
         UIObject::sortObjects = 0;
     }
     for (auto &ui : *uiObjs)
     {
-        if (ui->type == UIObject::UIIMAGE) draw(*((UIImage*)ui->data));
-        else if (ui->type == UIObject::UITEXT) draw(*((UIText*)ui->data));
+        if (ui.type == UIObject::UIIMAGE) draw(*((UIImage*)ui.data));
+        else if (ui.type == UIObject::UITEXT) draw(*((UIText*)ui.data));
     }
     if (fireEvents) postRender->fire();
 }

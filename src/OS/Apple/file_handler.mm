@@ -11,12 +11,3 @@ const char *get_bundle_identifier()
 {
     return [[[NSBundle mainBundle]bundleIdentifier]UTF8String];
 }
-/*
-.c .C .c++ .cc .cpp .cxx .cu .m .M .mm .h .hh .h++ .hm
-.hpp .hxx .in .txx .f .F .for .f77 .f90 .f95 .f03 .ispc
-
-source: .c .cpp
-headers: .inl .h .hpp
-apple: .mm .m
-
-*/

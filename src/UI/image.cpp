@@ -20,26 +20,45 @@ Mesh *UIImage::mesh() { return squareMesh.get(); }
 Shader *UIImage::shader() { return (texture ? tintShader : colShader).get(); }
 
 auto UIImage::images = std::make_unique<std::vector<UIImage *>>();
-//std::unique_ptr<UIImage*[]> heldImages = std::make_unique<UIImage*[]>(10);
 UIImage** heldImages = new UIImage*[10];
 int lastTouchID = 0;
 
 UIImage *UIImage::get_held(int id) { return heldImages[id]; }
 UIImage *UIImage::get_held() { return heldImages[lastTouchID]; }
-UIImage::UIImage(Texture *texture) : texture(texture)
-{
-    rendererID = UIObject::add_image(this);
-    imageID = images->size();
-    images->push_back(this);
+//UIImage::UIImage(Texture *texture) : texture(texture)
+//{
+//    rendererID = UIObject::add_image(this);
+//    imageID = images->size();
+//    images->push_back(this);
 
-    scene = Scene::activeScene;
-    if (scene)
-        scene->imgInstances.push_back(this);
+//    scene = Scene::activeScene;
+//    if (scene)
+//        scene->imgInstances.push_back(this);
+//}
+UIImage* UIImage::create(Texture *texture)
+{
+    UIImage *image = new UIImage();
+    image->texture = texture;
+    image->rendererID = UIObject::add_image(image);
+    image->imageID = images->size();
+    images->push_back(image);
+
+    image->scene = Scene::activeScene;
+    if (image->scene)
+        image->scene->add_inst(image, Scene::IMG);
+        //image->scene->imgInstances.push_back(image);
+    
+    return image;
+}
+void UIImage::destroy(UIImage *image)
+{
+    delete image;
 }
 UIImage::~UIImage()
 {
     UIObject::remove(rendererID);
-    if (scene) scene->remove_inst(this);
+    //if (scene) scene->remove_inst(this);
+    if (scene) scene->remove_inst(sceneID);
 
     for (int i = 0; i < 10; ++i)
         if (heldImages[i] == this)
@@ -50,17 +69,14 @@ UIImage::~UIImage()
     img->imageID = imageID;
     images->pop_back();
 }
-void UIImage::set_render_order(int order)
+void UIImage::render_order(int order)
 {
     renderOrder = order;
     UIObject::sortObjects = 1;
 }
 Vector2 UIImage::calc_world_pos()
 {
-    if (group)
-    {
-        return pos*Renderer::reverseAspect + anchor*group->world_scale() + group->world_pos();
-    }
+    if (group) return pos*Renderer::reverseAspect + anchor*group->world_scale() + group->world_pos();
     else return pos*Renderer::reverseAspect + anchor;
 }
 static bool is_within(Vector2 a, Vector2 b, Vector2 scale)
@@ -77,7 +93,7 @@ bool UIImage::is_within(Vector2 pos)
 }
 static void init()
 {
-    squareMesh = Mesh::from_obj(Assets::gpath()+"/models/square.obj");
+    squareMesh = Mesh::load_obj(Assets::gpath()+"/models/square.obj");
 
     tintShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/tint.shader");
     colShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/color.shader");

@@ -13,23 +13,40 @@
 static AssetRef<Shader> textShader;
 Shader *UIText::shader() { return textShader.get(); }
 
-UIText::UIText(std::string text, Font *font) : font(font), text(text)
+//UIText::UIText(std::string text, Font *font) : font(font), text(text)
+//{
+//    rendererID = UIObject::add_text(this);
+
+//    mesh = std::make_unique<Mesh>();
+//    build_mesh();
+//    mesh->initialize_mesh();
+
+//    scene = Scene::activeScene;
+//    if (scene) scene->textInstances.push_back(this);
+//}
+UIText* UIText::create(std::string str, Font *font)
 {
-    rendererID = UIObject::add_text(this);
-
-    mesh = std::make_unique<Mesh>();
-    build_mesh();
-    mesh->initialize_mesh();
-
-    scene = Scene::activeScene;
-    if (scene) scene->textInstances.push_back(this);
+    UIText *text = new UIText();
+    text->rendererID = UIObject::add_text(text);
+    text->mesh = std::make_unique<Mesh>();
+    text->build_mesh();
+    text->mesh->initialize_mesh();
+    text->scene = Scene::activeScene;
+    //if (text->scene) text->scene->textInstances.push_back(text);
+    if (text->scene) text->sceneID = text->scene->add_inst(text, Scene::TXT);
+    return text;
+}
+void UIText::destroy(UIText *text)
+{
+    delete text;
 }
 UIText::~UIText()
 {
     UIObject::remove(rendererID);
-    if (scene) scene->remove_inst(this);
+    if (scene) scene->remove_inst(sceneID);
+    //if (scene) scene->remove_inst(this);
 }
-void UIText::set_render_order(int order)
+void UIText::render_order(int order)
 {
     renderOrder = order;
     UIObject::sortObjects = 1;
@@ -45,8 +62,8 @@ void UIText::build_mesh()
     auto &tris = mesh->tris;
     auto &verts = mesh->verts;
 
-    verts = std::vector<Vertex>(text.size()*4);
-    tris = std::vector<unsigned int>(text.size()*6);
+    verts = std::vector<Vertex>(str.size()*4);
+    tris = std::vector<unsigned int>(str.size()*6);
 
     // scale is bounding box
     const int fontSize = 72;
@@ -55,7 +72,7 @@ void UIText::build_mesh()
     float xadv = 0;
     float line = 0;
 
-    for (char c : text)
+    for (char c : str)
     {
         //if (c == '\n')
         //{

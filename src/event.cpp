@@ -7,9 +7,9 @@ int Signal::connect_int(Callback callback)
     ++nextID;
     return id;
 }
-std::unique_ptr<Listener> Signal::connect(Callback callback)
+Listener Signal::connect(Callback callback)
 {
-    return std::make_unique<Listener>(this, connect_int(callback));
+    return Listener(this, connect_int(callback));
 }
 void Signal::disconnect_int(int id)
 {
@@ -23,20 +23,28 @@ void Event::fire()
     
     for (auto &[id, listener] : signal.listeners)
         listener();
-    
-    //for (auto id : signal->eraseQueue) { signal->listeners.erase(id); }
-    //signal->eraseQueue.clear();
-    
-    //for (auto &&[id, listener] : signal->listeners)
-    //{
-    //    listener();
-    //}
 }
 Listener::Listener() { }
 Listener::Listener(Signal *sig, int id) : signal(sig), id(id) { }
 Listener::~Listener()
 {
     disconnect();
+}
+Listener::Listener(Listener &&v) : signal(std::move(v.signal)), id(std::move(v.id))
+{
+    v.signal = 0;
+    v.id = -1;
+}
+Listener& Listener::operator=(Listener &&v)
+{
+    if (&v != this)
+    {
+        signal = v.signal;
+        id = v.id;
+        v.signal = 0;
+        v.id = -1;
+    }
+    return *this;
 }
 void Listener::disconnect()
 {

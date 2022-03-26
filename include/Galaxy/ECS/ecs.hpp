@@ -5,6 +5,8 @@
 #include <set>
 #include <unordered_set>
 
+// OUTDATED
+
 typedef unsigned int ComponentMask;
 typedef unsigned int SystemMask;
 typedef unsigned int EntityID;
@@ -16,8 +18,6 @@ protected:
     ComponentMask compMask;
     friend class ECSManager;
     friend struct Entity;
-public:
-    //virtual ~SystemBase() = 0;
 };
 struct EntityData
 {

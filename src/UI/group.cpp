@@ -6,8 +6,6 @@
 
 #include <internalinit.hpp>
 
-//auto UIGroup::aspectRatio = std::make_unique<UIGroup>();
-//auto UIGroup::safeArea = std::make_unique<UIGroup>();
 auto UIGroup::aspectRatio = new UIGroup();
 auto UIGroup::safeArea = new UIGroup();
 
@@ -25,9 +23,11 @@ Vector2 UIGroup::world_scale()
 UIGroup::UIGroup()
 {
     scene = Scene::activeScene;
-    if (scene) scene->groupInstances.push_back(this);
+    //if (scene) scene->groupInstances.push_back(this);
+    if (scene) scene->add_inst(this, Scene::GROUP);
 }
 UIGroup::~UIGroup()
 {
-    if (scene) scene->remove_inst(this);
+    if (scene) scene->remove_inst(sceneID);
+    //if (scene) scene->remove_inst(this);
 }

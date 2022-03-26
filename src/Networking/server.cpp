@@ -145,13 +145,14 @@ void Server::server_thread()
     }
 #endif
 }
-bool Server::start(unsigned short port)
+void Server::start(unsigned short port, Callback errorCallback)
 {
 #if !OS_WEB
     if (inst)
-        return 0;
+        return;
 
-    inst = std::unique_ptr<Server>(new Server());
+    inst = std::unique_ptr<Server>(new Server()); // private ctor, no make_unique
+    inst->errorCallback = errorCallback;
     addrinfo *list = get_addr_list(NULL, port);
 
     bool errored = 0;
@@ -181,22 +182,21 @@ bool Server::start(unsigned short port)
     freeaddrinfo(list);
     if (errored)
     {
+        inst->errorCallback();
         inst = 0;
-        return 0;
+        return;
     }
 
     if ((listen(inst->listener, 5)) == -1)
     {
         close(inst->listener);
+        inst->errorCallback();
         inst = 0;
-        return 0;
+        return;
     }
 
     inst->serverThread = std::thread(server_thread);
     inst->preRenderConn = Renderer::pre_render().connect(&process_messages);
-    return 1;
-#else
-    return 0;
 #endif
 }
 void Server::shutdown()
@@ -204,6 +204,7 @@ void Server::shutdown()
 #if !OS_WEB
     if (!inst)
         return;
+
     inst->isActive = 0;
 
     int val = 1;
@@ -226,6 +227,9 @@ void Server::shutdown()
 void Server::send_all(const char *msg, const NetworkWriter &data)
 {
 #if !OS_WEB
+    if (!inst)
+        return logerr("send_all called before starting server\n");
+
     auto lock = std::lock_guard(inst->clientMutex);
     for (Connection conn : inst->clients)
     {
@@ -236,11 +240,9 @@ void Server::send_all(const char *msg, const NetworkWriter &data)
 void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
 {
 #if !OS_WEB
-    if (!inst.get())
-    {
-        logerr("Error: send called before starting server\n");
-        return;
-    }
+    if (!inst)
+        return logerr("send called before starting server\n");
+
     if (conn.fd == HOST_FD)
     {
         // directly run the function
@@ -254,15 +256,14 @@ void Server::send(Connection conn, const char *msg, const NetworkWriter &data)
     }
 #endif
 }
-const std::vector<Connection> &Server::get_clients()
+const std::vector<Connection> *Server::get_clients()
 {
 #if !OS_WEB
-    if (!inst.get())
-    {
-        logerr("Error: Server must be active to get clients\n");
-    }
+    if (!inst)
+        return (logerr("get_clients called before starting server\n"), nullptr);
+    
     auto lock = std::lock_guard(inst->clientMutex);
-    return inst->clients;
+    return &inst->clients;
 #else
     throw("Not supported on web");
 #endif
@@ -270,28 +271,28 @@ const std::vector<Connection> &Server::get_clients()
 void Server::set_join_callback(ClientStatusCallback func)
 {
 #if !OS_WEB
+    if (!inst)
+        return logerr("set_join_callback called before starting server\n");
     inst->joinCallback = func;
 #endif
 }
 void Server::set_leave_callback(ClientStatusCallback func)
 {
 #if !OS_WEB
+    if (!inst)
+        return logerr("set_leave_callback called before starting server\n");
     inst->leaveCallback = func;
 #endif
 }
-//void Server::register_rpc(std::string name, void (*func)(NetworkReader, Connection))
 void Server::register_rpc(std::string name, ArgCallback<NetworkReader, Connection> func)
 {
 #if !OS_WEB
-    if (!inst.get())
-    {
-        logerr("Error: rpc registered before starting server\n");
-        return;
-    }
+    if (!inst)
+        return logerr("register_rpc called before starting server\n");
     inst->rpcs[name] = func;
 #endif
 }
 bool Server::is_active()
 {
-    return inst.get() && inst->isActive;
+    return inst && inst->isActive;
 }

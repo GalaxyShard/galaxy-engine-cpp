@@ -1,3 +1,1 @@
 src/External/** linguist-vendored
-include/GLFW/* linguist-vendored
-include/glfm.h linguist-vendored

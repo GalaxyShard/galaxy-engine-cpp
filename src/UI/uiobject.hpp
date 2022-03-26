@@ -5,7 +5,8 @@ class UIImage;
 class UIText;
 struct UIObject
 {
-    static std::unique_ptr<std::vector<UIObject*>> uiObjects;
+    //static std::vector<UIObject*> *uiObjects;
+    static std::vector<UIObject> *uiObjects;
     void *data;
     enum Type : unsigned char { UIIMAGE, UITEXT } type;
     
@@ -19,6 +20,6 @@ struct UIObject
     static bool sortObjects;
 
     UIObject(void *data, Type type);
-    UIObject(const UIObject&) = delete;
-    void operator=(const UIObject&) = delete;
+    //UIObject(const UIObject&) = delete;
+    //void operator=(const UIObject&) = delete;
 };

@@ -14,14 +14,12 @@ private:
 public:
     int connect_int(Callback callback);
     void disconnect_int(int id);
-    std::unique_ptr<Listener> connect(Callback callback);
+    Listener connect(Callback callback);
 };
 class Event final
 {
 public:
-    // possibly use no pointer
     Signal signal;
-    //std::unique_ptr<Signal> signal = std::make_unique<Signal>();
     void fire();
 };
 struct Listener
@@ -36,7 +34,9 @@ struct Listener
     ~Listener();
 
     Listener(const Listener&) = delete;
-    void operator=(const Listener&) = delete;
+    Listener& operator=(const Listener&) = delete;
+    Listener(Listener&&);
+    Listener& operator=(Listener&&);
 };
 
 
@@ -60,15 +60,13 @@ private:
 public:
     int connect_int(ArgCallback<T> callback);
     void disconnect_int(int id);
-    std::unique_ptr<ListenerT<T>> connect(ArgCallback<T> callback);
+    ListenerT<T> connect(ArgCallback<T> callback);
 };
 template<typename T>
 class EventT final
 {
 public:
-    // possibly use no pointer
     SignalT<T> signal;
-    //std::unique_ptr<SignalT<T>> signal = std::make_unique<SignalT<T>>();
     void fire(T data);
 };
 template<typename T>
@@ -84,6 +82,8 @@ struct ListenerT
     ~ListenerT();
 
     ListenerT(const ListenerT&) = delete;
-    void operator=(const ListenerT&) = delete;
+    ListenerT& operator=(const ListenerT&) = delete;
+    ListenerT(ListenerT&&);
+    ListenerT& operator=(ListenerT&&);
 };
 #include "event.inl"

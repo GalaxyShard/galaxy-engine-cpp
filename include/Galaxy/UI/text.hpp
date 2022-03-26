@@ -16,17 +16,21 @@ private:
     Font *font;
     Scene *scene;
 
-    unsigned int rendererID;
+    unsigned int rendererID, sceneID;
     int renderOrder = 0;
 
     void build_mesh();
+    UIText() = default;
 
     friend class Renderer;
     friend struct UIObject;
+    friend class Scene;
 public:
-    std::string text;
+    std::string str;
     UIGroup *group = 0;
-    UIText(std::string text, Font *font = Font::defaultFont);
+    static UIText* create(std::string text, Font *font = Font::defaultFont);
+    static void destroy(UIText *text);
+    //UIText(std::string text, Font *font = Font::defaultFont);
     ~UIText();
 
     Vector2 pos;
@@ -34,12 +38,12 @@ public:
     Vector2 anchor = Vector2(-1,-1);
     Vector2 pivot = Vector2(1, 1);
     // not implemented
-    bool wrap = 0;
-    bool scaleToFit = 1; // scales to the max size that can fit
+    //bool wrap = 0;
+    //bool scaleToFit = 1; // scales to the max size that can fit
 
-    inline int get_render_order() { return renderOrder; }
-    void set_render_order(int order);
-    // Should be called when text is changed
+    inline int render_order() { return renderOrder; }
+    void render_order(int order);
+    // Call when text is changed
     void refresh();
 
     Vector2 calc_world_pos();

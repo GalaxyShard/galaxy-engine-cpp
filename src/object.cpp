@@ -4,35 +4,42 @@
 #include <iostream>
 
 #include <gldebug.hpp>
-//auto Object::allObjects = std::make_unique<std::vector<Object*>>();
 auto Object::allObjects = std::vector<Object*>();
-//bool Object::sortObjects = 0;
 
-Object::Object(Mesh *mesh, Material *mat, bool isStatic) : mesh(mesh), material(mat)
+//Object::Object(Mesh *mesh, Material *mat, bool isStatic) : mesh(mesh), material(mat)
+//{
+//    allObjects.push_back(this);
+//    objectIndex = allObjects.size() - 1;
+//
+//    scene = Scene::activeScene;
+//    if (scene)
+//        scene->objInstances.push_back(this);
+//}
+Object* Object::create(Mesh *mesh, Material *mat)
 {
-    (void)isStatic;
-    
-    //allObjects->push_back(this);
-    //objectIndex = allObjects->size() - 1;
-    //sortObjects = 1;
-    allObjects.push_back(this);
-    objectIndex = allObjects.size() - 1;
+    Object *obj = new Object();
+    obj->mesh = mesh;
+    obj->material = mat;
+    allObjects.push_back(obj);
 
-    scene = Scene::activeScene;
-    if (scene)
-        scene->objInstances.push_back(this);
+    obj->objectIndex = allObjects.size() - 1;
+    obj->scene = Scene::activeScene;
+    if (obj->scene)
+        obj->sceneID = obj->scene->add_inst(obj, Scene::OBJ);
+        //obj->scene->objInstances.push_back(obj);
+
+    return obj;
+}
+void Object::destroy(Object *obj)
+{
+    delete obj;
 }
 Object::~Object()
 {
-    scene->remove_inst(this);
+    scene->remove_inst(sceneID);
 
-    //Object *obj2 = allObjects->back();
-    //std::swap((*allObjects)[objectIndex], allObjects->back());
-    //allObjects->pop_back();
     Object *obj2 = allObjects.back();
     std::swap(allObjects[objectIndex], allObjects.back());
     allObjects.pop_back();
     obj2->objectIndex = objectIndex;
-    
-    //sortObjects = 1;
 }

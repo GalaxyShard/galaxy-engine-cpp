@@ -2,7 +2,6 @@
 #include "keycodes.hpp"
 #include <Galaxy/Math/vector.hpp>
 #include <Galaxy/Events/callback.hpp>
-//typedef void(*input_callback)(bool pressed);
 typedef ArgCallback<bool> input_callback;
 class Signal;
 

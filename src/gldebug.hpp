@@ -26,7 +26,6 @@ static inline bool gl_check_errors(int line, const char *fileName)
         else if (e == GL_INVALID_FRAMEBUFFER_OPERATION) errorStr = "GL_INVALID_FRAMEBUFFER_OPERATION";
         else errorStr = "Unrecognized";
         logerr("(%o:%o) GL error: %o\n", fileName, line, errorStr);
-        //logerr("(%o:%o) GL error: %o\n", fileName, line, (glErrorStringMap.count(e) ? glErrorStringMap.at(e) : ""));
     }
     return !errored;
 }

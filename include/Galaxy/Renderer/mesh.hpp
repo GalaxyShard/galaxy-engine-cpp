@@ -20,29 +20,29 @@ struct Vertex
 };
 class Mesh
 {
-    private:
-        std::unique_ptr<VertexArray> varray;
-        std::unique_ptr<VertexBuffer> vbuffer;
-        std::unique_ptr<IndexBuffer> ibuffer;
-        friend class Renderer;
-        friend class RendererSystem;
+private:
+    std::unique_ptr<VertexArray> varray;
+    std::unique_ptr<VertexBuffer> vbuffer;
+    std::unique_ptr<IndexBuffer> ibuffer;
+    friend class Renderer;
+    friend class RendererSystem;
 
-    public:
-        std::vector<Vertex> verts;
-        std::vector<unsigned int> tris;
-        Vector3 aabbMin, aabbMax;
+public:
+    std::vector<Vertex> verts;
+    std::vector<unsigned int> tris;
+    Vector3 aabbMin, aabbMax;
 
-        void initialize_mesh();
-        void refresh_mesh();
-        void calculate_bounds();
-        void calculate_normals();
+    void initialize_mesh();
+    void refresh_mesh();
+    void calculate_bounds();
+    void calculate_normals();
 
-        Mesh();
-        Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris);
-        ~Mesh();
+    Mesh();
+    Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris);
+    ~Mesh();
 
-        Mesh(const Mesh&) = delete;
-        void operator=(const Mesh&) = delete;
+    Mesh(const Mesh&) = delete;
+    void operator=(const Mesh&) = delete;
 
-        static AssetRef<Mesh> from_obj(const std::string &path);
+    static AssetRef<Mesh> load_obj(const std::string &path);
 };

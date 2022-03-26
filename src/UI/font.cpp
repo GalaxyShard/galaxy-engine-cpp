@@ -4,7 +4,7 @@
 
 #include <fstream>
 #include <sstream>
-Font *Font::defaultFont;
+Font *Font::defaultFont = 0;
 
 static float xcoord(float pixel, float size) { return pixel / size + (1.f / (size * 2.f)); }
 static float ycoord(float pixel, float size) { return xcoord(size-pixel, size); }

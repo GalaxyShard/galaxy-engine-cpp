@@ -94,7 +94,7 @@ static void redraw()
 void initialize()
 {
     std::cout.setf(std::ios::fixed);
-    srand(time(0)); // use a combination of time and something else for seed, eg mac address
+    srand(time(0)); // todo: use a combination of time and something else for seed, eg mac address
     rand();
 #if USE_GLFM
     glfmSetSupportedInterfaceOrientation(glfmDisplay, GLFMInterfaceOrientationAllButUpsideDown);

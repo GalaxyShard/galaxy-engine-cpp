@@ -1,6 +1,0 @@
-
-
-UIImage *image = UIImage::create();
-image->pos = Vector2();
-UIText *text = UIText::create();
-auto group = UIGroup::create();
