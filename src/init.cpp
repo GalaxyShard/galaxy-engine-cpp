@@ -1,43 +1,69 @@
 #include <internalinit.hpp>
 #include <queue>
 #include <stack>
+
+// Temporary fix because static variabless arent initialized unless a function is called in that file
+// (audio/input is not properly initialized)
+// Possibly use DLLs, a map of function pointers, or a engineMain function
+extern void iinit_input();
+extern void iinit_renderer();
+extern void iinit_shader();
+extern void iinit_audio();
+extern void init_image();
+extern void init_text();
+extern void cleanup_audio();
+extern void cleanup_net();
+
 using Init::init_func;
-//static std::queue<init_func> *internalQueue, *firstInitQueue, *initQueue, *cleanupQueue;
-static std::vector<init_func> *internalQueue, *firstInitQueue, *initQueue, *cleanupQueue;
-//static inline void use_queue(std::queue<init_func> *q)
+static std::vector<init_func> *startQueues=0, *cleanupQueue=0;
+
 static inline void use_queue(std::vector<init_func> *q)
 {
-    if (q == nullptr) return;
-    //while(!q->empty())
-    //{
-    //    q->front()();
-    //    q->pop();
-    //}
     for (auto &func : *q)
         func();
-    
-    delete q;
 }
 void Init::fire()
 {
-    use_queue(internalQueue);
-    use_queue(firstInitQueue);
-    use_queue(initQueue);
+    iinit_input();
+    iinit_renderer();
+    iinit_shader();
+    iinit_audio();
+    init_image();
+    init_text();
+
+    if (!startQueues) return;
+    use_queue(startQueues);
+    use_queue(startQueues+1);
+    use_queue(startQueues+2);
+    delete[] startQueues;
 }
 void Init::fire_cleanup()
 {
+    cleanup_audio();
+    cleanup_net();
+    if (!cleanupQueue) return;
     use_queue(cleanupQueue);
+    delete cleanupQueue;
 }
-//static inline void* add_func(std::queue<init_func> *&q, init_func func)
-static inline char add_func(std::vector<init_func> *&q, init_func func)
+static inline std::vector<init_func> *start_queues()
 {
-    //if (q == nullptr) q = new std::queue<init_func>();
-    //q->push(func);
-    if (q == nullptr) q = new std::vector<init_func>();
-    q->push_back(func);
-    return 0;
+    if (!startQueues) startQueues = new std::vector<init_func>[3];
+    return startQueues;
 }
-char Init::add_internal(init_func func) { return add_func(internalQueue, func); }
-char Init::add_first_init(init_func func) { return add_func(firstInitQueue, func); }
-char Init::add(init_func func){ return add_func(initQueue, func); }
-char Init::add_cleanup(init_func func) { return add_func(cleanupQueue, func); }
+void Init::add_internal(init_func func)
+{
+    start_queues()->push_back(func);
+}
+void Init::add_first_init(init_func func)
+{
+    start_queues()[1].push_back(func);
+}
+void Init::add(init_func func)
+{
+    start_queues()[2].push_back(func);
+}
+void Init::add_cleanup(init_func func)
+{
+    if (!cleanupQueue) cleanupQueue = new std::vector<init_func>();
+    cleanupQueue->push_back(func);
+}

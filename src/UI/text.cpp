@@ -13,26 +13,16 @@
 static AssetRef<Shader> textShader;
 Shader *UIText::shader() { return textShader.get(); }
 
-//UIText::UIText(std::string text, Font *font) : font(font), text(text)
-//{
-//    rendererID = UIObject::add_text(this);
-
-//    mesh = std::make_unique<Mesh>();
-//    build_mesh();
-//    mesh->initialize_mesh();
-
-//    scene = Scene::activeScene;
-//    if (scene) scene->textInstances.push_back(this);
-//}
 UIText* UIText::create(std::string str, Font *font)
 {
     UIText *text = new UIText();
+    text->font = font;
+    text->str = str;
     text->rendererID = UIObject::add_text(text);
     text->mesh = std::make_unique<Mesh>();
     text->build_mesh();
     text->mesh->initialize_mesh();
     text->scene = Scene::activeScene;
-    //if (text->scene) text->scene->textInstances.push_back(text);
     if (text->scene) text->sceneID = text->scene->add_inst(text, Scene::TXT);
     return text;
 }
@@ -44,7 +34,6 @@ UIText::~UIText()
 {
     UIObject::remove(rendererID);
     if (scene) scene->remove_inst(sceneID);
-    //if (scene) scene->remove_inst(this);
 }
 void UIText::render_order(int order)
 {
@@ -124,8 +113,7 @@ Vector2 UIText::calc_world_pos()
     else return pos*Renderer::reverseAspect + anchor;
 }
 
-static void init()
+void init_text()
 {
     textShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/text.shader");
 }
-INIT_FUNC(init);

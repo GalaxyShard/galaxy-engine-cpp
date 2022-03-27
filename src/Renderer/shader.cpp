@@ -144,9 +144,9 @@ Shader::~Shader()
     GLCall(glDeleteProgram(program));
 }
 
-static void init()
+void iinit_shader()
 {
-    //fallback = std::make_unique<Shader>(Assets::gpath()+SHADER_FOLDER+"/fallback.shader");
+    //logmsg("shader\n");
     fallback = new Shader(Assets::gpath()+SHADER_FOLDER+"/fallback.shader");
 }
-INTERNAL_INIT_FUNC(init);
+//INTERNAL_INIT_FUNC(init);

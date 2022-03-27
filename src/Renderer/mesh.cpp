@@ -34,9 +34,8 @@ void Mesh::initialize_mesh()
 Mesh::~Mesh() = default; // for smart ptr
 void Mesh::refresh_mesh()
 {
-    vbuffer->bind();
+    varray->bind();
     vbuffer->update_data(verts.data(), sizeof(Vertex)*verts.size());
-    ibuffer->bind();
     ibuffer->update_data(tris.data(), tris.size()*sizeof(unsigned int));
 }
 void Mesh::calculate_bounds()

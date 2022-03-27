@@ -23,31 +23,32 @@
 #include <UI/uiobject.hpp>
 
 #include <array>
-namespace
-{
+//namespace
+//{
     //RendererSystem *renderSystem;
-    void init()
-    {
-        int w, h;
-        #if USE_GLFM
-            glfmGetDisplaySize(glfmDisplay, &w, &h);
-        #endif
-        #if USE_GLFW
-            glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
-        #endif
+void iinit_renderer()
+{
+    //logmsg("renderer\n");
+    int w, h;
+    #if USE_GLFM
+        glfmGetDisplaySize(glfmDisplay, &w, &h);
+    #endif
+    #if USE_GLFW
+        glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
+    #endif
 
-        Camera::main->projection = Matrix4x4::ortho(-1.f, 1.f, -1.f, 1.f, -100000.f, 100000.f, 0);
-        Renderer::fix_aspect(w, h);
-        
-        //renderSystem = ECSManager::main->reg_sys<RendererSystem>();
-    }
-    INTERNAL_INIT_FUNC(init);
-
-    auto aspectChanged = new Event();
-    auto preRender = new Event();
-    auto postSimulation = new Event();
-    auto postRender = new Event();
+    Camera::main->projection = Matrix4x4::ortho(-1.f, 1.f, -1.f, 1.f, -100000.f, 100000.f, 0);
+    Renderer::fix_aspect(w, h);
+    
+    //renderSystem = ECSManager::main->reg_sys<RendererSystem>();
 }
+    //INTERNAL_INIT_FUNC(init);
+
+static auto aspectChanged = new Event();
+static auto preRender = new Event();
+static auto postSimulation = new Event();
+static auto postRender = new Event();
+//}
 int Renderer::screenWidth, Renderer::screenHeight;
 Vector2 Renderer::aspectRatio, Renderer::reverseAspect;
 

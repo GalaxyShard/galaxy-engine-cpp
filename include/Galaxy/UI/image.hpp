@@ -11,7 +11,7 @@ class UIGroup;
 class UIImage
 {
 private:
-    static std::unique_ptr<std::vector<UIImage *>> images;
+    static std::vector<UIImage *> images;
     Scene *scene;
 
     static Mesh *mesh();
@@ -23,7 +23,6 @@ private:
     friend struct UIObject;
     friend class Scene;
 public:
-    //UIImage(Texture *texture = nullptr);
     static UIImage* create(Texture *texture = nullptr);
     static void destroy(UIImage *image);
     ~UIImage();
@@ -44,9 +43,9 @@ private:
     unsigned int imageID, rendererID, sceneID;
     int renderOrder = 0;
 public:
-
     static UIImage *get_held(int id);
     static UIImage *get_held();
+
     bool is_within(Vector2 pos);
     Vector2 calc_world_pos();
 
@@ -54,7 +53,7 @@ public:
     void render_order(int order);
 
     // should be changed to only images with callbacks registered
-    static const std::vector<UIImage *> &get_raycastables() { return *images; }
+    static const std::vector<UIImage *> &get_raycastables() { return images; }
     
     UIImage(const UIImage &) = delete;
     void operator=(const UIImage &) = delete;

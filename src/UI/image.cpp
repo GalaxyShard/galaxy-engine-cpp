@@ -19,34 +19,24 @@ namespace
 Mesh *UIImage::mesh() { return squareMesh.get(); }
 Shader *UIImage::shader() { return (texture ? tintShader : colShader).get(); }
 
-auto UIImage::images = std::make_unique<std::vector<UIImage *>>();
+auto UIImage::images = std::vector<UIImage *>();
 UIImage** heldImages = new UIImage*[10];
 int lastTouchID = 0;
 
 UIImage *UIImage::get_held(int id) { return heldImages[id]; }
 UIImage *UIImage::get_held() { return heldImages[lastTouchID]; }
-//UIImage::UIImage(Texture *texture) : texture(texture)
-//{
-//    rendererID = UIObject::add_image(this);
-//    imageID = images->size();
-//    images->push_back(this);
 
-//    scene = Scene::activeScene;
-//    if (scene)
-//        scene->imgInstances.push_back(this);
-//}
 UIImage* UIImage::create(Texture *texture)
 {
     UIImage *image = new UIImage();
     image->texture = texture;
     image->rendererID = UIObject::add_image(image);
-    image->imageID = images->size();
-    images->push_back(image);
+    image->imageID = images.size();
+    images.push_back(image);
 
     image->scene = Scene::activeScene;
     if (image->scene)
         image->scene->add_inst(image, Scene::IMG);
-        //image->scene->imgInstances.push_back(image);
     
     return image;
 }
@@ -57,17 +47,16 @@ void UIImage::destroy(UIImage *image)
 UIImage::~UIImage()
 {
     UIObject::remove(rendererID);
-    //if (scene) scene->remove_inst(this);
     if (scene) scene->remove_inst(sceneID);
 
     for (int i = 0; i < 10; ++i)
         if (heldImages[i] == this)
             heldImages[i] = nullptr;
 
-    UIImage *&img = images->back();
-    std::swap((*images)[imageID], img);
+    UIImage *&img = images.back();
+    std::swap((images)[imageID], img);
     img->imageID = imageID;
-    images->pop_back();
+    images.pop_back();
 }
 void UIImage::render_order(int order)
 {
@@ -91,11 +80,11 @@ bool UIImage::is_within(Vector2 pos)
 {
     return ::is_within(pos, calc_world_pos(), scale*Renderer::reverseAspect);
 }
-static void init()
+void init_image()
 {
     squareMesh = Mesh::load_obj(Assets::gpath()+"/models/square.obj");
 
     tintShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/tint.shader");
     colShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/color.shader");
+    memset(heldImages, 0, sizeof(UIImage*)*10);
 }
-INIT_FUNC(init);

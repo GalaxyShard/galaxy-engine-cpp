@@ -26,6 +26,6 @@ namespace Input
     void rebind(const char *bind, KeyCode newKey);
     void interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key));
 
-    extern Vector2 mousePos, mouseDelta;
+    Vector2 mousePos();
     SignalT<TouchData>& touch_changed();
 };

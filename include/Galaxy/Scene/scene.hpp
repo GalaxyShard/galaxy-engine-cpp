@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <string>
 #include <typeindex>
 class Object;
@@ -34,27 +35,18 @@ private:
         InstType type;
         SceneInst(void *p, InstType t):ptr(p),type(t){}
     };
-    static std::unordered_map<std::string, SceneInfo> sceneEvents;
+    static std::map<std::string, SceneInfo> sceneEvents;
 
+    std::map<std::type_index, SceneComponent> components;
     std::vector<SceneInst> instances;
-    //std::vector<Object*> objInstances;
-    //std::vector<UIImage*> imgInstances;
-    //std::vector<UIText*> textInstances;
-    //std::vector<UIGroup*> groupInstances;
-
-    std::unordered_map<std::type_index, SceneComponent> components;
     std::string name;
     bool destroyingScene = 0;
 
-
-    //void remove_inst(Object *data);
-    //void remove_inst(UIImage *data);
-    //void remove_inst(UIText *data);
-    //void remove_inst(UIGroup *data);
-    Scene() = default;
-
+    void initialize(std::string name);
     unsigned int add_inst(void *inst, InstType type);
     void remove_inst(unsigned int id);
+
+    Scene() = default;
     
     friend class UIImage;
     friend class UIText;
@@ -67,15 +59,20 @@ public:
     static Scene* parse(const std::string &path, std::string name);
 
     static Scene* create(std::string name);
-
-    inline const std::string& get_name() { return name; }
+    static void destroy(Scene *scene);
 
     /* Fired right after create_callback, for using the scene objects */
     static void on_init(std::string name, void(*func)());
     /* Sets up the scene, creates all of the proper UI, etc */
-    static void set_create_callback(std::string name, void(*func)());
+    //static void set_create_callback(std::string name, void(*func)());
     /* Fired when the destructor is called */
-    static void on_destroy(std::string name, void(*func)());
+    //static void on_destroy(std::string name, void(*func)());
+
+    ~Scene();
+    Scene(const Scene&) = delete;
+    void operator=(const Scene&) = delete;
+
+    inline const std::string& get_name() { return name; }
 
     template<typename T>
     T* get_component()
@@ -94,11 +91,4 @@ public:
             delete (T*)data;
         };
     }
-
-    void initialize(std::string name);
-    //Scene(std::string name);
-    //Scene();
-    ~Scene();
-    Scene(const Scene&) = delete;
-    void operator=(const Scene&) = delete;
 };

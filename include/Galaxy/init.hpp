@@ -6,10 +6,10 @@ namespace Init
     void fire();
     void fire_cleanup();
 
-    char add(init_func);
-    char add_first_init(init_func);
-    char add_cleanup(init_func);
+    void add(init_func);
+    void add_first_init(init_func);
+    void add_cleanup(init_func);
 }
-#define FIRST_INIT_FUNC(func) static auto func##_first_init_ignore = Init::add_first_init(&func)
-#define INIT_FUNC(func) static auto func##_init_ignore = Init::add(&func)
-#define CLEANUP_FUNC(func) static auto func##_cleanup_ignore = Init::add_cleanup(&func)
+#define FIRST_INIT_FUNC(func) static char func##_first_init_ignore = (Init::add_first_init(&func),0)
+#define INIT_FUNC(func) static char func##_init_ignore = (Init::add(&func),0)
+#define CLEANUP_FUNC(func) static char func##_cleanup_ignore = (Init::add_cleanup(&func),0)

@@ -1,12 +1,12 @@
 #pragma once
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <Galaxy/Events/callback.hpp>
 struct Listener;
 class Signal final
 {
 private:
-    std::unordered_map<int, Callback> listeners;
+    std::map<int, Callback> listeners;
     std::vector<int> eraseQueue;
     int nextID = 0;
 
@@ -53,7 +53,7 @@ class SignalT final
 {
 private:
     int nextID = 0;
-    std::unordered_map<int, ArgCallback<T>> listeners;
+    std::map<int, ArgCallback<T>> listeners;
     std::vector<int> eraseQueue;
 
     friend class EventT<T>;

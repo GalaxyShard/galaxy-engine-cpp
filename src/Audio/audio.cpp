@@ -161,7 +161,7 @@ void AudioPlayer::stop()
 {
     alSourceStop(audioSource);
 }
-static void init()
+void iinit_audio()
 {
     alcDevice = alcOpenDevice(nullptr);
     if (!alcDevice)
@@ -169,11 +169,9 @@ static void init()
     ALCcontext *context = alcCreateContext(alcDevice, nullptr);
     alcMakeContextCurrent(context);
 }
-static void clean()
+void cleanup_audio()
 {
     alcDestroyContext(alcGetCurrentContext());
     alcMakeContextCurrent(nullptr);
     alcCloseDevice(alcDevice);
 }
-INTERNAL_INIT_FUNC(init);
-CLEANUP_FUNC(clean);

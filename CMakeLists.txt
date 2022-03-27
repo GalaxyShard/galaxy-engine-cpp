@@ -14,14 +14,7 @@ elseif(PLATFORM MATCHES web)
     set(CMAKE_SYSTEM_NAME "Emscripten")
     set(EMSCRIPTEN 1)
 endif()
-#message("Platform: '${CMAKE_SYSTEM_NAME}'")
-#if (CMAKE_SYSTEM_NAME MATCHES "iOS")
-#    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
-#    set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
-#    add_definitions(-arch arm64)
-#endif()
 project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
-#message("Platform: '${CMAKE_SYSTEM_NAME}'")
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -41,12 +34,18 @@ if (RELEASE_BUILD)
     add_definitions(-O3)
 else()
     if (PLATFORM MATCHES web)
-        add_definitions(-O3) # WebGL doesnt support debugging
+        add_definitions(-O3) # WebGL doesnt support Og
     else()
         add_definitions(-Og)
     endif()
-    add_definitions(-DDEBUG -DCMAKE_BUILD_TYPE=Debug -g)
+    set(CMAKE_BUILD_TYPE Debug)
+    add_definitions(-DDEBUG -g)
 endif()
+
+# Remove comment to enable clang UBsan & Asan, works on WebGL as well
+#add_link_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
+#add_compile_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
+
 
 add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
     -DGLFW_INCLUDE_GLCOREARB -DOPENAL_DEPRECATED=)

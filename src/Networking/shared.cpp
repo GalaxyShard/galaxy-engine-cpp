@@ -35,9 +35,8 @@ int check_socket(int status)
 #endif
     return status;
 }
-static void clean()
+void cleanup_net()
 {
     Client::shutdown();
     Server::shutdown();
 }
-CLEANUP_FUNC(clean);

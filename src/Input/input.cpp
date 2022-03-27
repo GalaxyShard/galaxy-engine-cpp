@@ -19,11 +19,10 @@ struct InputData
     InputData(const char *bind, KeyCode key, input_callback callback)
         : bind(bind), key(key), callback(callback) { }
 };
-//extern std::unique_ptr<UIImage*[]> heldImages;
 extern UIImage **heldImages;
 extern int lastTouchID;
 
-Vector2 Input::mousePos = Vector2(-1,-1);
+static Vector2 mousePos = Vector2(-1,-1);
 auto onTouchEvent = EventT<TouchData>();
 namespace
 {
@@ -97,7 +96,7 @@ namespace
         // 0,0 is top left, pos is in pixels
         // mousePos is converted, -1 is bottom left, pos is -1~1
         // will be updated when outside of window as long as window is focused
-        Input::mousePos = Vector2(x / Renderer::screenWidth, 1.f-(y / Renderer::screenHeight))*2-1;
+        mousePos = Vector2(x / Renderer::screenWidth, 1.f-(y / Renderer::screenHeight))*2.f-1.f;
     }
 #if USE_GLFM
     bool touch_callback(GLFMDisplay*, int touch, GLFMTouchPhase phase, double x, double y)
@@ -121,11 +120,6 @@ namespace
         data.id = touch;
         data.pos = Input::mousePos;
         data.state = state;
-        //TouchData data = TouchData {
-        //    .id = touch,
-        //    .pos = Input::mousePos,
-        //    .state = state
-        //};
         if (lastTouchState.count(touch))
         {
             data.delta = data.pos - lastTouchState[touch].pos;
@@ -155,34 +149,33 @@ namespace
         (void)button;
         if (action == GLFW_REPEAT) return;
         isMouseHeld = action;
-        process_click(0, action, mods, Input::mousePos);
-        TouchData data = TouchData {
-            .id = 0,
-            .pos = Input::mousePos,
-            .startPos = Input::mousePos,
-            .state = action ? PRESSED : RELEASED
-        };
+        process_click(0, action, mods, Input::mousePos());
+        TouchData data;
+        data.id = 0;
+        data.pos = Input::mousePos();
+        data.startPos = Input::mousePos();
+        data.state = action ? PRESSED : RELEASED;
+
         lastTouchState[data.id] = data;
         onTouchEvent.fire(data);
     }
     void cursor_callback(GLFWwindow*, double x, double y)
     {
         process_cursor(x, y);
-        if (isMouseHeld) {
-            TouchData data = TouchData {
-                .id = 0,
-                .pos = Input::mousePos,
-                .delta = Input::mousePos - lastTouchState[data.id].pos,
-                .startPos = lastTouchState[data.id].startPos,
-                .state = MOVED
-            };
-            lastTouchState[data.id] = data;
-            onTouchEvent.fire(data);
-        }
+        if (!isMouseHeld) return;
+        TouchData data;
+        data.id = 0;
+        data.pos = Input::mousePos();
+        data.delta = Input::mousePos() - lastTouchState[data.id].pos;
+        data.startPos = lastTouchState[data.id].startPos;
+        data.state = MOVED;
+        
+        lastTouchState[data.id] = data;
+        onTouchEvent.fire(data);
     }
 #endif
 }
-
+Vector2 Input::mousePos() { return ::mousePos; }
 void Input::add_bind(const char *bind, KeyCode key)
 {
     add_bind(bind, key, input_callback());
@@ -256,7 +249,7 @@ void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
 }
 SignalT<TouchData>& Input::touch_changed() { return onTouchEvent.signal; }
 
-static void init()
+void iinit_input()
 {
 #if USE_GLFM
     glfmSetTouchFunc(glfmDisplay, &touch_callback);
@@ -273,4 +266,3 @@ static void init()
     });
 #endif
 }
-INTERNAL_INIT_FUNC(init);
