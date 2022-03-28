@@ -1,12 +1,9 @@
 #include <Renderer/buffer.hpp>
 #include <gldebug.hpp>
-IndexBuffer::IndexBuffer(const void *data, unsigned int bytes, bool isStatic)
+IndexBuffer::IndexBuffer()
 {
-    indexCount = bytes;
+    indexCount = 0;
     GLCall(glGenBuffers(1, &rendererID));
-    bind();
-    unsigned int drawMode = (isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
-    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, bytes, data, drawMode));
 }
 IndexBuffer::~IndexBuffer()
 {

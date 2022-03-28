@@ -8,11 +8,9 @@ VertexArray::VertexArray()
 {
 #if OS_IOS
     GLCall(glGenVertexArraysOES(1, &rendererID));
-
 #elif USE_GLFW
     GLCall(glGenVertexArrays(1, &rendererID));
 #endif
-    bind();
 }
 VertexArray::~VertexArray()
 {
@@ -24,16 +22,12 @@ VertexArray::~VertexArray()
 }
 void VertexArray::add_buffer(IndexBuffer &buffer)
 {
-    bind();
-    buffer.bind();
 #if OS_WEB
     ibo = &buffer;
 #endif
 }
 void VertexArray::add_buffer(VertexBuffer &buffer)
 {
-    bind();
-    buffer.bind();
 #if OS_WEB
     vbo = &buffer;
 #endif
@@ -55,9 +49,7 @@ void VertexArray::add_layout(VertexLayout layout)
 {
 #if OS_WEB
     vertexLayout = layout;
-    bind();
 #else
-    bind();
     apply_layout(layout);
 #endif
 }
@@ -82,5 +74,8 @@ void VertexArray::unbind() const
     GLCall(glBindVertexArrayOES(0));
 #elif USE_GLFW
     GLCall(glBindVertexArray(0));
+#elif OS_WEB
+    if (ibo) ibo->unbind();
+    if (vbo) vbo->unbind();
 #endif
 }

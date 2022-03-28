@@ -1,11 +1,8 @@
 #include <Renderer/buffer.hpp>
 #include <gldebug.hpp>
-VertexBuffer::VertexBuffer(const void *data, unsigned int size, bool isStatic)
+VertexBuffer::VertexBuffer()
 {
     GLCall(glGenBuffers(1, &rendererID));
-    bind();
-    unsigned int drawMode = (isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
-    GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, drawMode));
 }
 VertexBuffer::~VertexBuffer()
 {

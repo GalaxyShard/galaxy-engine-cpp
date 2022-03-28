@@ -1,8 +1,8 @@
 #include <Galaxy/Renderer/mesh.hpp>
 #include <Galaxy/Assets/assets.hpp>
-#include <iostream>
 
 #include <Renderer/buffer.hpp>
+#include <gldebug.hpp>
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -14,12 +14,24 @@ Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris) : verts(ve
 }
 void Mesh::initialize_mesh()
 {
-    bool isStatic = true;
+    //bool isStatic = true;
+    //varray = std::make_unique<VertexArray>();
+    //vbuffer = std::make_unique<VertexBuffer>(verts.data(), sizeof(Vertex)*verts.size(), isStatic);
+    //ibuffer = std::make_unique<IndexBuffer>(tris.data(), tris.size()*sizeof(unsigned int), isStatic);
+    constexpr ulongG vaSize = sizeof(VertexArray);
+    constexpr ulongG vbSize = sizeof(VertexBuffer);
+    constexpr ulongG ibSize = sizeof(IndexBuffer);
 
-    varray = std::make_unique<VertexArray>();
-    vbuffer = std::make_unique<VertexBuffer>(verts.data(), sizeof(Vertex)*verts.size(), isStatic);
-    ibuffer = std::make_unique<IndexBuffer>(tris.data(), tris.size()*sizeof(unsigned int), isStatic);
+    char *memory = (char*)malloc(vaSize+vbSize+ibSize);
+    varray  = new(memory)               VertexArray();
+    vbuffer = new(memory+vaSize)        VertexBuffer();
+    ibuffer = new(memory+vaSize+vbSize) IndexBuffer();
 
+    varray->bind();
+    vbuffer->bind();
+    vbuffer->update_data(verts.data(), sizeof(Vertex)*verts.size());
+    ibuffer->bind();
+    ibuffer->update_data(tris.data(), tris.size()*sizeof(unsigned int));
     varray->add_buffer(*vbuffer);
     varray->add_buffer(*ibuffer);
 
@@ -28,15 +40,31 @@ void Mesh::initialize_mesh()
     layout.add_attribute({AttributeType::FLOAT, 2}); // texCoords
     layout.add_attribute({AttributeType::FLOAT, 3}); // normals
     varray->add_layout(layout);
+    
+    varray->unbind();
+    vbuffer->unbind();
+    ibuffer->unbind();
 
     calculate_bounds();
 }
-Mesh::~Mesh() = default; // for smart ptr
+Mesh::~Mesh()
+{
+    varray->~VertexArray();
+    vbuffer->~VertexBuffer();
+    ibuffer->~IndexBuffer();
+    free((void*)varray);
+}
+//Mesh::~Mesh() = default; // for smart ptr
 void Mesh::refresh_mesh()
 {
     varray->bind();
+    vbuffer->bind();
     vbuffer->update_data(verts.data(), sizeof(Vertex)*verts.size());
+    ibuffer->bind();
     ibuffer->update_data(tris.data(), tris.size()*sizeof(unsigned int));
+    varray->unbind();
+    vbuffer->unbind();
+    ibuffer->unbind();
 }
 void Mesh::calculate_bounds()
 {

@@ -21,12 +21,10 @@ struct Vertex
 class Mesh
 {
 private:
-    std::unique_ptr<VertexArray> varray;
-    std::unique_ptr<VertexBuffer> vbuffer;
-    std::unique_ptr<IndexBuffer> ibuffer;
+    VertexArray *varray;
+    VertexBuffer *vbuffer;
+    IndexBuffer *ibuffer;
     friend class Renderer;
-    friend class RendererSystem;
-
 public:
     std::vector<Vertex> verts;
     std::vector<unsigned int> tris;

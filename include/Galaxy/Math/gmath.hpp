@@ -46,13 +46,13 @@ void Math::insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b))
         if (predicate(array[i], array[i-1]))
         {
             T element = array[i];
-            int j = i;
-            while (j > 0 && predicate(element, array[j]))
+            int j = i-1;
+            while (j >= 0 && predicate(element, array[j]))
             {
-                --j;
                 array[j+1] = array[j];
+                --j;
             }
-            array[j] = element;
+            array[j+1] = element;
         }
     }
 }

@@ -104,11 +104,11 @@ namespace
         process_cursor(x, y);
         if (phase == GLFMTouchPhaseBegan)
         {
-            process_click(touch, 1, 0, Input::mousePos);
+            process_click(touch, 1, 0, Input::mousePos());
         }
         else if (phase == GLFMTouchPhaseEnded)
         {
-            process_click(touch, 0, 0, Input::mousePos);
+            process_click(touch, 0, 0, Input::mousePos());
         }
         TouchState state;
         if (phase==GLFMTouchPhaseBegan) state = TouchState::PRESSED;
@@ -118,7 +118,7 @@ namespace
         
         TouchData data = TouchData();
         data.id = touch;
-        data.pos = Input::mousePos;
+        data.pos = Input::mousePos();
         data.state = state;
         if (lastTouchState.count(touch))
         {

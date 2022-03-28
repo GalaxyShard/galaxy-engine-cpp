@@ -13,7 +13,7 @@ class IndexBuffer : public GraphicsBuffer
 private:
     unsigned int rendererID, indexCount;
 public:
-    IndexBuffer(const void *data, unsigned int bytes, bool isStatic=0);
+    IndexBuffer();
     ~IndexBuffer();
     void update_data(const void* data, unsigned int bytes);
 
@@ -26,7 +26,7 @@ class VertexBuffer : public GraphicsBuffer
 private:
     unsigned int rendererID;
 public:
-    VertexBuffer(const void *data, unsigned int size, bool isStatic=0);
+    VertexBuffer();
     ~VertexBuffer();
 
     void update_data(const void *data, unsigned int count);
