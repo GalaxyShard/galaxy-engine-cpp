@@ -23,11 +23,9 @@ Vector2 UIGroup::world_scale()
 UIGroup::UIGroup()
 {
     scene = Scene::activeScene;
-    //if (scene) scene->groupInstances.push_back(this);
-    if (scene) scene->add_inst(this, Scene::GROUP);
+    if (scene) sceneID = scene->add_inst(this, Scene::GROUP);
 }
 UIGroup::~UIGroup()
 {
     if (scene) scene->remove_inst(sceneID);
-    //if (scene) scene->remove_inst(this);
 }

@@ -6,27 +6,17 @@
 #include <gldebug.hpp>
 auto Object::allObjects = std::vector<Object*>();
 
-//Object::Object(Mesh *mesh, Material *mat, bool isStatic) : mesh(mesh), material(mat)
-//{
-//    allObjects.push_back(this);
-//    objectIndex = allObjects.size() - 1;
-//
-//    scene = Scene::activeScene;
-//    if (scene)
-//        scene->objInstances.push_back(this);
-//}
 Object* Object::create(Mesh *mesh, Material *mat)
 {
     Object *obj = new Object();
     obj->mesh = mesh;
     obj->material = mat;
+    obj->objectIndex = allObjects.size();
     allObjects.push_back(obj);
 
-    obj->objectIndex = allObjects.size() - 1;
     obj->scene = Scene::activeScene;
     if (obj->scene)
         obj->sceneID = obj->scene->add_inst(obj, Scene::OBJ);
-        //obj->scene->objInstances.push_back(obj);
 
     return obj;
 }
@@ -39,7 +29,12 @@ Object::~Object()
     scene->remove_inst(sceneID);
 
     Object *obj2 = allObjects.back();
-    std::swap(allObjects[objectIndex], allObjects.back());
+    if (obj2 == this)
+    {
+        allObjects.pop_back();
+        return;
+    }
+    allObjects[objectIndex] = std::move(allObjects.back());
     allObjects.pop_back();
     obj2->objectIndex = objectIndex;
 }

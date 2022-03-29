@@ -36,7 +36,7 @@ UIImage* UIImage::create(Texture *texture)
 
     image->scene = Scene::activeScene;
     if (image->scene)
-        image->scene->add_inst(image, Scene::IMG);
+        image->sceneID = image->scene->add_inst(image, Scene::IMG);
     
     return image;
 }
@@ -53,8 +53,15 @@ UIImage::~UIImage()
         if (heldImages[i] == this)
             heldImages[i] = nullptr;
 
-    UIImage *&img = images.back();
-    std::swap((images)[imageID], img);
+    UIImage *img = images.back();
+    if (img==this)
+    {
+        images.pop_back();
+        return;
+    }
+    //std::swap((images)[imageID], img);
+    images[imageID] = std::move(images.back());
+    
     img->imageID = imageID;
     images.pop_back();
 }

@@ -8,9 +8,7 @@ Scene *Scene::activeScene;
 
 struct SceneInfo
 {
-    //void(*createCallback)()=0;
     Event onInit;
-    //Event onDestroy;
 };
 std::map<std::string, SceneInfo> Scene::sceneEvents;
 void Scene::initialize(std::string name)
@@ -20,7 +18,6 @@ void Scene::initialize(std::string name)
     if (sceneEvents.count(name))
     {
         SceneInfo &info = sceneEvents[name];
-        //if (info.createCallback) info.createCallback();
         info.onInit.fire();
     }
 }
@@ -36,9 +33,9 @@ void Scene::destroy(Scene *scene)
 }
 Scene::~Scene()
 {
-    destroyingScene = 1;
     for (auto &[id, comp] : components)
         comp.destructor(comp.data);
+    destroyingScene = 1;
     
     for (auto &v : instances)
     {
@@ -48,7 +45,6 @@ Scene::~Scene()
         else if (v.type==GROUP) delete (UIGroup*)v.ptr;
         else assert(false);
     }
-    //sceneEvents[name].onDestroy.fire();
 }
 unsigned int Scene::add_inst(void *inst, Scene::InstType type)
 {
@@ -59,14 +55,22 @@ void Scene::remove_inst(unsigned int id)
 {
     if (destroyingScene) return;
 
-    auto &v = instances.back();
-    std::swap(v, instances[id]);
-    instances.pop_back();
+    if (id==instances.size()-1)
+    {
+        instances.pop_back();
+        return;
+    }
+    //auto &v = instances.back();
+    //std::swap(v, instances[id]);
+    instances[id] = std::move(instances.back());
+    auto &v = instances[id];
+
     if (v.type==OBJ) ((Object*)v.ptr)->sceneID = id;
     else if (v.type==IMG) ((UIImage*)v.ptr)->sceneID = id;
     else if (v.type==TXT) ((UIText*)v.ptr)->sceneID = id;
     else if (v.type==GROUP) ((UIGroup*)v.ptr)->sceneID = id;
     else assert(false);
+    instances.pop_back();
 }
 void Scene::on_init(std::string name, void(*func)())
 {
