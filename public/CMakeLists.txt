@@ -97,7 +97,6 @@ if (APPLE)
         )
     endif()
     add_executable(game ${GAME_SRC})
-    target_precompile_headers(game PRIVATE ${ENGINE_ROOT}/include/Galaxy/engine.hpp)
 
     macro(add_fw fwname)
         target_link_libraries(game "-framework ${fwname}")
@@ -236,6 +235,7 @@ if (EMSCRIPTEN)
     )
     set_target_properties(game PROPERTIES LINK_FLAGS "--shell-file \"${CMAKE_CURRENT_BINARY_DIR}/shell.html.in\" --preload-file \"${proj_dir}/bin/web/res@bin/web/res\"")
 endif()
+target_precompile_headers(game PRIVATE ${ENGINE_ROOT}/include/Galaxy/engine.hpp)
 set_target_properties(game PROPERTIES OUTPUT_NAME "${OUT_NAME}")
 
 # Galaxy Engine
