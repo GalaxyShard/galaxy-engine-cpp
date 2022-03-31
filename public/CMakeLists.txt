@@ -1,40 +1,36 @@
-# Copies resources on iOS
-#add_custom_command(
-#    TARGET ${NAME}
-#    POST_BUILD
-#    COMMAND /Developer/Library/PrivateFrameworks/DevToolsCore.framework/Resources/pbxcp -exclude .DS_Store -exclude CVS -exclude .svn -resolve-src-symlinks ${RES_DIR} ${APP_NAME}
-#)
-if (NOT DEFINED PLATFORM)
-    set(PLATFORM "osx" CACHE STRING "")
-endif()
+# OSX
+# cmake -B bin/osx
+# make -C bin/osx -j8
 
-if (PLATFORM MATCHES osx)
-    set(MACOS 1)
-elseif(PLATFORM MATCHES ios)
+# IOS
+# cmake -B bin/ios -DIOS=1 -GXcode
+# open bin/ios/program.xcodeproj
+
+# IOS Intellisense
+# cmake -B bin/ios-vsc -DIOS_VSC=1
+
+# WebGL
+# emcmake cmake -B bin/web -DRELEASE=1
+# emmake make -C bin/web -j8
+
+if (IOS OR IOS_VSC) # Set on command line -DIOS=1
     set(CMAKE_SYSTEM_NAME "iOS")
     set(IOS 1)
-elseif(PLATFORM MATCHES ios-vsc)
-    # For vs code compile-commands.json
-    set(CMAKE_SYSTEM_NAME "iOS")
-    set(IOS 1)
+endif()
+if (IOS_VSC) # Set on command line -DIOS_VSC=1
+    # For generating vs code compile-commands.json
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-    add_definitions(-arch arm64)
-elseif(PLATFORM MATCHES web)
-    set(CMAKE_SYSTEM_NAME "Emscripten")
-    set(EMSCRIPTEN 1)
 endif()
-#if (IOS)
-#    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
-#    set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
-#    set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-#    add_definitions(-arch arm64)
-#endif()
 
 project("program" LANGUAGES C CXX OBJC OBJCXX)
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
+
+if (APPLE AND NOT IOS)
+    set(MACOS 1)
+endif()
 
 set(proj_dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(bin_dir ${CMAKE_CURRENT_BINARY_DIR})
@@ -62,7 +58,7 @@ include_directories(${proj_dir}/include)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(RELEASE_BUILD)
+if(RELEASE)
     add_definitions(-O3)
 else()
     if (PLATFORM MATCHES web)
@@ -74,6 +70,7 @@ else()
     add_definitions(-DDEBUG -g)
 endif()
 
+# Remove comment to enable clang UBsan & Asan, works on WebGL as well
 #add_link_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 #add_compile_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 
@@ -139,8 +136,8 @@ if (APPLE)
         
         # LaunchScreen needed to allow any screen size. Don't overwrite. (GLFM)
         if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/LaunchScreen.storyboard)
-        file(READ "$ENV{HOME}/Projects/cmake/cmake_launchscreen.txt" launchscreen)
-        file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/LaunchScreen.storyboard" "${launchscreen}")
+            file(READ "$ENV{HOME}/Projects/cmake/cmake_launchscreen.txt" launchscreen)
+            file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/LaunchScreen.storyboard" "${launchscreen}")
         endif()
         # In place of MacOSXBundleInfo.plist.in (GLFM)
         file(READ "$ENV{HOME}/Projects/cmake/cmake_infoplist.txt" infoplist)
@@ -149,6 +146,7 @@ if (APPLE)
         file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/CMake-Info.plist.in" "${infoplist}")
         set_property(TARGET game PROPERTY MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/CMake-Info.plist.in)
         
+
         execute_process(
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${ENGINE_ROOT}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/galaxy_assets"
@@ -163,6 +161,9 @@ if (APPLE)
         set_source_files_properties(
             ${CMAKE_CURRENT_BINARY_DIR}/galaxy_assets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
         )
+        # try this instead
+        #set_source_files_properties("${proj_dir}/assets" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+        #set_source_files_properties("${ENGINE_ROOT}/assets" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/engine")
         target_sources(game
             PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/galaxy_assets
             PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/assets

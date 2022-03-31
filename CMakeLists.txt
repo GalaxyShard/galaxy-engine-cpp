@@ -1,22 +1,28 @@
-if (NOT DEFINED PLATFORM)
-    set(PLATFORM "osx" CACHE STRING "")
-endif()
+# OSX
+# cmake -B bin/osx
+# make -C bin/osx -j8
 
-if (PLATFORM MATCHES osx)
-    set(MACOS 1)
-elseif(PLATFORM MATCHES ios)
+# IOS
+# cmake -B bin/ios -DIOS=1
+# make -C bin/ios -j8
+
+# WebGL
+# emcmake cmake -B bin/web -DRELEASE=1
+# emmake make -C bin/web -j8
+
+if (IOS) # Set on command line -DIOS=1
     set(CMAKE_SYSTEM_NAME "iOS")
-    set(IOS 1)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     add_definitions(-arch arm64)
-elseif(PLATFORM MATCHES web)
-    set(CMAKE_SYSTEM_NAME "Emscripten")
-    set(EMSCRIPTEN 1)
 endif()
 project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
+
+if (APPLE AND NOT IOS)
+    set(MACOS 1)
+endif()
 
 set(proj_dir ${CMAKE_CURRENT_LIST_DIR})
 set(bin_dir ${CMAKE_CURRENT_BINARY_DIR})
@@ -30,10 +36,10 @@ include_directories(${proj_dir}/include)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if (RELEASE_BUILD)
+if (RELEASE) # -DRELEASE=1
     add_definitions(-O3)
 else()
-    if (PLATFORM MATCHES web)
+    if (EMSCRIPTEN)
         add_definitions(-O3) # WebGL doesnt support Og
     else()
         add_definitions(-Og)
@@ -52,18 +58,13 @@ add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
 add_definitions(-Wall -pedantic -Wextra)
 add_definitions(-Wno-unused-parameter -Wno-unused-function)
 
-if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-    set(EMSCRIPTEN 1)
-endif()
-
+add_library(engine STATIC ${ENGINE_SRC})
 if (EMSCRIPTEN)
-    add_library(engine STATIC ${ENGINE_SRC})
     # For glfm
     add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
 endif()
 
 if (APPLE)
-    add_library(engine STATIC ${ENGINE_SRC})
     macro(add_fw fwname)
         target_link_libraries(engine "-framework ${fwname}")
     endmacro(add_fw)
