@@ -94,9 +94,10 @@ namespace
     void process_cursor(float x, float y)
     {
         // 0,0 is top left, pos is in pixels
-        // mousePos is converted, -1 is bottom left, pos is -1~1
+        // mousePos is converted, -1 is bottom left of inner square, pos is [-1, 1]
         // will be updated when outside of window as long as window is focused
         mousePos = Vector2(x / Renderer::screenWidth, 1.f-(y / Renderer::screenHeight))*2.f-1.f;
+        mousePos *= Renderer::aspectRatio;
     }
 #if USE_GLFM
     bool touch_callback(GLFMDisplay*, int touch, GLFMTouchPhase phase, double x, double y)

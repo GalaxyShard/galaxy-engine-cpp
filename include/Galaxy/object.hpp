@@ -10,21 +10,6 @@ class Shader;
 class Texture;
 struct Uniform;
 
-// TransformECS OUTDATED
-//struct TransformECS
-//{
-//    Vector3 i_pos;
-//    Vector3 i_scale = Vector3(1,1,1);
-//    Vector3 i_rotation;
-
-//    TransformECS(){}
-//    TransformECS(Vector3 pos,Vector3 scale,Vector3 rotation)
-//        :i_pos(pos),i_scale(scale),i_rotation(rotation){}
-//    inline Vector3 const& pos() { return i_pos; }
-//    inline Vector3 const& scale() { return i_scale; }
-//    inline Vector3 const& rotation() { return i_rotation; }
-//};
-
 class Object;
 // ObjComponent OUTDATED
 class ObjComponent
@@ -61,7 +46,6 @@ public:
     // Call when scale/rotation changes
     void dirtyBounds() { dirty |= 1; }
     
-    //Object(Mesh *mesh, Material *mat, bool isStatic = false);
     static Object* create(Mesh *mesh, Material *mat);
     static void destroy(Object *obj);
     ~Object();

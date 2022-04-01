@@ -85,7 +85,7 @@ static bool is_within(Vector2 a, Vector2 b, Vector2 scale)
 }
 bool UIImage::is_within(Vector2 pos)
 {
-    return ::is_within(pos, calc_world_pos(), scale*Renderer::reverseAspect);
+    return ::is_within(pos*Renderer::reverseAspect, calc_world_pos(), scale*Renderer::reverseAspect);
 }
 void init_image()
 {

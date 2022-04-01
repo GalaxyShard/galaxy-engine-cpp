@@ -23,12 +23,8 @@
 #include <UI/uiobject.hpp>
 
 #include <array>
-//namespace
-//{
-    //RendererSystem *renderSystem;
 void iinit_renderer()
 {
-    //logmsg("renderer\n");
     int w, h;
     #if USE_GLFM
         glfmGetDisplaySize(glfmDisplay, &w, &h);
@@ -37,18 +33,12 @@ void iinit_renderer()
         glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
     #endif
 
-    Camera::main->projection = Matrix4x4::ortho(-1.f, 1.f, -1.f, 1.f, -100000.f, 100000.f, 0);
     Renderer::fix_aspect(w, h);
-    
-    //renderSystem = ECSManager::main->reg_sys<RendererSystem>();
 }
-    //INTERNAL_INIT_FUNC(init);
-
 static auto aspectChanged = new Event();
 static auto preRender = new Event();
 static auto postSimulation = new Event();
 static auto postRender = new Event();
-//}
 int Renderer::screenWidth, Renderer::screenHeight;
 Vector2 Renderer::aspectRatio, Renderer::reverseAspect;
 
@@ -71,8 +61,8 @@ void Renderer::fix_aspect(int w, int h)
 #if USE_GLFM
     GLCall(glViewport(0, 0, w, h));
 #endif
+    Camera::main->refresh();
     aspectChanged->fire();
-    
 }
 
 void Renderer::bind_uniforms(std::unordered_map<int, Uniform> &uniforms)
@@ -116,7 +106,7 @@ void Renderer::draw(Object &obj)
     Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
         * Matrix4x4::translate(-Camera::main->position);
 
-    if (Camera::main->isPerspective)
+    if (Camera::main->mode == Camera::PERSPECTIVE)
     {
         if (obj.dirty & 1)
         {
@@ -178,14 +168,12 @@ void Renderer::draw(Object &obj)
     Shader &shader = *mat.shader;
     Texture *tex = mat.mainTex;
 
-    Vector3 filteredAspect = Camera::main->isPerspective ? Vector3(1,1,1) : Vector3(Renderer::reverseAspect.x, Renderer::reverseAspect.y, 1);
-
     Matrix4x4 rotation4x4 = add_r_c(rotation);
    
     Matrix4x4 model =
-        Matrix4x4::translate(obj.position * filteredAspect)
+        Matrix4x4::translate(obj.position)
         * rotation4x4
-        * Matrix4x4::scale(obj.scale * filteredAspect);
+        * Matrix4x4::scale(obj.scale);
 
     Matrix4x4 mvp = Camera::main->projection * view * model;
 
@@ -202,7 +190,6 @@ void Renderer::draw(Object &obj)
         shader.set_uniform1i("u_tex", tex->get_slot());
     }
     GLCall(glDrawElements(GL_TRIANGLES, obj.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
-    //obj.mesh->varray->unbind();
 }
 void Renderer::draw(UIImage &img)
 {
@@ -229,7 +216,6 @@ void Renderer::draw(UIImage &img)
         shader->set_uniform1i("u_tex", img.texture->get_slot());
     }
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-    //UIImage::mesh()->varray->unbind();
 }
 void Renderer::draw(UIText &text)
 {
@@ -257,7 +243,6 @@ void Renderer::draw(UIText &text)
     text.shader()->set_uniform1i("u_tex", text.font->fontTex->get_slot());
 
     GLCall(glDrawElements(GL_TRIANGLES, text.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
-    //text.mesh->varray->unbind();
 }
 void Renderer::set_clear_color(float r, float g, float b, float a)
 {
@@ -277,7 +262,7 @@ void Renderer::draw_all(bool fireEvents)
         postSimulation->fire();
     }
 
-    if (Camera::main->isPerspective)
+    if (Camera::main->mode == Camera::PERSPECTIVE)
     {
         GLCall(glEnable(GL_DEPTH_TEST));
         GLCall(glDisable(GL_BLEND));
@@ -311,7 +296,7 @@ void Renderer::draw_all(bool fireEvents)
     GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)); // wireframe
 */
     GLCall(glClear(GL_DEPTH_BUFFER_BIT));
-    if (Camera::main->isPerspective)
+    if (Camera::main->mode == Camera::PERSPECTIVE)
     {
         GLCall(glDisable(GL_DEPTH_TEST));
         GLCall(glEnable(GL_BLEND));
