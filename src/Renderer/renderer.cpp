@@ -278,7 +278,7 @@ void Renderer::draw_all(bool fireEvents)
             if (predicate(objs[i], objs[i-1]))
             {
                 Object *element = objs[i];
-                unsigned int j = i-1;
+                int j = i-1;
                 while (j >= 0 && predicate(element, objs[j]))
                 {
                     objs[j+1] = objs[j];
@@ -305,7 +305,7 @@ void Renderer::draw_all(bool fireEvents)
     auto &uiObjs = UIObject::uiObjects;
     if (UIObject::sortObjects)
     {
-        Math::insertion_sort<UIObject>(*uiObjs, [](UIObject a, UIObject b)
+        Math::insertion_sort<UIObject>(*uiObjs, [](UIObject &a, UIObject &b)
         { return a.render_order() < b.render_order(); });
 
         for (unsigned int i = 0; i < uiObjs->size(); ++i)

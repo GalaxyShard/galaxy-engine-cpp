@@ -21,7 +21,7 @@ namespace Math
     inline float sqr(float v) { return v*v; }
 
     template <typename T>
-    void insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b));
+    void insertion_sort(std::vector<T> &array, bool(*predicate)(T &a, T &b));
 
     template<typename T>
     inline bool within(T v, T min, T max) { return v >= min && v <= max; }
@@ -39,7 +39,7 @@ namespace Math
     constexpr float to_rad = PI / 180.0f;
 }
 template <typename T>
-void Math::insertion_sort(std::vector<T> &array, bool(*predicate)(T a, T b))
+void Math::insertion_sort(std::vector<T> &array, bool(*predicate)(T &a, T &b))
 {
     for (unsigned int i = 1; i < array.size(); ++i)
     {

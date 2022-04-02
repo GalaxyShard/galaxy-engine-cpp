@@ -35,11 +35,18 @@ struct Matrix2x2
     Matrix2x2(Vector2 v0, Vector2 v1);
     Matrix2x2(Vector2 v[2]);
 
-    const Vector4& operator[](int) const;
+    Vector2& operator[](int);
+    const Vector2& operator[](int) const;
     const float* value_ptr() const;
+    static Matrix2x2 rotate(float z);
+
+    static Matrix2x2 identity();
+    Matrix2x2 transpose() const;
     Matrix2x2 inverse();
+
+    Vector2 operator*(const Vector2 &) const;
 private:
-    Vector2 vectors[2];
+    Vector2 v[2];
 };
 struct Matrix3x3
 {
@@ -62,7 +69,7 @@ struct Matrix3x3
     DECLARE_MATH_OPERATORS(Matrix3x3, float)
 
     bool operator==(const Matrix3x3 &) const;
-    bool operator !=(const Matrix3x3 &v0) const { return !(*this == v0); }
+    bool operator!=(const Matrix3x3 &v0) const { return !(*this == v0); }
 
     Vector3 operator*(const Vector3 &) const;
 

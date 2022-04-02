@@ -8,6 +8,7 @@ set(ENGINE_SRC
     
     src/Math/binary.cpp
     src/Math/math.cpp
+    src/Math/matrix2x2.cpp
     src/Math/matrix3x3.cpp
     src/Math/matrix4x4.cpp
     src/Math/quaternion.cpp
