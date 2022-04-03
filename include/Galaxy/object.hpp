@@ -43,6 +43,7 @@ private:
     friend class Renderer;
     friend class Scene;
 public:
+    bool enabled = 1;
     // Call when scale/rotation changes
     void dirtyBounds() { dirty |= 1; }
     

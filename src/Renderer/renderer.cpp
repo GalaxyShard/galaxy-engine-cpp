@@ -99,6 +99,8 @@ static Matrix4x4 add_r_c(Matrix3x3 m)
 }
 void Renderer::draw(Object &obj)
 {
+    if (!obj.enabled)
+        return;
     Matrix3x3 rotation = Matrix3x3::rotate(obj.rotation);
 
     // Rotate camera after translating
