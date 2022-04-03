@@ -50,6 +50,14 @@ bool Vector2::operator ==(const Vector2 &v2) const
 float Vector2::dot(const Vector2 &a, const Vector2 &b) { return a.x*b.x + a.y*b.y; }
 float Vector2::sqr_magnitude() const { return x*x + y*y; }
 float Vector2::magnitude() const { return std::sqrt(sqr_magnitude()); }
+Vector2 Vector2::unit() const
+{
+    float m = magnitude();
+    if (m > 0.0001f)
+        return (*this) / m;
+    return Vector2();
+}
+Vector2 Vector2::perpendicular() const { return Vector2(-y, x); }
 
 Vector2::operator Vector3() const { return Vector3(x, y, 0); }
 Vector2::operator Vector4() const { return Vector4(x, y, 0, 0); }

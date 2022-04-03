@@ -286,7 +286,7 @@ void Renderer::draw_all(bool fireEvents)
                     --j;
                 }
                 objs[j+1] = element;
-                objs[j+1]->objectIndex = j;
+                objs[j+1]->objectIndex = j+1;
             }
         }
     }

@@ -30,6 +30,8 @@ struct Vector2
     static float dot(const Vector2 &a, const Vector2 &b);
     float sqr_magnitude() const;
     float magnitude() const;
+    Vector2 unit() const;
+    Vector2 perpendicular() const;
 
     friend std::ostream& operator<<(std::ostream &, const Vector2 &);
 };

@@ -8,6 +8,7 @@ auto Object::allObjects = std::vector<Object*>();
 
 Object* Object::create(Mesh *mesh, Material *mat)
 {
+    assert(mesh != nullptr && mat != nullptr);
     Object *obj = new Object();
     obj->mesh = mesh;
     obj->material = mat;

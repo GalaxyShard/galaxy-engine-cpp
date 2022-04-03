@@ -1,0 +1,8 @@
+
+(high) Create a simple dragable debug panel system, similar to ImGui
+(medium) Create a binary scene reader/writer
+(medium) WebGL keyboard input
+(medium) Create a rigidbody system
+(low) Create an editor
+(low) Improve shader workflow (possibly w macro system or SPIR-V)
+(low) Implement Metal for mac/ios

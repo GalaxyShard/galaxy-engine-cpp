@@ -67,7 +67,13 @@ Vector3 Vector3::cross(const Vector3 &a, const Vector3 &b)
 float Vector3::sqr_magnitude() const { return x*x + y*y + z*z; }
 float Vector3::magnitude() const { return std::sqrt(sqr_magnitude()); }
 
-Vector3 Vector3::unit() const { return (*this) / magnitude(); }
+Vector3 Vector3::unit() const
+{
+    float m = magnitude();
+    if (m > 0.0001f)
+        return (*this) / m;
+    return Vector3();
+}
 
 Vector3 Vector3::lerp(const Vector3 &a, const Vector3 &b, float t)
 {
