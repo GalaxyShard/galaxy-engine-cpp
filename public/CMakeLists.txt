@@ -13,16 +13,21 @@
 # emcmake cmake -B bin/web -DRELEASE=1
 # emmake make -C bin/web -j8
 
-if (IOS OR IOS_VSC) # Set on command line -DIOS=1
+if (IOS OR IOS_VSC) # Set on command line -DIOS=1 or -DIOS_VSC=1 (for generating vs code compile-commands.json)
     set(CMAKE_SYSTEM_NAME "iOS")
     set(IOS 1)
-endif()
-if (IOS_VSC) # Set on command line -DIOS_VSC=1
-    # For generating vs code compile-commands.json
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
+    add_definitions(-arch arm64)
 endif()
+# if (IOS_VSC) # Set on command line -DIOS_VSC=1
+#     # For generating vs code compile-commands.json
+#     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
+#     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
+#     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
+#     add_definitions(-arch arm64)
+# endif()
 
 project("program" LANGUAGES C CXX OBJC OBJCXX)
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
@@ -60,6 +65,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(RELEASE)
     add_definitions(-O3)
+    set(CMAKE_BUILD_TYPE Release)
 else()
     if (PLATFORM MATCHES web)
         add_definitions(-O3) # WebGL doesnt support Og
@@ -77,7 +83,7 @@ endif()
 add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
     -DGLFW_INCLUDE_GLCOREARB -DOPENAL_DEPRECATED=)
 add_definitions(-Wall -pedantic -Wextra)
-add_definitions(-Wno-unused-parameter -Wno-unused-function)
+add_definitions(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable)
 
 if (APPLE)
     # https://stackoverflow.com/questions/822404/how-to-set-up-cmake-to-build-an-app-for-the-iphone
