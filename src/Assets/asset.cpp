@@ -11,10 +11,10 @@
     #include <filesystem>
 #endif
 
-
 const char *get_resource_path_platform();
 
 #if OS_WEB
+#include <emscripten.h>
 const char *get_resource_path_platform()
 {
     return "bin/web/res";
@@ -33,17 +33,28 @@ std::string Assets::gpath()
 
 std::string Assets::data_path()
 {
+    std::string path;
     #if OS_MAC
     // HOME on OSX is /Users/username
-    auto path = std::string() +
-        getenv("HOME") + "/Library/Application Support/gs_" + gameName;
+    // auto path = std::string() +
+        // getenv("HOME") + "/Library/Application Support/gs_" + gameName;
+    path += getenv("HOME") + "/Library/Application Support/gs_" + gameName;
     std::filesystem::create_directory(path);
     #elif OS_IOS
     // HOME on iOS is the application folder
-    auto path = std::string() + getenv("HOME") + "/Documents";
+    // auto path = std::string() + getenv("HOME") + "/Documents";
+    path += getenv("HOME") + "/Documents";
     #elif OS_WEB
-    auto path = std::string(); // TODO
-    assert(false && "Error: no data path implemented");
+    // https://stackoverflow.com/a/54627719
+    // TODO: test
+    EM_ASM(
+        FS.mkdir("/gamedata");
+        FS.mount(IDBFS, {}, "/gamedata");
+        FS.syncfs(true, function(err){
+            // error
+        });
+    );
+    path += "/gamedata";
     #else
     static_assert(false, "Platform not implemented");
     #endif

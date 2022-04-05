@@ -56,7 +56,7 @@ endif()
 add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
     -DGLFW_INCLUDE_GLCOREARB -DOPENAL_DEPRECATED=)
 add_definitions(-Wall -pedantic -Wextra)
-add_definitions(-Wno-unused-parameter -Wno-unused-function)
+add_definitions(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-dollar-in-identifier-extension)
 
 add_library(engine STATIC ${ENGINE_SRC})
 if (EMSCRIPTEN)
