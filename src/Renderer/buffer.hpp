@@ -1,6 +1,8 @@
 #pragma once
 #include <Galaxy/OS/defines.hpp>
 #include <vector>
+#include <gldebug.hpp>
+
 class GraphicsBuffer
 {
 public:
@@ -11,41 +13,38 @@ public:
 class IndexBuffer : public GraphicsBuffer
 {
 private:
-    unsigned int rendererID, indexCount;
+    uintg rendererID, indexCount;
 public:
     IndexBuffer();
     ~IndexBuffer();
-    void update_data(const void* data, unsigned int bytes);
+    void update_data(const void* data, uintg bytes);
 
     void bind() const;
     void unbind() const;
-    inline unsigned int get_count() { return indexCount; }
+    inline uintg get_count() { return indexCount; }
 };
 class VertexBuffer : public GraphicsBuffer
 {
 private:
-    unsigned int rendererID;
+    uintg rendererID;
 public:
     VertexBuffer();
     ~VertexBuffer();
 
-    void update_data(const void *data, unsigned int count);
+    void update_data(const void *data, uintg count);
     void bind() const;
     void unbind() const;
 };
-// hack: uses raw OpenGL values
 enum class AttributeType
 {
     NONE = 0,
-    BYTE = 0x1400, 
-    UBYTE = 0x1401,
-    SHORT = 0x1402,
-    USHORT = 0x1403,
-    INT = 0x1404,
-    UINT = 0x1405,
-    FLOAT = 0x1406,
-    DOUBLE = 0x140A,
-    HALF = 0x140B
+    BYTE = GL_BYTE, 
+    UBYTE = GL_UNSIGNED_BYTE,
+    SHORT = GL_SHORT,
+    USHORT = GL_UNSIGNED_SHORT,
+    INT = GL_INT,
+    UINT = GL_UNSIGNED_INT,
+    FLOAT = GL_FLOAT
 };
 struct VertexAttribute
 {
@@ -72,7 +71,7 @@ private:
     VertexBuffer *vbo = 0;
     VertexLayout vertexLayout;
 #else
-    unsigned int rendererID;
+    uintg rendererID;
 #endif
 public:
     VertexArray();

@@ -110,11 +110,11 @@ void Renderer::draw(Object &obj)
 
     if (Camera::main->mode == Camera::PERSPECTIVE)
     {
-        if (obj.dirty & 1)
+        if (obj.dirty & Object::TRANSFORM)
         {
-            obj.dirty &= ~1;
-            Vector3 &min = obj.mesh->aabbMin;
-            Vector3 &max = obj.mesh->aabbMax;
+            obj.dirty &= ~Object::TRANSFORM;
+            Vector3 min = obj.mesh->aabbMin;
+            Vector3 max = obj.mesh->aabbMax;
             Vector3 obbPoints[8] = {
                 Vector3(min.x, min.y, min.z),
                 Vector3(min.x, max.y, min.z),
@@ -136,6 +136,8 @@ void Renderer::draw(Object &obj)
                     max[j] = std::max(max[j], obbPoints[i][j]);
                 }
             }
+            obj.minBounds = min;
+            obj.maxBounds = max;
         }
         Vector3 min = obj.minBounds + obj.position;
         Vector3 max = obj.maxBounds + obj.position;
@@ -193,6 +195,91 @@ void Renderer::draw(Object &obj)
     }
     GLCall(glDrawElements(GL_TRIANGLES, obj.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 }
+static bool test_aabb_1D(float min0, float max0, float min1, float max1)
+{
+    return min1<max0 && min0<max1;
+}
+void Renderer::draw(Object2D &obj)
+{
+    if (!obj.enabled)
+        return;
+    Matrix2x2 rotation = Matrix2x2::rotate(obj.rotation);
+    {
+        if (obj.dirty & Object2D::TRANSFORM)
+        {
+            obj.dirty &= ~Object2D::TRANSFORM;
+            Vector2 min = obj.mesh->aabbMin;
+            Vector2 max = obj.mesh->aabbMax;
+            Vector2 obbPoints[4] = {
+                Vector2(min.x, min.y),
+                Vector2(max.x, min.y),
+                Vector2(min.x, max.y),
+                Vector2(max.x, max.y)
+            };
+            min = Vector3(Math::INF, Math::INF, Math::INF);
+            max = Vector3(-Math::INF, -Math::INF, -Math::INF);
+            for (int i = 0; i < 4; ++i)
+            {
+                obbPoints[i] = rotation*(obbPoints[i] * obj.scale);
+                for (int j = 0; j < 2; ++j)
+                {
+                    min[j] = std::min(min[j], obbPoints[i][j]);
+                    max[j] = std::max(max[j], obbPoints[i][j]);
+                }
+            }
+            obj.minBounds = min;
+            obj.maxBounds = max;
+        }
+        Vector2 camPos = Camera::main->position;
+        Vector2 camScale = Renderer::aspectRatio*Camera::main->orthoSize;
+        Vector2 camMin = camPos-camScale;
+        Vector2 camMax = camPos+camScale;
+        Vector2 objMin = obj.minBounds + obj.position;
+        Vector2 objMax = obj.maxBounds + obj.position;
+        if (!(test_aabb_1D(camMin.x, camMax.x, objMin.x, objMax.x)
+            && test_aabb_1D(camMin.y, camMax.y, objMin.y, objMax.y)))
+            return;
+        
+    }
+
+    Matrix4x4 rotation4x4 = Matrix4x4(
+        rotation[0][0], rotation[0][1], 0, 0,
+        rotation[1][0], rotation[1][1], 0, 0,
+        0,              0,              1, 0,
+        0,              0,              0, 1
+    );
+
+    // Rotate camera after translating
+    // The transpose of a rotation is equal to the inverse
+    Matrix4x4 view = Matrix4x4::rotate(Camera::main->rotation).transpose()
+        * Matrix4x4::translate(-Camera::main->position);
+
+    Material &mat = *obj.material;
+    Shader &shader = *mat.shader;
+    Texture *tex = mat.mainTex;
+   
+    Matrix4x4 model =
+        Matrix4x4::translate(obj.position)
+        * rotation4x4
+        * Matrix4x4::scale(obj.scale);
+
+    Matrix4x4 mvp = Camera::main->projection * view * model;
+
+    obj.mesh->varray->bind();
+    shader.bind();
+    Renderer::bind_material(obj.material);
+    shader.set_uniform_mat4x4("u_mvp", mvp);
+    shader.set_uniform_mat4x4("u_model", model);
+    shader.set_uniform_mat4x4("u_rotation", rotation4x4);
+    shader.set_uniform3f("u_camPos", Camera::main->position);
+    if (tex)
+    {
+        tex->bind();
+        shader.set_uniform1i("u_tex", tex->get_slot());
+    }
+    GLCall(glDrawElements(GL_TRIANGLES, obj.mesh->tris.size(), GL_UNSIGNED_INT, nullptr));
+}
+
 void Renderer::draw(UIImage &img)
 {
     UIImage::mesh()->varray->bind();
@@ -269,17 +356,18 @@ void Renderer::draw_all(bool fireEvents)
         GLCall(glEnable(GL_DEPTH_TEST));
         GLCall(glDisable(GL_BLEND));
     }
-    else
+    if (Object2D::sortObjects)
     {
-        auto &objs = Object::allObjects;
-        auto predicate = [](Object *a, Object *b)
-        { return a->position.z < b->position.z; };
+        Object2D::sortObjects = 0;
+        auto &objs = Object2D::all;
+        auto predicate = [](Object2D *a, Object2D *b)
+        { return a->zIndex() < b->zIndex(); };
 
         for (unsigned int i = 1; i < objs.size(); ++i)
         {
             if (predicate(objs[i], objs[i-1]))
             {
-                Object *element = objs[i];
+                Object2D *element = objs[i];
                 int j = i-1;
                 while (j >= 0 && predicate(element, objs[j]))
                 {
@@ -294,6 +382,7 @@ void Renderer::draw_all(bool fireEvents)
     }
     clear();
     for (Object *obj : Object::allObjects) draw(*obj);
+    for (Object2D *obj : Object2D::all) draw(*obj);
 /*
     GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)); // wireframe
 */

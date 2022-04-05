@@ -21,9 +21,9 @@ struct Vertex
 class Mesh
 {
 private:
-    VertexArray *varray;
-    VertexBuffer *vbuffer;
-    IndexBuffer *ibuffer;
+    std::unique_ptr<VertexArray> varray;
+    std::unique_ptr<VertexBuffer> vbuffer;
+    std::unique_ptr<IndexBuffer> ibuffer;
     friend class Renderer;
 public:
     std::vector<Vertex> verts;

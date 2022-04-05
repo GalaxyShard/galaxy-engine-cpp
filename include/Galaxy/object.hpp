@@ -36,6 +36,8 @@ public:
 private:
     Vector3 minBounds, maxBounds;
     unsigned int objectIndex, sceneID;
+
+    enum DirtyFlags : ucharG { TRANSFORM=1<<0 };
     ucharG dirty = 0xff;
 
     Object() = default;
@@ -45,7 +47,7 @@ private:
 public:
     bool enabled = 1;
     // Call when scale/rotation changes
-    void dirtyBounds() { dirty |= 1; }
+    void dirtyBounds() { dirty |= TRANSFORM; }
     
     static Object* create(Mesh *mesh, Material *mat);
     static void destroy(Object *obj);
@@ -76,4 +78,45 @@ public:
         }
         return 0;
     }
+};
+class Object2D
+{
+private:
+    static std::vector<Object2D*> all;
+    static bool sortObjects;
+    Scene *scene=0;
+public:
+    std::vector<std::unique_ptr<ObjComponent>> components;
+    Mesh *mesh=0;
+    Material *material=0;
+
+    Vector2 position, scale = Vector2(1, 1);
+    float rotation = 0;
+private:
+    float m_zIndex = 0;
+    Vector2 minBounds, maxBounds;
+    unsigned int objectIndex, sceneID;
+
+    enum DirtyFlags : ucharG { TRANSFORM=1<<0 };
+    ucharG dirty = 0xff;
+
+    Object2D() = default;
+
+    friend class Renderer;
+    friend class Scene;
+public:
+    bool enabled = 1;
+    // Call when scale/rotation changes
+    void dirtyBounds() { dirty |= TRANSFORM; }
+    float zIndex() { return m_zIndex; }
+    void zIndex(float z) { ; m_zIndex = z; }
+    
+    static Object2D* create(Mesh *mesh, Material *mat);
+    static void destroy(Object2D *obj);
+    ~Object2D();
+
+    Object2D(const Object2D&) = delete;
+    Object2D& operator=(const Object2D&) = delete;
+    Object2D(Object2D&&) = delete;
+    Object2D& operator=(Object2D&&) = delete;
 };

@@ -35,7 +35,6 @@ set(ENGINE_SRC
     src/Renderer/texture.cpp
     src/Renderer/vertexarray.cpp
     src/Renderer/vertexbuffer.cpp
-    src/Renderer/vertexlayout.cpp
 
     src/Scene/scene_parser.cpp
     src/Scene/scene.cpp

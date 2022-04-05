@@ -2,7 +2,21 @@
 #include <gldebug.hpp>
 #include <unordered_map>
 
-extern std::unordered_map<AttributeType, int> typeToBytes;
+std::unordered_map<AttributeType, int> typeToBytes =
+{
+    {AttributeType::BYTE,1},
+    {AttributeType::UBYTE,1},
+    {AttributeType::SHORT,2},
+    {AttributeType::USHORT,2},
+    {AttributeType::INT,4},
+    {AttributeType::UINT,4},
+    {AttributeType::FLOAT,4}
+};
+void VertexLayout::add_attribute(VertexAttribute a)
+{
+    attributes.push_back(a);
+    stride += a.count * typeToBytes[a.type];
+}
 
 VertexArray::VertexArray()
 {

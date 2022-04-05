@@ -40,6 +40,7 @@ Scene::~Scene()
     for (auto &v : instances)
     {
         if (v.type==OBJ) delete (Object*)v.ptr;
+        else if (v.type==OBJ2D) delete (Object2D*)v.ptr;
         else if (v.type==IMG) delete (UIImage*)v.ptr;
         else if (v.type==TXT) delete (UIText*)v.ptr;
         else if (v.type==GROUP) delete (UIGroup*)v.ptr;

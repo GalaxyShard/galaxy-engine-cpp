@@ -14,18 +14,9 @@ Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris) : verts(ve
 }
 void Mesh::initialize_mesh()
 {
-    //bool isStatic = true;
-    //varray = std::make_unique<VertexArray>();
-    //vbuffer = std::make_unique<VertexBuffer>(verts.data(), sizeof(Vertex)*verts.size(), isStatic);
-    //ibuffer = std::make_unique<IndexBuffer>(tris.data(), tris.size()*sizeof(unsigned int), isStatic);
-    constexpr ulongG vaSize = sizeof(VertexArray);
-    constexpr ulongG vbSize = sizeof(VertexBuffer);
-    constexpr ulongG ibSize = sizeof(IndexBuffer);
-
-    char *memory = (char*)malloc(vaSize+vbSize+ibSize);
-    varray  = new(memory)               VertexArray();
-    vbuffer = new(memory+vaSize)        VertexBuffer();
-    ibuffer = new(memory+vaSize+vbSize) IndexBuffer();
+    varray = std::make_unique<VertexArray>();
+    vbuffer = std::make_unique<VertexBuffer>();
+    ibuffer = std::make_unique<IndexBuffer>();
 
     varray->bind();
     vbuffer->bind();
@@ -40,21 +31,10 @@ void Mesh::initialize_mesh()
     layout.add_attribute({AttributeType::FLOAT, 2}); // texCoords
     layout.add_attribute({AttributeType::FLOAT, 3}); // normals
     varray->add_layout(layout);
-    
-    varray->unbind();
-    vbuffer->unbind();
-    ibuffer->unbind();
 
     calculate_bounds();
 }
-Mesh::~Mesh()
-{
-    varray->~VertexArray();
-    vbuffer->~VertexBuffer();
-    ibuffer->~IndexBuffer();
-    free((void*)varray);
-}
-//Mesh::~Mesh() = default; // for smart ptr
+Mesh::~Mesh(){}
 void Mesh::refresh_mesh()
 {
     varray->bind();
@@ -62,9 +42,6 @@ void Mesh::refresh_mesh()
     vbuffer->update_data(verts.data(), sizeof(Vertex)*verts.size());
     ibuffer->bind();
     ibuffer->update_data(tris.data(), tris.size()*sizeof(unsigned int));
-    varray->unbind();
-    vbuffer->unbind();
-    ibuffer->unbind();
 }
 void Mesh::calculate_bounds()
 {

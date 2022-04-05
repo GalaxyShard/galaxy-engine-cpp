@@ -28,7 +28,7 @@ struct SceneComponent
 class Scene
 {
 private:
-    enum InstType : uintG { OBJ,IMG,TXT,GROUP };
+    enum InstType : uintG { OBJ,OBJ2D,IMG,TXT,GROUP };
     struct SceneInst
     {
         void *ptr;
@@ -51,6 +51,7 @@ private:
     friend class UIImage;
     friend class UIText;
     friend class Object;
+    friend class Object2D;
     friend class UIGroup;
 public:
     // all created objects (NOT assets) are added to the active scene
