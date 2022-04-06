@@ -10,11 +10,13 @@
 #if OS_MAC
     #include <filesystem>
 #endif
+#if OS_WEB
+    #include <emscripten.h>
+#endif
 
 const char *get_resource_path_platform();
 
 #if OS_WEB
-#include <emscripten.h>
 const char *get_resource_path_platform()
 {
     return "bin/web/res";
@@ -31,30 +33,29 @@ std::string Assets::path()
 std::string Assets::gpath()
 { return resource_path()+"/galaxy_assets"; }
 
+void Assets::sync_files()
+{
+#if OS_WEB
+    EM_ASM(
+        FS.syncfs(function(err) {
+            if (err) console.log("Error syncing files: ", err);
+        });
+    );
+#endif
+}
+
 std::string Assets::data_path()
 {
     std::string path;
     #if OS_MAC
     // HOME on OSX is /Users/username
-    // auto path = std::string() +
-        // getenv("HOME") + "/Library/Application Support/gs_" + gameName;
-    path += getenv("HOME") + "/Library/Application Support/gs_" + gameName;
+    path = path + getenv("HOME") + "/Library/Application Support/gs_" + gameName;
     std::filesystem::create_directory(path);
     #elif OS_IOS
     // HOME on iOS is the application folder
-    // auto path = std::string() + getenv("HOME") + "/Documents";
-    path += getenv("HOME") + "/Documents";
+    path = path + getenv("HOME") + "/Documents";
     #elif OS_WEB
-    // https://stackoverflow.com/a/54627719
-    // TODO: test
-    EM_ASM(
-        FS.mkdir("/gamedata");
-        FS.mount(IDBFS, {}, "/gamedata");
-        FS.syncfs(true, function(err){
-            // error
-        });
-    );
-    path += "/gamedata";
+    path = path + "/gamedata";
     #else
     static_assert(false, "Platform not implemented");
     #endif

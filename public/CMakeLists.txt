@@ -64,11 +64,17 @@ include_directories(${proj_dir}/include)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(RELEASE)
-    add_definitions(-O3)
+    add_compile_options(-O3)
+    if (EMSCRIPTEN)
+        add_link_options(-O1)
+    else()
+        add_link_options(-O3)
+    endif()
     set(CMAKE_BUILD_TYPE Release)
 else()
-    if (PLATFORM MATCHES web)
-        add_definitions(-O3) # WebGL doesnt support Og
+    if (PLATFORM MATCHES web) # WebGL doesnt support Og
+        add_compile_options(-O3)
+        add_link_options(-O1)
     else()
         add_definitions(-Og)
     endif()
@@ -76,7 +82,7 @@ else()
     add_definitions(-DDEBUG -g)
 endif()
 
-# Remove comment to enable clang UBsan & Asan, works on WebGL as well
+# Remove comment to enable clang UBsan & Asan, should work on WebGL as well
 #add_link_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 #add_compile_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 
@@ -108,7 +114,7 @@ if (APPLE)
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${BUNDLE_ID})
 
     if (IOS)
-        add_definitions(-Wno-shorten-64-to-32) # for Xcode
+        target_compile_definitions(game PUBLIC -Wno-shorten-64-to-32) # for Xcode
         set_target_properties(game PROPERTIES
             XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUNDLE_ID}"
             XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS "iphoneos iphonesimulator"
@@ -248,6 +254,10 @@ set_target_properties(game PROPERTIES OUTPUT_NAME "${OUT_NAME}")
 # Galaxy Engine
 if (MACOS)
     target_link_libraries(game "${ENGINE_ROOT}/lib/libglfw3.a")
+endif()
+if (EMSCRIPTEN)
+    # For loading file system
+    target_link_options(game PUBLIC -lidbfs.js --pre-js "${ENGINE_ROOT}/public/pre-module.js")
 endif()
 
 target_link_libraries(game "${ENGINE_ROOT}/bin/${relative_bin_dir}/libengine.a")

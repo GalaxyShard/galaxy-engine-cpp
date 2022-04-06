@@ -58,11 +58,11 @@ add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
 add_definitions(-Wall -pedantic -Wextra)
 add_definitions(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-dollar-in-identifier-extension)
 
-add_library(engine STATIC ${ENGINE_SRC})
 if (EMSCRIPTEN)
     # For glfm
     add_definitions(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
 endif()
+add_library(engine STATIC ${ENGINE_SRC})
 
 if (APPLE)
     macro(add_fw fwname)
@@ -70,8 +70,10 @@ if (APPLE)
     endmacro(add_fw)
 
     if (IOS)
-        add_definitions(-Wno-nested-anon-types) # for GLFM
-        add_definitions(-fembed-bitcode -Wno-shorten-64-to-32) # for Xcode
+        target_compile_options(engine PUBLIC -Wno-nested-anon-types) # for GLFM
+        target_compile_options(engine PUBLIC -fembed-bitcode -Wno-shorten-64-to-32) # for Xcode
+        #add_definitions(-Wno-nested-anon-types) # for GLFM
+        #add_definitions(-fembed-bitcode -Wno-shorten-64-to-32) # for Xcode
     else()
         add_fw(Cocoa)
         add_fw(IOKit)
@@ -82,4 +84,9 @@ endif()
 target_precompile_headers(engine PRIVATE src/pch.h)
 if (MACOS)
     target_link_libraries(engine ${proj_dir}/lib/libglfw3.a)
+endif()
+
+if (EMSCRIPTEN)
+    # For loading file system
+    target_link_options(engine PUBLIC -lidbfs.js --pre-js public/pre-module.js)
 endif()

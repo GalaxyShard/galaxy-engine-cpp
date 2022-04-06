@@ -3,6 +3,9 @@
 #include <fstream>
 namespace Assets
 {
+    // Call after writing to files
+    void sync_files();
+
     std::string data_path();
     std::string resource_path();
     std::string path();
