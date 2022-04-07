@@ -19,15 +19,9 @@ if (IOS OR IOS_VSC) # Set on command line -DIOS=1 or -DIOS_VSC=1 (for generating
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-    add_definitions(-arch arm64)
+    add_compile_options(-arch arm64)
+    add_link_options(-arch arm64)
 endif()
-# if (IOS_VSC) # Set on command line -DIOS_VSC=1
-#     # For generating vs code compile-commands.json
-#     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
-#     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
-#     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-#     add_definitions(-arch arm64)
-# endif()
 
 project("program" LANGUAGES C CXX OBJC OBJCXX)
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
@@ -72,24 +66,24 @@ if(RELEASE)
     endif()
     set(CMAKE_BUILD_TYPE Release)
 else()
-    if (PLATFORM MATCHES web) # WebGL doesnt support Og
+    if (EMSCRIPTEN) # WebGL doesnt support Og
         add_compile_options(-O3)
         add_link_options(-O1)
     else()
-        add_definitions(-Og)
+        add_compile_options(-Og)
+        add_link_options(-Og)
     endif()
     set(CMAKE_BUILD_TYPE Debug)
-    add_definitions(-DDEBUG -g)
+    add_compile_definitions(DEBUG)
+    add_compile_options(-g)
 endif()
 
 # Remove comment to enable clang UBsan & Asan, should work on WebGL as well
 #add_link_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 #add_compile_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 
-add_definitions(-DGL_SILENCE_DEPRECATION -DGLES_SILENCE_DEPRECATION
-    -DGLFW_INCLUDE_GLCOREARB -DOPENAL_DEPRECATED=)
-add_definitions(-Wall -pedantic -Wextra)
-add_definitions(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable)
+add_compile_options(-Wall -pedantic -Wextra)
+add_compile_options(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable)
 
 if (APPLE)
     # https://stackoverflow.com/questions/822404/how-to-set-up-cmake-to-build-an-app-for-the-iphone
@@ -257,7 +251,7 @@ if (MACOS)
 endif()
 if (EMSCRIPTEN)
     # For loading file system
-    target_link_options(game PUBLIC -lidbfs.js --pre-js "${ENGINE_ROOT}/public/pre-module.js")
+    target_link_options(game PUBLIC -lidbfs.js -sEXPORTED_FUNCTIONS=_main,_readyToInit)
 endif()
 
 target_link_libraries(game "${ENGINE_ROOT}/bin/${relative_bin_dir}/libengine.a")

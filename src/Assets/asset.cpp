@@ -47,18 +47,18 @@ void Assets::sync_files()
 std::string Assets::data_path()
 {
     std::string path;
-    #if OS_MAC
+#if OS_MAC
     // HOME on OSX is /Users/username
     path = path + getenv("HOME") + "/Library/Application Support/gs_" + gameName;
     std::filesystem::create_directory(path);
-    #elif OS_IOS
+#elif OS_IOS
     // HOME on iOS is the application folder
     path = path + getenv("HOME") + "/Documents";
-    #elif OS_WEB
+#elif OS_WEB
     path = path + "/gamedata";
-    #else
+#else
     static_assert(false, "Platform not implemented");
-    #endif
+#endif
     return path;
 }
 template<typename T>
