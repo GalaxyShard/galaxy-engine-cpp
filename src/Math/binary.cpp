@@ -3,15 +3,15 @@
 
 // In case some platform doesnt use these values
 static_assert(sizeof(int) == 4);
+static_assert(sizeof(unsigned int) == 4);
 static_assert(sizeof(short) == 2);
+static_assert(sizeof(unsigned short) == 2);
 static_assert(sizeof(long long) == 8);
+static_assert(sizeof(unsigned long long) == 8);
 static_assert(sizeof(float) == 4);
 static_assert(sizeof(double) == 8);
 
 static_assert((int)~0 == -1); // Two's complement
-//static_assert((int)(2147483648) == -2147483648); // Conversion check
-//static_assert(2147483647 == (int)(-2147483648-1)); // Overflow check
-
 Endian sys_endian()
 {
     int one=1;
@@ -24,6 +24,13 @@ short set_endian16(char *buffer, Endian from, Endian to)
 
     return b_cast<short>(buffer);
 }
+unsigned short set_endian_u16(char *buffer, Endian from, Endian to)
+{
+    if (from != to)
+        std::swap(buffer[0], buffer[1]);
+
+    return b_cast<unsigned short>(buffer);
+}
 int set_endian32(char *buffer, Endian from, Endian to)
 {
     if (from != to)
@@ -33,7 +40,20 @@ int set_endian32(char *buffer, Endian from, Endian to)
     }
     return b_cast<int>(buffer);
 }
+unsigned int set_endian_u32(char *buffer, Endian from, Endian to)
+{
+    if (from != to)
+    {
+        std::swap(buffer[0], buffer[3]);
+        std::swap(buffer[1], buffer[2]);
+    }
+    return b_cast<unsigned int>(buffer);
+}
 short to_native_endian16(char *buffer, Endian current)
+{
+    return set_endian16(buffer, current, sys_endian());
+}
+unsigned short to_native_endian_u16(char *buffer, Endian current)
 {
     return set_endian16(buffer, current, sys_endian());
 }
@@ -41,33 +61,49 @@ int to_native_endian32(char *buffer, Endian current)
 {
     return set_endian32(buffer, current, sys_endian());
 }
-
-
-template<>
-unsigned char BinaryReader::read<unsigned char>()
+unsigned int to_native_endian_u32(char *buffer, Endian current)
 {
-    nextIndex += 1;
-    return buffer[nextIndex-1];
+    return set_endian_u32(buffer, current, sys_endian());
 }
+
+
 template<>
 signed char BinaryReader::read<signed char>()
 {
-    nextIndex += 1;
-    return buffer[nextIndex-1];
+    nextIndex += sizeof(signed char);
+    return buffer[nextIndex-sizeof(signed char)];
+}
+template<>
+unsigned char BinaryReader::read<unsigned char>()
+{
+    nextIndex += sizeof(unsigned char);
+    return buffer[nextIndex-sizeof(unsigned char)];
+}
+
+template<>
+short BinaryReader::read<short>()
+{
+    nextIndex += sizeof(short);
+    return to_native_endian16(&buffer[nextIndex-sizeof(short)], Endian::BIG);
+}
+template<>
+unsigned short BinaryReader::read<unsigned short>()
+{
+    nextIndex += sizeof(unsigned short);
+    return to_native_endian_u16(&buffer[nextIndex-sizeof(unsigned short)], Endian::BIG);
 }
 
 template<>
 int BinaryReader::read<int>()
 {
-    nextIndex += 4;
-    return to_native_endian32(&buffer[nextIndex-4], Endian::BIG);
+    nextIndex += sizeof(int);
+    return to_native_endian32(&buffer[nextIndex-sizeof(int)], Endian::BIG);
 }
 template<>
-std::string BinaryReader::read<std::string>()
+unsigned int BinaryReader::read<unsigned int>()
 {
-    char length = buffer[nextIndex];
-    nextIndex += length+1;
-    return buffer.substr(nextIndex-length, length);
+    nextIndex += sizeof(unsigned int);
+    return to_native_endian_u32(&buffer[nextIndex-sizeof(unsigned int)], Endian::BIG);
 }
 
 template<>
@@ -87,29 +123,13 @@ float BinaryReader::read<float>()
         std::swap(rawBytes[1], rawBytes[2]);
     }
     return b_cast<float>(rawBytes);
-
-    //// bytes are left to right
-    //unsigned char b0 = read<unsigned char>();
-    //unsigned char b1 = read<unsigned char>();
-    //unsigned char b2 = read<unsigned char>();
-    //unsigned char b3 = read<unsigned char>();
-//
-    //unsigned char sign = (b0 & 0b10000000) >> 7;
-    //unsigned char exponent = ((b0 & 0b01111111) << 1) | ((b1 & 0b10000000) >> 7);
-    //unsigned char fraction[3] = {b1,b2,b3};
-//
-    //float fractionSum=0;
-    //for (int i = 1; i <= 23; ++i)
-    //{
-    //    if (fraction[i/8] & (0b10000000>>(i%8)))
-    //        fractionSum += powf(2, -i);
-    //}
-    //if (sign)
-    //    return -powf(2, (float)exponent-127) * (1 + fractionSum);
-    //else
-    //    return powf(2, (float)exponent-127) * (1 + fractionSum);
-    //return (float)(sign ^ 0b00000001) * -powf(2, (float)exponent-127) * (1 + fractionSum);
-    // val = (1-sign) * pow(2, E-127) * (1 + (pow(2, -i)))
+}
+template<>
+Vector2 BinaryReader::read<Vector2>()
+{
+    float x = read<float>();
+    float y = read<float>();
+    return Vector2(x,y);
 }
 template<>
 Vector3 BinaryReader::read<Vector3>()
@@ -118,6 +138,14 @@ Vector3 BinaryReader::read<Vector3>()
     float y = read<float>();
     float z = read<float>();
     return Vector3(x,y,z);
+}
+
+template<>
+std::string BinaryReader::read<std::string>()
+{
+    unsigned char length = read<unsigned char>();
+    nextIndex += length;
+    return buffer.substr(nextIndex-length, length);
 }
 
 
@@ -132,16 +160,28 @@ void BinaryWriter::write<unsigned char>(unsigned char data)
     buffer.push_back(data);
 }
 template<>
+void BinaryWriter::write<short>(short data)
+{
+    short newData = set_endian16((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(short));
+}
+template<>
+void BinaryWriter::write<unsigned short>(unsigned short data)
+{
+    unsigned short newData = set_endian_u16((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(unsigned short));
+}
+template<>
 void BinaryWriter::write<int>(int data)
 {
     int newData = set_endian32((char*)&data, sys_endian(), Endian::BIG);
     buffer.append((char*)&newData, sizeof(int));
 }
 template<>
-void BinaryWriter::write<std::string>(std::string data)
+void BinaryWriter::write<unsigned int>(unsigned int data)
 {
-    write((unsigned char)data.size());
-    buffer += data; // no endian checks, todo: test
+    unsigned int newData = set_endian_u32((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(unsigned int));
 }
 
 template<>
@@ -160,9 +200,22 @@ void BinaryWriter::write<float>(float data)
     buffer.append(std::string((char*)rawBytes, 4));
 }
 template<>
+void BinaryWriter::write<Vector2>(Vector2 data)
+{
+    write(data.x);
+    write(data.y);
+}
+template<>
 void BinaryWriter::write<Vector3>(Vector3 data)
 {
     write(data.x);
     write(data.y);
     write(data.z);
+}
+
+template<>
+void BinaryWriter::write<std::string>(std::string data)
+{
+    write((unsigned char)data.size());
+    buffer += data;
 }

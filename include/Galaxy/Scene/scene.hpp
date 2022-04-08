@@ -22,8 +22,8 @@ class Event;
 struct SceneInfo;
 struct SceneComponent
 {
-    void *data;
-    void (*destructor)(void *);
+    void *data=0;
+    void (*destructor)(void *)=0;
 };
 class Scene
 {
@@ -78,18 +78,31 @@ public:
     template<typename T>
     T* get_component()
     {
-        return (T*)components[std::type_index(typeid(T))].data;
+        auto type = std::type_index(typeid(T));
+        return components.count(type) ? (T*)components.at(type).data : (T*)nullptr;
     }
     template<typename T>
-    void add_component()
+    bool add_component()
     {
         auto type = std::type_index(typeid(T));
         if (components.count(type))
-            assert(false && "Already added component to scene");
+            return 0;
         components[type].data = new T();
         components[type].destructor = [](void *data)
         {
             delete (T*)data;
         };
+        return 1;
+    }
+    template<typename T>
+    bool remove_component()
+    {
+        auto type = std::type_index(typeid(T));
+        if (!components.count(type))
+            return 0;
+        auto &comp = components[type];
+        comp.destructor(comp.data);
+        components.erase(type);
+        return 1;
     }
 };
