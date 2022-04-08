@@ -4,15 +4,15 @@ enum Endian:unsigned char { LITTLE, BIG };
 
 int set_endian32(char *buffer, Endian from, Endian to);
 unsigned int set_endian_u32(char *buffer, Endian from, Endian to);
-
+float set_endian_f(char *buffer, Endian from, Endian to);
 short set_endian16(char *buffer, Endian from, Endian to);
 unsigned short set_endian_u16(char *buffer, Endian from, Endian to);
 
-short to_native_endian16(char *buffer, Endian current);
-unsigned short to_native_endian_u16(char *buffer, Endian current);
-
 int to_native_endian32(char *buffer, Endian current);
 unsigned int to_native_endian_u32(char *buffer, Endian current);
+float to_native_endian_f(char *buffer, Endian current);
+short to_native_endian16(char *buffer, Endian current);
+unsigned short to_native_endian_u16(char *buffer, Endian current);
 
 template<typename T>
 T b_cast(const void *buffer)

@@ -17,20 +17,6 @@ Endian sys_endian()
     int one=1;
     return (*(unsigned char*)&one == 1) ? LITTLE : BIG;
 }
-short set_endian16(char *buffer, Endian from, Endian to)
-{
-    if (from != to)
-        std::swap(buffer[0], buffer[1]);
-
-    return b_cast<short>(buffer);
-}
-unsigned short set_endian_u16(char *buffer, Endian from, Endian to)
-{
-    if (from != to)
-        std::swap(buffer[0], buffer[1]);
-
-    return b_cast<unsigned short>(buffer);
-}
 int set_endian32(char *buffer, Endian from, Endian to)
 {
     if (from != to)
@@ -49,13 +35,28 @@ unsigned int set_endian_u32(char *buffer, Endian from, Endian to)
     }
     return b_cast<unsigned int>(buffer);
 }
-short to_native_endian16(char *buffer, Endian current)
+float set_endian_f(char *buffer, Endian from, Endian to)
 {
-    return set_endian16(buffer, current, sys_endian());
+    if (from != to)
+    {
+        std::swap(buffer[0], buffer[3]);
+        std::swap(buffer[1], buffer[2]);
+    }
+    return b_cast<float>(buffer);
 }
-unsigned short to_native_endian_u16(char *buffer, Endian current)
+short set_endian16(char *buffer, Endian from, Endian to)
 {
-    return set_endian16(buffer, current, sys_endian());
+    if (from != to)
+        std::swap(buffer[0], buffer[1]);
+
+    return b_cast<short>(buffer);
+}
+unsigned short set_endian_u16(char *buffer, Endian from, Endian to)
+{
+    if (from != to)
+        std::swap(buffer[0], buffer[1]);
+
+    return b_cast<unsigned short>(buffer);
 }
 int to_native_endian32(char *buffer, Endian current)
 {
@@ -64,6 +65,18 @@ int to_native_endian32(char *buffer, Endian current)
 unsigned int to_native_endian_u32(char *buffer, Endian current)
 {
     return set_endian_u32(buffer, current, sys_endian());
+}
+float to_native_endian_f(char *buffer, Endian current)
+{
+    return set_endian_f(buffer, current, sys_endian());
+}
+short to_native_endian16(char *buffer, Endian current)
+{
+    return set_endian16(buffer, current, sys_endian());
+}
+unsigned short to_native_endian_u16(char *buffer, Endian current)
+{
+    return set_endian16(buffer, current, sys_endian());
 }
 
 
