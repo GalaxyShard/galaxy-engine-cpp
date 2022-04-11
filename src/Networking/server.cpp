@@ -284,7 +284,7 @@ void Server::set_leave_callback(ClientStatusCallback func)
     inst->leaveCallback = func;
 #endif
 }
-void Server::register_rpc(std::string name, ArgCallback<NetworkReader, Connection> func)
+void Server::register_rpc(std::string name, ArgCallback<const NetworkReader&, Connection> func)
 {
 #if !OS_WEB
     if (!inst)

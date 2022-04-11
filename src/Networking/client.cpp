@@ -206,7 +206,7 @@ void Client::shutdown()
     inst = 0;
 #endif
 }
-void Client::register_rpc(std::string name, ArgCallback<NetworkReader> func)
+void Client::register_rpc(std::string name, ArgCallback<const NetworkReader&> func)
 {
 #if !OS_WEB
     if (!inst)

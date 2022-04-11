@@ -34,9 +34,12 @@ void read_until_found(std::ifstream &stream, const char *dataStr, char *buffer)
         if (buffer[0] == dataStr[0]) foundLetters = 1;
     }
 }
+// https://www.gamedev.net/forums/topic/211901-does-openal-play-mp3/
+// todo: to implement mp3, "decode the MP3 into PCM data... to stream it, take advantage of OpenAL's buffer queue"
+// OR support a different file format: https://www.reddit.com/r/gamedev/comments/oc645j/is_it_safe_to_use_the_mp3_format_in_games_in_2021/
 std::vector<char> load_wav(const std::string &path, char *channels, int *sampleRate, char *bitsPerSample)
 {
-    
+    // todo: possibly use BinaryFileReader instead of raw streams
     std::ifstream stream = std::ifstream(path, std::ios::binary);
     if (!stream.good())
         throw("Invalid stream");
@@ -68,19 +71,19 @@ std::vector<char> load_wav(const std::string &path, char *channels, int *sampleR
 
     if (!stream.read(buffer, 2))
         throw("Failed to read format");
-    short audioFormat = to_native_endian16(buffer, Endian::LITTLE);
+    short audioFormat = to_native_endian16<short>(buffer, Endian::LITTLE);
     if (audioFormat != 1)
         throw("Invalid audio format");
 
 
     if (!stream.read(buffer, 2))
         throw("Failed to read (channels)");
-    *channels = to_native_endian16(buffer, Endian::LITTLE);
+    *channels = (char)to_native_endian16<short>(buffer, Endian::LITTLE);
     
     
     if (!stream.read(buffer, 4))
         throw("Failed to read (sample rate)");
-    *sampleRate = to_native_endian32(buffer, Endian::LITTLE);
+    *sampleRate = to_native_endian32<int>(buffer, Endian::LITTLE);
 
     // byte rate(4), block align(2)
     stream.ignore(6);
@@ -95,7 +98,7 @@ std::vector<char> load_wav(const std::string &path, char *channels, int *sampleR
     
     if (!stream.read(buffer, 4))
         throw("Failed to read (size)");
-    int dataSize = to_native_endian32(buffer, Endian::LITTLE);
+    int dataSize = to_native_endian32<int>(buffer, Endian::LITTLE);
 
     std::vector<char> data = std::vector<char>(dataSize);
     if (!stream.read(data.data(), dataSize))

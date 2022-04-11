@@ -29,7 +29,7 @@ class Server
 private:
     static std::unique_ptr<Server> inst;
     std::vector<Connection> clients;
-    std::unordered_map<std::string, ArgCallback<NetworkReader, Connection>> rpcs;
+    std::unordered_map<std::string, ArgCallback<const NetworkReader&, Connection>> rpcs;
     int listener = -1, shutdownPipe = -1;
 
     std::thread serverThread;
@@ -59,7 +59,7 @@ public:
 
     static void send_all(const char *msg, const NetworkWriter &data);
     static void send(Connection conn, const char *msg, const NetworkWriter &data);
-    static void register_rpc(std::string name, ArgCallback<NetworkReader, Connection> func);
+    static void register_rpc(std::string name, ArgCallback<const NetworkReader&, Connection> func);
 
     static bool is_active();
 };
@@ -69,7 +69,7 @@ public:
     enum ErrorCode : short { NONE, GENERAL };
 private:
     static std::unique_ptr<Client> inst;
-    std::unordered_map<std::string, ArgCallback<NetworkReader>> rpcs;
+    std::unordered_map<std::string, ArgCallback<const NetworkReader&>> rpcs;
     int serverConn = -1, shutdownPipe = -1;
 
     std::unique_ptr<std::thread> clientThread;
@@ -98,7 +98,7 @@ public:
     static void shutdown();
     static void set_shutdown_callback(void(*func)());
 
-    static void register_rpc(std::string name, ArgCallback<NetworkReader> func);
+    static void register_rpc(std::string name, ArgCallback<const NetworkReader&> func);
     static void send(const char *msg, const NetworkWriter &data);
 
     static bool is_active();
