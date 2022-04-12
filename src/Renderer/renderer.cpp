@@ -286,15 +286,31 @@ void Renderer::draw(UIImage &img)
     Shader *shader = img.material ? img.material->shader : img.shader();
     shader->bind();
 
-    Vector2 scale = img.scale * reverseAspect;
     Vector2 world_pos = img.calc_world_pos();
     
-    Matrix4x4 model = Matrix4x4(
-        scale.x, 0,       0,       world_pos.x,
-        0,       scale.y, 0,       world_pos.y,
-        0,       0,       1,       0,
-        0,       0,       0,       1
+    // TRS
+    Matrix2x2 rotation = Matrix2x2::rotate(img.rotation);
+    Matrix4x4 rotation4x4 = Matrix4x4(
+        rotation[0][0], rotation[0][1], 0, 0,
+        rotation[1][0], rotation[1][1], 0, 0,
+        0,              0,              1, 0,
+        0,              0,              0, 1
     );
+    Matrix4x4 proj = Matrix4x4(
+        reverseAspect.x, 0,               0,               0,
+        0,               reverseAspect.y, 0,               0,
+        0,               0,               1,               0,
+        0,               0,               0,               1
+    );
+    // Projection is already applied to translation, so translate after projecting
+    Matrix4x4 model = Matrix4x4::translate(world_pos.x, world_pos.y, 0)
+        * proj * rotation4x4 * Matrix4x4::scale(img.scale.x, img.scale.y, 1);
+    //Matrix4x4 model = Matrix4x4(
+    //    scale.x, 0,       0,       world_pos.x,
+    //    0,       scale.y, 0,       world_pos.y,
+    //    0,       0,       1,       0,
+    //    0,       0,       0,       1
+    //);
     shader->set_uniform_mat4x4("u_mvp", model);
     shader->set_uniform4f("u_color", img.tint);
 

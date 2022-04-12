@@ -99,7 +99,7 @@ if (APPLE)
             ${icon_path} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
         )
     endif()
-    add_executable(game ${GAME_SRC})
+    add_executable(game ${GAME_SRC} ${GAME_HEADERS})
 
     macro(add_fw fwname)
         target_link_libraries(game "-framework ${fwname}")

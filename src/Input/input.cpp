@@ -127,7 +127,8 @@ namespace
             data.startPos = lastTouchState[touch].startPos;
         }
         else { data.startPos = data.pos; }
-        lastTouchState[touch] = data;
+        if (state == TouchState::RELEASED) lastTouchState.erase(touch);
+        else lastTouchState[touch] = data;
         onTouchEvent.fire(data);
         return 1;
     }

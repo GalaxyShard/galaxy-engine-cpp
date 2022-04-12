@@ -38,6 +38,7 @@ public:
     
     Vector2 pos, scale = Vector2(1, 1), anchor = Vector2(-1, -1);
     Vector4 tint = Vector4(1, 1, 1, 1);
+    float rotation = 0; // does not change bounding box for buttons
 
 private:
     unsigned int imageID, rendererID, sceneID;
