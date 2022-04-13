@@ -1,10 +1,13 @@
 #pragma once
 #include <unordered_map>
 #include <fstream>
+template <typename... Args>
+class ArgCallback;
 namespace Assets
 {
     // Call after writing to files
     void sync_files();
+    void sync_files(ArgCallback<bool> callback);
 
     std::string data_path();
     std::string resource_path();

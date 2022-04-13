@@ -11,3 +11,7 @@ Callback::operator bool() const
 {
     return indirection;
 }
+Callback::Callback(void *raw, void *indirection)
+    : raw(raw), indirection((void(*)(void*))indirection) {}
+RawCallback::RawCallback(Callback c)
+    : data(c.raw), indirection((void*)c.indirection) {}

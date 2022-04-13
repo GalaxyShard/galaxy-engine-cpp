@@ -29,14 +29,14 @@ void glfmMain(GLFMDisplay *display)
     );
 #if OS_WEB
     // https://stackoverflow.com/a/54627719
-    EM_ASM(
-        FS.mkdir("/gamedata");
-        FS.mount(IDBFS, {}, "/gamedata");
+    EM_ASM({
+        FS.mkdir('/gamedata');
+        FS.mount(IDBFS, {}, '/gamedata');
         FS.syncfs(true, function(err) {
-            if (err) console.log("Error syncing file system: ", err);
-            ccall("readyToInit", "void");
+            if (err) console.log('Error syncing file system: ', err);
+            ccall('readyToInit', 'void');
         });
-    );
+    });
     glfmSetSurfaceCreatedFunc(display, [](GLFMDisplay*, int, int) { readyToInit(); });
 #else
     glfmSetSurfaceCreatedFunc(display, [](GLFMDisplay*, int, int) { initialize(); });

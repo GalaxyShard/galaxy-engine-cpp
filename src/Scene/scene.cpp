@@ -61,12 +61,11 @@ void Scene::remove_inst(unsigned int id)
         instances.pop_back();
         return;
     }
-    //auto &v = instances.back();
-    //std::swap(v, instances[id]);
     instances[id] = std::move(instances.back());
     auto &v = instances[id];
 
     if (v.type==OBJ) ((Object*)v.ptr)->sceneID = id;
+    else if (v.type==OBJ2D) ((Object2D*)v.ptr)->sceneID = id;
     else if (v.type==IMG) ((UIImage*)v.ptr)->sceneID = id;
     else if (v.type==TXT) ((UIText*)v.ptr)->sceneID = id;
     else if (v.type==GROUP) ((UIGroup*)v.ptr)->sceneID = id;
@@ -77,11 +76,3 @@ void Scene::on_init(std::string name, void(*func)())
 {
     sceneEvents[name].onInit.signal.connect_int(func);
 }
-//void Scene::set_create_callback(std::string name, void(*func)())
-//{
-//    sceneEvents[name].createCallback = func;
-//}
-//void Scene::on_destroy(std::string name, void(*func)())
-//{
-//    sceneEvents[name].onDestroy.signal.connect_int(func);
-//}

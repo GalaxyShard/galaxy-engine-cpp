@@ -33,14 +33,35 @@ std::string Assets::path()
 std::string Assets::gpath()
 { return resource_path()+"/galaxy_assets"; }
 
+#if OS_WEB
+extern "C" void sync_finished(int success, void *data, void *indirect)
+{
+    ArgCallback<bool>(data, indirect)(success);
+}
+#endif
+
 void Assets::sync_files()
 {
 #if OS_WEB
-    EM_ASM(
+    EM_ASM({
         FS.syncfs(function(err) {
-            if (err) console.log("Error syncing files: ", err);
+            if (err) console.log('Error syncing files: ', err);
         });
-    );
+    });
+#endif
+}
+void Assets::sync_files(ArgCallback<bool> callback)
+{
+#if OS_WEB
+    RawCallback c = (RawCallback)callback;
+    EM_ASM({
+        FS.syncfs(function(err) {
+            if (err) console.log('Error syncing files: ', err);
+            ccall('sync_finished', 'void', ['number', 'number', 'number'], [err ? 0 : 1, $0, $1]);
+        });
+    }, c.data, c.indirection);
+#else
+    callback(1);
 #endif
 }
 

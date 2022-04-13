@@ -251,7 +251,7 @@ if (MACOS)
 endif()
 if (EMSCRIPTEN)
     # For loading file system
-    target_link_options(game PUBLIC -lidbfs.js -sEXPORTED_FUNCTIONS=_main,_readyToInit)
+    target_link_options(game PUBLIC -lidbfs.js -sEXPORTED_FUNCTIONS=_main,_readyToInit,_sync_finished)
 endif()
 
 target_link_libraries(game "${ENGINE_ROOT}/bin/${relative_bin_dir}/libengine.a")
