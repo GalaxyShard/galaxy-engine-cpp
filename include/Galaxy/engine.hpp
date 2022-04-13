@@ -13,6 +13,7 @@
 
 #include "Events/callback.hpp"
 #include "Events/event.hpp"
+#include "Events/timer.hpp"
 
 #include "Input/input.hpp"
 

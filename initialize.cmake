@@ -3,6 +3,12 @@ set(ENGINE_SRC
     src/Assets/asset.cpp
     src/Audio/audio.cpp
     src/ECS/ecs.cpp
+
+    src/Events/callback.cpp
+    src/Events/event.cpp
+    src/Events/init.cpp
+    src/Events/timer.cpp
+
     src/External/stb_image_init.cpp
     src/Input/input.cpp
     
@@ -45,10 +51,7 @@ set(ENGINE_SRC
     src/UI/text.cpp
     src/UI/uiobject.cpp
 
-    src/callback.cpp
     src/engine.cpp
-    src/event.cpp
-    src/init.cpp
     src/main.cpp
     src/object.cpp
 )
