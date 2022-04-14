@@ -238,8 +238,11 @@ void Renderer::draw(Object2D &obj)
         Vector2 objMax = obj.maxBounds + obj.position;
         if (!(test_aabb_1D(camMin.x, camMax.x, objMin.x, objMax.x)
             && test_aabb_1D(camMin.y, camMax.y, objMin.y, objMax.y)))
+        {
+            obj.m_wasCulled = 1;
             return;
-        
+        }
+        obj.m_wasCulled = 0;
     }
 
     Matrix4x4 rotation4x4 = Matrix4x4(

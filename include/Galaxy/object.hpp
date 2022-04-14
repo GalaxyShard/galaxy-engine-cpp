@@ -99,6 +99,7 @@ private:
 
     enum DirtyFlags : ucharG { TRANSFORM=1<<0 };
     ucharG dirty = 0xff;
+    bool m_wasCulled = 0;
 
     Object2D() = default;
 
@@ -109,7 +110,8 @@ public:
     // Call when scale/rotation changes
     void dirtyBounds() { dirty |= TRANSFORM; }
     float zIndex() { return m_zIndex; }
-    void zIndex(float z) { ; m_zIndex = z; }
+    void zIndex(float z) { m_zIndex = z; }
+    bool wasCulled() { return m_wasCulled; }
     
     static Object2D* create(Mesh *mesh, Material *mat);
     static void destroy(Object2D *obj);
