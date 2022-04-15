@@ -83,7 +83,7 @@ endif()
 #add_compile_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 
 add_compile_options(-Wall -pedantic -Wextra)
-add_compile_options(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable)
+add_compile_options(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-unused-lambda-capture)
 
 if (APPLE)
     # https://stackoverflow.com/questions/822404/how-to-set-up-cmake-to-build-an-app-for-the-iphone

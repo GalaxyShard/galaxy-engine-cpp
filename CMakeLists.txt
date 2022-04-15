@@ -60,11 +60,14 @@ endif()
 add_compile_definitions(GL_SILENCE_DEPRECATION GLES_SILENCE_DEPRECATION
     GLFW_INCLUDE_GLCOREARB OPENAL_DEPRECATED=)
 add_compile_options(-Wall -pedantic -Wextra)
-add_compile_options(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-dollar-in-identifier-extension)
+add_compile_options(-Wno-unused-parameter -Wno-unused-function -Wno-unused-variable)
 
 if (EMSCRIPTEN)
     # For glfm
     add_compile_options(-Wno-nested-anon-types -Wno-gnu-zero-variadic-macro-arguments)
+    # For inline js
+    add_compile_options(-Wno-dollar-in-identifier-extension)
+    add_compile_options(-Wno-unused-but-set-variable)
 endif()
 add_library(engine STATIC ${ENGINE_SRC})
 
