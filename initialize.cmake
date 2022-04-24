@@ -6,6 +6,7 @@ set(ENGINE_SRC
 
     src/Events/callback.cpp
     src/Events/event.cpp
+    src/Events/frameQueuer.cpp
     src/Events/init.cpp
     src/Events/timer.cpp
 
@@ -13,7 +14,6 @@ set(ENGINE_SRC
     src/Input/input.cpp
     
     src/Math/binary.cpp
-    src/Math/math.cpp
     src/Math/matrix2x2.cpp
     src/Math/matrix3x3.cpp
     src/Math/matrix4x4.cpp

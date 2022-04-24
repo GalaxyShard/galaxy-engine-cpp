@@ -1,4 +1,3 @@
-#include <Galaxy/Math/vector.hpp>
 #include <Galaxy/init.hpp>
 
 #include "internalnet.hpp"

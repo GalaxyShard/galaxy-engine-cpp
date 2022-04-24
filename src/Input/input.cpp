@@ -155,7 +155,10 @@ namespace
         TouchData data;
         data.id = 0;
         data.pos = Input::mousePos();
-        data.startPos = Input::mousePos();
+        if (!action)
+            data.startPos = lastTouchState[data.id].startPos;
+        else
+            data.startPos = Input::mousePos();
         data.state = action ? PRESSED : RELEASED;
 
         lastTouchState[data.id] = data;

@@ -43,4 +43,5 @@ public:
     void operator=(const Mesh&) = delete;
 
     static AssetRef<Mesh> load_obj(const std::string &path);
+    static void export_obj(const Mesh *mesh, const std::string &path);
 };

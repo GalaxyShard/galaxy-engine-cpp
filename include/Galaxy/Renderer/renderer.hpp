@@ -14,6 +14,7 @@ class Renderer
 private:
     static void bind_material(Material *mat);
     static void bind_uniforms(std::unordered_map<int, Uniform> &uniforms);
+    static void draw_square(Vector2 pos, Vector2 scale=Vector2(0.05f,0.05f)*reverseAspect);
 public:
     static int screenWidth, screenHeight;
     static Vector2 aspectRatio, reverseAspect;

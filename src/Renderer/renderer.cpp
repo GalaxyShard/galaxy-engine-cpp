@@ -11,9 +11,11 @@
 #include <Galaxy/UI/image.hpp>
 #include <Galaxy/UI/text.hpp>
 #include <Galaxy/UI/group.hpp>
+#include <Galaxy/Input/input.hpp>
 
 #include <Galaxy/Math/time.hpp>
 #include <Galaxy/Physics/physics.hpp>
+#include <Events/frameQueuer.hpp>
 
 
 #include <Physics/combinations.hpp>
@@ -22,7 +24,6 @@
 #include <Renderer/buffer.hpp>
 #include <UI/uiobject.hpp>
 
-#include <array>
 void iinit_renderer()
 {
     int w, h;
@@ -32,7 +33,6 @@ void iinit_renderer()
     #if USE_GLFW
         glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
     #endif
-
     Renderer::fix_aspect(w, h);
 }
 static auto aspectChanged = new Event();
@@ -57,12 +57,41 @@ void Renderer::fix_aspect(int w, int h)
         reverseAspect = Vector2((float)h / (float)w, 1);
     }
     UIGroup::aspectRatio->scale = reverseAspect;
+    UIGroup::aspectRatio->cache();
 
 #if USE_GLFM
     GLCall(glViewport(0, 0, w, h));
 #endif
     Camera::main->refresh();
     aspectChanged->fire();
+}
+void Renderer::draw_square(Vector2 pos, Vector2 s)
+{
+    static Mesh *debugMesh = 0;
+    static Shader *debugShader = 0;
+    if (!debugMesh)
+    {
+        debugMesh = new Mesh({
+            Vertex(-0.5, -0.5, 0),
+            Vertex( 0.5, -0.5, 0),
+            Vertex(-0.5,  0.5, 0),
+            Vertex( 0.5,  0.5, 0)
+        },
+        {0,1,2, 1,3,2});
+        debugShader = new Shader(Assets::gpath()+SHADER_FOLDER+"/color.shader");
+    }
+    debugMesh->varray->bind();
+    debugShader->bind();
+
+    Matrix4x4 mvp = Matrix4x4(
+        s.x, 0,   0, pos.x,
+        0,   s.y, 0, pos.y,
+        0,   0,   1, 0,
+        0,   0,   0, 1
+    );
+    debugShader->set_uniform_mat4x4("u_mvp", mvp);
+    debugShader->set_uniform4f("u_color", Vector4(1,0,1,0.5));
+    GLCall(glDrawElements(GL_TRIANGLES, debugMesh->tris.size(), GL_UNSIGNED_INT, nullptr));
 }
 
 void Renderer::bind_uniforms(std::unordered_map<int, Uniform> &uniforms)
@@ -99,7 +128,7 @@ static Matrix4x4 add_r_c(Matrix3x3 m)
 }
 void Renderer::draw(Object &obj)
 {
-    if (!obj.enabled)
+    if (!obj.enabled || !obj.mesh || !obj.material)
         return;
     Matrix3x3 rotation = Matrix3x3::rotate(obj.rotation);
 
@@ -201,7 +230,7 @@ static bool test_aabb_1D(float min0, float max0, float min1, float max1)
 }
 void Renderer::draw(Object2D &obj)
 {
-    if (!obj.enabled)
+    if (!obj.enabled || !obj.mesh || !obj.material)
         return;
     Matrix2x2 rotation = Matrix2x2::rotate(obj.rotation);
     {
@@ -289,7 +318,8 @@ void Renderer::draw(UIImage &img)
     Shader *shader = img.material ? img.material->shader : img.shader();
     shader->bind();
 
-    Vector2 world_pos = img.calc_world_pos();
+    Vector2 worldPos = img.calc_world_pos();
+    Vector2 worldScale = img.world_scale()*aspectRatio;
     
     // TRS
     Matrix2x2 rotation = Matrix2x2::rotate(img.rotation);
@@ -299,6 +329,7 @@ void Renderer::draw(UIImage &img)
         0,              0,              1, 0,
         0,              0,              0, 1
     );
+    // possibly inline some multiplications
     Matrix4x4 proj = Matrix4x4(
         reverseAspect.x, 0,               0,               0,
         0,               reverseAspect.y, 0,               0,
@@ -306,15 +337,17 @@ void Renderer::draw(UIImage &img)
         0,               0,               0,               1
     );
     // Projection is already applied to translation, so translate after projecting
-    Matrix4x4 model = Matrix4x4::translate(world_pos.x, world_pos.y, 0)
-        * proj * rotation4x4 * Matrix4x4::scale(img.scale.x, img.scale.y, 1);
+    Matrix4x4 mvp = Matrix4x4::translate(worldPos.x, worldPos.y, 0)
+        * proj * rotation4x4 * Matrix4x4::scale(worldScale.x, worldScale.y, 1);
+    //Matrix4x4 mvp = Matrix4x4::translate(worldPos.x, worldPos.y, 0)
+    //    * rotation4x4 * Matrix4x4::scale(worldScale.x, worldScale.y, 1);
     //Matrix4x4 model = Matrix4x4(
     //    scale.x, 0,       0,       world_pos.x,
     //    0,       scale.y, 0,       world_pos.y,
     //    0,       0,       1,       0,
     //    0,       0,       0,       1
     //);
-    shader->set_uniform_mat4x4("u_mvp", model);
+    shader->set_uniform_mat4x4("u_mvp", mvp);
     shader->set_uniform4f("u_color", img.tint);
 
     if (img.material) bind_material(img.material);
@@ -329,19 +362,20 @@ void Renderer::draw(UIText &text)
 {
     text.mesh->varray->bind();
     UIText::shader()->bind();
-    float charSize = Math::min(text.scale.x/text.str.size()*2.5f, text.scale.y);
+
+    Vector2 worldScale = text.world_scale()*aspectRatio;
+    Vector2 worldPos = text.calc_world_pos();
+    float charSize = std::min(worldScale.x/text.str.size()*2.5f, worldScale.y);
     float textWidth = charSize*text.str.size()/2.5f;
+    
+    Vector2 scale = Vector2(charSize,charSize)*reverseAspect;
+    worldPos += (worldScale*0.5f*text.pivot
+        + Vector2(-textWidth, charSize)*0.5f
+        + Vector2(-textWidth, -charSize)*0.5f*text.pivot)*reverseAspect;
 
-    Vector2 world_pos = text.calc_world_pos()
-        + (text.scale/2*Vector2(text.pivot.x, text.pivot.y)
-        + Vector2(-textWidth, charSize)/2
-        + Vector2(-textWidth, -charSize)/2*text.pivot)*reverseAspect;
-
-
-    Vector2 scale = Vector2(charSize,charSize) * reverseAspect;
     Matrix4x4 model = Matrix4x4(
-        scale.x, 0,       0,       world_pos.x,
-        0,       scale.y, 0,       world_pos.y,
+        scale.x, 0,       0,       worldPos.x,
+        0,       scale.y, 0,       worldPos.y,
         0,       0,       1,       0,
         0,       0,       0,       1
     );
@@ -364,6 +398,7 @@ void Renderer::draw_all(bool fireEvents)
 {
     if (fireEvents)
     {
+        FrameQueuer::trigger();
         preRender->fire();
         Physics::simulate(Time::delta());
         
@@ -402,6 +437,7 @@ void Renderer::draw_all(bool fireEvents)
     clear();
     for (Object *obj : Object::allObjects) draw(*obj);
     for (Object2D *obj : Object2D::all) draw(*obj);
+
 /*
     GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)); // wireframe
 */

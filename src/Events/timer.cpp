@@ -45,5 +45,5 @@ uintg Timer::wait(double seconds, const Callback &callback)
 }
 void Timer::cancel(uintg id)
 {
-    timerCallbacks.erase(timerCallbacks.begin()+id);
+    timerCallbacks[id].c = nullptr;
 }

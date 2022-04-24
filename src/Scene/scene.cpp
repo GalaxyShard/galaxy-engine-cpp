@@ -3,8 +3,10 @@
 #include <Galaxy/UI/image.hpp>
 #include <Galaxy/UI/text.hpp>
 #include <Galaxy/UI/group.hpp>
+#include <Galaxy/Math/binary.hpp>
+#include <Events/frameQueuer.hpp>
 
-Scene *Scene::activeScene;
+Scene *Scene::activeScene=0;
 
 struct SceneInfo
 {
@@ -24,12 +26,25 @@ void Scene::initialize(std::string name)
 Scene* Scene::create(std::string name)
 {
     Scene *scene = new Scene();
-    scene->initialize(name);
+    // Dont initialize immediately to sync with the destroy() function
+    //scene->initialize(name);
+
+    char *data = (char*)malloc(sizeof(Scene*)+name.size()+1);
+    memcpy(data, &scene, sizeof(Scene*));
+    // c_str is null-terminated, size() is without null terminator
+    memcpy(data+sizeof(Scene*), name.c_str(), name.size()+1);
+    FrameQueuer::queue_next_frame([data]()
+    {
+        b_cast<Scene*>(data)->initialize(std::string(data+sizeof(Scene*)));
+        free(data);
+    });
     return scene;
 }
 void Scene::destroy(Scene *scene)
 {
-    delete scene;
+    FrameQueuer::queue_next_frame([scene]() { delete scene; });
+    //delete scene;
+    //FrameQueuer::queue_next_frame(scene, FrameQueuer::DELSCENE);
 }
 Scene::~Scene()
 {

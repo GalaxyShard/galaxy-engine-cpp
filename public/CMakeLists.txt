@@ -100,6 +100,7 @@ if (APPLE)
         )
     endif()
     add_executable(game ${GAME_SRC} ${GAME_HEADERS})
+    set_target_properties(game PROPERTIES OUTPUT_NAME "${OUT_NAME}")
 
     macro(add_fw fwname)
         target_link_libraries(game "-framework ${fwname}")
@@ -208,6 +209,9 @@ if (EMSCRIPTEN)
     else()
         string(CONCAT STYLE_REPLACEMENT "<meta name=\"viewport\" content=\"width=device-width,user-scalable=no,viewport-fit=cover\">\n"
             "    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n"
+            # todo: test this, might solve problem with ios web apps (make sure to rebuild entire project)
+            #"    <meta HTTP-EQUIV=\"CACHE-CONTROL\" CONTENT=\"NO-CACHE\">\n"
+            #"    <meta HTTP-EQUIV=\"PRAGMA\" CONTENT=\"NO-CACHE\">\n"
             "    <style>\n"
             "      /* GLFM: Start changes */\n"
             "      :root {\n"
@@ -232,6 +236,7 @@ if (EMSCRIPTEN)
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     add_executable(game ${GAME_SRC})
+    set_target_properties(game PROPERTIES OUTPUT_NAME "index")
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${ENGINE_ROOT}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/res/galaxy_assets"
@@ -243,7 +248,6 @@ if (EMSCRIPTEN)
     set_target_properties(game PROPERTIES LINK_FLAGS "--shell-file \"${CMAKE_CURRENT_BINARY_DIR}/shell.html.in\" --preload-file \"${proj_dir}/bin/web/res@bin/web/res\"")
 endif()
 target_precompile_headers(game PRIVATE ${ENGINE_ROOT}/include/Galaxy/engine.hpp)
-set_target_properties(game PROPERTIES OUTPUT_NAME "${OUT_NAME}")
 
 # Galaxy Engine
 if (MACOS)

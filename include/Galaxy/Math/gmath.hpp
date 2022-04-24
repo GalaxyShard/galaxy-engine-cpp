@@ -15,10 +15,27 @@
 
 namespace Math
 {
-    float min(float a, float b);
-    float max(float a, float b);
-    float clamp(float v, float min, float max);
+    inline float min(float a, float b) { return (a < b) ? a : b; }
+    inline float max(float a, float b) { return (a > b) ? a : b; }
+    inline float clamp(float v, float min, float max)
+    {
+        if (v > max) return max;
+        else if (v < min) return min;
+        return v;
+    }
     inline float sqr(float v) { return v*v; }
+
+    inline float remap(float v, float min, float max, float newMin, float newMax)
+    { return (v-min)/(max-min)*(newMax-newMin)+newMin; }
+
+    inline float remapFrom01(float v, float newMin, float newMax)
+    { return v*(newMax-newMin)+newMin; }
+    inline float remapTo01(float v, float min, float max)
+    { return (v-min)/(max-min); }
+
+    inline float lerp(float start, float goal, float t)
+    { return start + (goal - start) * t; }
+
 
     template <typename T>
     void insertion_sort(std::vector<T> &array, bool(*predicate)(T &a, T &b));
@@ -27,11 +44,11 @@ namespace Math
     inline bool within(T v, T min, T max) { return v >= min && v <= max; }
 
     template<typename T>
-    inline float abs(T v) { return v < (T)0 ? -v : v; }
+    inline T abs(T v) { return v < (T)0 ? -v : v; }
     template<typename T>
     inline bool approx(T a, T b, T threshold = 0.00001f) { return abs(a-b)<=threshold; }
 
-    float lerp(float start, float goal, float t);
+
     constexpr float PI = 3.14159265359f;
     constexpr float INF = std::numeric_limits<float>::infinity();
 

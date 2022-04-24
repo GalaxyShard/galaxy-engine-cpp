@@ -21,6 +21,9 @@ private:
 
     void build_mesh();
     UIText() = default;
+    
+    Vector2 calc_world_pos();
+    Vector2 world_scale();
 
     friend class Renderer;
     friend struct UIObject;
@@ -35,8 +38,8 @@ public:
 
     Vector2 pos;
     Vector2 scale = Vector2(1,1);
-    Vector2 anchor = Vector2(-1,-1);
-    Vector2 pivot = Vector2(1, 1);
+    Vector2 anchor;
+    Vector2 pivot;
     // not implemented
     //bool wrap = 0;
     //bool scaleToFit = 1; // scales to the max size that can fit
@@ -46,5 +49,5 @@ public:
     // Call when text is changed
     void refresh();
 
-    Vector2 calc_world_pos();
+    inline const Mesh *get_mesh() const { return mesh.get(); }
 };

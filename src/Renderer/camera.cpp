@@ -21,7 +21,6 @@ void Camera::refresh()
     else
     {
         const float s = orthoSize;
-        //const Vector2 ratio = Vector2(2,1);
         const Vector2 &ratio = Renderer::aspectRatio;
         projection = Matrix4x4::ortho(-s*ratio.x, s*ratio.x, -s*ratio.y, s*ratio.y, nearClip, farClip, 0);
     }
@@ -40,5 +39,10 @@ void Camera::defaults()
 void Camera::reset()
 {
     defaults();
+    set_bg(0, 0, 0);
     refresh();
+}
+void Camera::set_bg(float r, float g, float b)
+{
+    Renderer::set_clear_color(r, g, b, 1);
 }

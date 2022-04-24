@@ -8,7 +8,6 @@ auto Object::allObjects = std::vector<Object*>();
 
 Object* Object::create(Mesh *mesh, Material *mat)
 {
-    assert(mesh != nullptr && mat != nullptr);
     Object *obj = new Object();
     obj->mesh = mesh;
     obj->material = mat;
@@ -47,7 +46,6 @@ bool Object2D::sortObjects = 0;
 
 Object2D* Object2D::create(Mesh *mesh, Material *mat)
 {
-    assert(mesh != nullptr && mat != nullptr);
     Object2D *obj = new Object2D();
     obj->mesh = mesh;
     obj->material = mat;

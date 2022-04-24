@@ -44,11 +44,14 @@ private:
     unsigned int imageID, rendererID, sceneID;
     int renderOrder = 0;
 public:
+    bool scaleToFit = 0;
+
     static UIImage *get_held(int id);
     static UIImage *get_held();
 
     bool is_within(Vector2 pos);
     Vector2 calc_world_pos();
+    Vector2 world_scale();
 
     inline int render_order() { return renderOrder; }
     void render_order(int order);

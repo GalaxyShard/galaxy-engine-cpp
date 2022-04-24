@@ -27,4 +27,5 @@ public:
     void defaults();
     void refresh();
     void reset();
+    void set_bg(float r, float g, float b);
 };

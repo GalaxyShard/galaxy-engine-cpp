@@ -6,7 +6,7 @@
 #include <Math/internaltime.hpp>
 #include <gldebug.hpp>
 #if OS_WEB
-#include <emscripten/html5.h>
+    #include <emscripten/html5.h>
 #endif
 /*
 Rendering APIs
@@ -76,7 +76,7 @@ static bool init_glfw()
         InternalTime::end_frame();
         glfwSwapBuffers(window);
     });
-    glfwSetWindowSizeLimits(window, 600, 400, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowSizeLimits(window, 300, 200, GLFW_DONT_CARE, GLFW_DONT_CARE);
     return 1;
 }
 #endif
@@ -91,6 +91,41 @@ static void redraw()
     glfwPollEvents();
 #endif
 }
+#if OS_WEB
+extern "C" void readyToInit()
+{
+    static bool didInit = 0;
+    if (didInit) return;
+    didInit = 1;
+
+    Init::fire();
+    glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
+    {
+        redraw();
+    });
+}
+void initFS(bool firstTime)
+{
+    if (firstTime)
+    {
+        EM_ASM({
+            FS.mkdir('/gamedata');
+            FS.mount(IDBFS, {}, '/gamedata');
+        });
+    }
+    // https://stackoverflow.com/a/54627719
+    EM_ASM({
+        //FS.mkdir('/gamedata');
+        //FS.mount(IDBFS, {}, '/gamedata');
+        FS.syncfs(true, function(err) {
+            if (err) console.log('Error syncing file system: ', err);
+            ccall('readyToInit', 'void');
+        });
+    });
+    glClearColor(0.2,0.2,0.2,1);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+#endif
 void initialize()
 {
     std::cout.setf(std::ios::fixed);
@@ -128,7 +163,36 @@ void initialize()
     GLCall(glFrontFace(GL_CCW)); // counter clockwise vertex ordering
 
     InternalTime::initialize();
-#if USE_GLFM
+#if OS_WEB
+    glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
+    {
+        logmsg("Waiting for IndexedDB...\n");
+        static float endTime = Time::get()+2;
+        if (Time::get() > endTime)
+        {
+            endTime = Math::INF;
+            glClearColor(0.5,0.5,0.5,1);
+            glClear(GL_COLOR_BUFFER_BIT);
+            // this is run before init, so it is not already set
+            glfmSetTouchFunc(glfmDisplay, [](GLFMDisplay*,int,GLFMTouchPhase phase,double,double)->bool
+            {
+                if (phase==GLFMTouchPhaseBegan)
+                {
+                    glClearColor(0.75,0.75,0.75,1);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                else if (phase==GLFMTouchPhaseEnded)
+                {
+                    logmsg("Reloading IndexedDB...\n");
+                    endTime = Time::get()+2;
+                    initFS(0);
+                }
+                return 1;
+            });
+        }
+    });
+    initFS(1);
+#elif USE_GLFM
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
     {
         static bool didInit = 0;

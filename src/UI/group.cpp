@@ -9,21 +9,50 @@
 auto UIGroup::aspectRatio = new UIGroup();
 auto UIGroup::safeArea = new UIGroup();
 
-Vector2 UIGroup::world_pos()
+Vector2 UIGroup::calc_pos()
 {
+    // todo: check this equation
     Vector2 worldPos = pos*Renderer::reverseAspect + anchor*world_scale();
-    if (parent) return parent->world_pos() + worldPos;
+    if (m_parent) return m_parent->world_pos() + worldPos;
     else return worldPos;
 }
-Vector2 UIGroup::world_scale()
+Vector2 UIGroup::calc_scale()
 {
-    if (parent) return parent->world_scale() * scale;
+    if (m_parent) return m_parent->world_scale() * scale;
     else return scale;
 }
-UIGroup::UIGroup()
+Vector2 UIGroup::calc_aspect(Vector2 worldScale)
 {
-    scene = Scene::activeScene;
-    if (scene) sceneID = scene->add_inst(this, Scene::GROUP);
+    Vector2 scale = worldScale*Renderer::aspectRatio;
+    if (scale.y > scale.x) return Vector2(1,  scale.y / scale.x);
+    else return Vector2(scale.x / scale.y, 1);
+}
+Vector2 UIGroup::world_pos() { return calc_pos(); }
+Vector2 UIGroup::world_scale() { return calc_scale(); }
+Vector2 UIGroup::world_aspect() { return calc_aspect(world_scale()); }
+
+//Vector2 UIGroup::world_pos() { return m_worldPos; }
+//Vector2 UIGroup::world_scale() { return m_worldScale; }
+//Vector2 UIGroup::world_aspect() { return calc_aspect(m_worldScale); }
+void UIGroup::cache()
+{
+    //m_worldPos = calc_pos();
+    //m_worldScale = calc_scale();
+}
+void UIGroup::parent(UIGroup *g)
+{
+    m_parent = g;
+}
+UIGroup* UIGroup::create()
+{
+    UIGroup *g = new UIGroup();
+    g->scene = Scene::activeScene;
+    if (g->scene) g->sceneID = g->scene->add_inst(g, Scene::GROUP);
+    return g;
+}
+void UIGroup::destroy(UIGroup *g)
+{
+    delete g;
 }
 UIGroup::~UIGroup()
 {

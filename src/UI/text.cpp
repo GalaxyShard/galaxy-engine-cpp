@@ -46,17 +46,25 @@ void UIText::refresh()
     build_mesh();
     mesh->refresh_mesh();
 }
+Vector2 UIText::calc_world_pos()
+{
+    if (group) return pos/group->world_aspect()*group->world_scale() + anchor*group->world_scale() + group->world_pos();
+    return pos*Renderer::reverseAspect + anchor;
+}
+Vector2 UIText::world_scale()
+{
+    if (group) return (scale/group->world_aspect())*group->world_scale();
+    return scale*Renderer::reverseAspect;
+}
 void UIText::build_mesh()
 {
     auto &tris = mesh->tris;
     auto &verts = mesh->verts;
 
-    verts = std::vector<Vertex>(str.size()*4);
-    tris = std::vector<unsigned int>(str.size()*6);
-
-    // scale is bounding box
-    const int fontSize = 72;
-
+    verts.clear();
+    verts.reserve(str.size()*4);
+    tris.clear();
+    tris.reserve(str.size()*6);
 
     float xadv = 0;
     float line = 0;
@@ -82,17 +90,24 @@ void UIText::build_mesh()
             xadv += data.xadv;
             continue;
         }
-        float w = data.width / fontSize;
-        float h = data.height / fontSize;
-        float xoff = (data.xoff + xadv) / fontSize;
+        float charSize = 72;
+        //float charSize = data.xadv;
+        float w = data.width / charSize;
+        float h = data.height / charSize;
+        float xoff = (data.xoff + xadv) / charSize;
   
-        // yoff is set to a value from top left, this offsets from bottom left
-        float yoff = (data.yoff + line) / fontSize;
+        // yoff is set to a value from top, mesh offsets from bottom left
+        float yoff = (data.yoff + line) / charSize;
 
-        verts.push_back(Vertex(Vector3(xoff,   -(yoff)),   Vector2(data.xCoord0, data.yCoord0)));
-        verts.push_back(Vertex(Vector3(xoff+w, -(yoff)),   Vector2(data.xCoord1, data.yCoord0)));
+        verts.push_back(Vertex(Vector3(xoff,   -(yoff)), Vector2(data.xCoord0, data.yCoord0)));
+        verts.push_back(Vertex(Vector3(xoff+w, -(yoff)), Vector2(data.xCoord1, data.yCoord0)));
         verts.push_back(Vertex(Vector3(xoff,   -(yoff+h)), Vector2(data.xCoord0, data.yCoord1)));
         verts.push_back(Vertex(Vector3(xoff+w, -(yoff+h)), Vector2(data.xCoord1, data.yCoord1)));
+
+        //verts.push_back(Vertex(Vector3(xoff,   -(yoff)),   Vector2(data.xCoord0, data.yCoord0)));
+        //verts.push_back(Vertex(Vector3(xoff+w, -(yoff)),   Vector2(data.xCoord1, data.yCoord0)));
+        //verts.push_back(Vertex(Vector3(xoff,   -(yoff+h)), Vector2(data.xCoord0, data.yCoord1)));
+        //verts.push_back(Vertex(Vector3(xoff+w, -(yoff+h)), Vector2(data.xCoord1, data.yCoord1)));
 
         tris.push_back(vert0 + 0);
         tris.push_back(vert0 + 2);
@@ -103,16 +118,16 @@ void UIText::build_mesh()
         tris.push_back(vert0 + 3);
         xadv += data.xadv;
     }
+    mesh->calculate_bounds();
+//    Vector2 min = mesh->aabbMin;
+//    Vector2 max = mesh->aabbMax;
+//    for (auto &vert : verts)
+//    {
+//        vert.pos.x = Math::remap(vert.pos.x, min.x, max.x, -0.5f, 0.5f);
+//        vert.pos.y = Math::remap(vert.pos.y, min.y, max.y, -0.5f, 0.5f);
+//    }
+//    mesh->calculate_bounds();
 }
-Vector2 UIText::calc_world_pos()
-{
-    if (group)
-    {
-        return pos*Renderer::reverseAspect + anchor*group->world_scale() + group->world_pos();
-    }
-    else return pos*Renderer::reverseAspect + anchor;
-}
-
 void init_text()
 {
     textShader = Shader::load(Assets::gpath()+SHADER_FOLDER+"/text.shader");

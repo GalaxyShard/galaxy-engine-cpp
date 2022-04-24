@@ -146,7 +146,5 @@ Shader::~Shader()
 
 void iinit_shader()
 {
-    //logmsg("shader\n");
     fallback = new Shader(Assets::gpath()+SHADER_FOLDER+"/fallback.shader");
 }
-//INTERNAL_INIT_FUNC(init);
