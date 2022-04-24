@@ -7,10 +7,9 @@
 #if USE_GLFW
     #include <External/GLFW/glfw3.h>
 #endif
-#ifdef DEBUG
+#if defined(DEBUG) && !OS_WEB
 #include <unordered_map>
 #include <assert.h>
-extern const std::unordered_map<unsigned int, const char*> glErrorStringMap;
 
 static inline bool gl_check_errors(int line, const char *fileName)
 {

@@ -15,7 +15,6 @@ if (IOS) # Set on command line -DIOS=1
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     add_compile_options(-arch arm64)
-    add_link_options(-arch arm64)
 endif()
 project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
@@ -39,22 +38,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (RELEASE) # -DRELEASE=1
     add_compile_options(-O3)
-    add_link_options(-O3)
 else()
     if (EMSCRIPTEN) # WebGL doesnt support Og
         add_compile_options(-O3)
-        add_link_options(-O3)
     else()
         add_compile_options(-Og)
-        add_link_options(-Og)
     endif()
     set(CMAKE_BUILD_TYPE Debug)
     add_compile_definitions(DEBUG)
     add_compile_options(-g)
 endif()
 
-# Remove comment to enable clang UBsan & Asan, should work on WebGL as well
-#add_link_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
+# Remove comment to enable clang UBsan & Asan, works on WebGL
 #add_compile_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 
 add_compile_definitions(GL_SILENCE_DEPRECATION GLES_SILENCE_DEPRECATION

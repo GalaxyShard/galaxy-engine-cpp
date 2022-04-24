@@ -69,6 +69,7 @@ else()
     if (EMSCRIPTEN) # WebGL doesnt support Og
         add_compile_options(-O3)
         add_link_options(-O1)
+        add_link_options(-sASSERTIONS=1)
     else()
         add_compile_options(-Og)
         add_link_options(-Og)
@@ -76,9 +77,10 @@ else()
     set(CMAKE_BUILD_TYPE Debug)
     add_compile_definitions(DEBUG)
     add_compile_options(-g)
+    add_link_options(-g)
 endif()
 
-# Remove comment to enable clang UBsan & Asan, should work on WebGL as well
+# Remove comment to enable clang UBsan & Asan, works on WebGL
 #add_link_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 #add_compile_options(-fsanitize=undefined,address -fno-omit-frame-pointer)
 
@@ -209,9 +211,6 @@ if (EMSCRIPTEN)
     else()
         string(CONCAT STYLE_REPLACEMENT "<meta name=\"viewport\" content=\"width=device-width,user-scalable=no,viewport-fit=cover\">\n"
             "    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n"
-            # todo: test this, might solve problem with ios web apps (make sure to rebuild entire project)
-            #"    <meta HTTP-EQUIV=\"CACHE-CONTROL\" CONTENT=\"NO-CACHE\">\n"
-            #"    <meta HTTP-EQUIV=\"PRAGMA\" CONTENT=\"NO-CACHE\">\n"
             "    <style>\n"
             "      /* GLFM: Start changes */\n"
             "      :root {\n"
@@ -255,7 +254,7 @@ if (MACOS)
 endif()
 if (EMSCRIPTEN)
     # For loading file system
-    target_link_options(game PUBLIC -lidbfs.js -sEXPORTED_FUNCTIONS=_main,_readyToInit,_sync_finished)
+    target_link_options(game PUBLIC -lidbfs.js -sINITIAL_MEMORY=33554432 -sEXPORTED_FUNCTIONS=_main,_readyToInit,_sync_finished)
 endif()
 
 target_link_libraries(game "${ENGINE_ROOT}/bin/${relative_bin_dir}/libengine.a")
