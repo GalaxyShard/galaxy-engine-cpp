@@ -24,6 +24,7 @@ extern int lastTouchID;
 
 static Vector2 mousePos = Vector2(-1,-1);
 auto onTouchEvent = EventT<TouchData>();
+auto onKeyEvent = EventT<KeyData>();
 namespace
 {
     auto lastTouchState = std::unordered_map<int, TouchData>();
@@ -36,6 +37,8 @@ namespace
         (void)mods;
         if (lastKeyStates[key] == action)
             return;
+
+        onKeyEvent.fire({key, action});
         
         lastKeyStates[key] = action;
         auto iterator = callbacks.equal_range(key);
@@ -253,6 +256,7 @@ void Input::interactive_rebind(const char *bind, bool(*onFinish)(KeyCode key))
 #endif
 }
 SignalT<TouchData>& Input::touch_changed() { return onTouchEvent.signal; }
+SignalT<KeyData>& Input::key_pressed() { return onKeyEvent.signal; }
 
 void iinit_input()
 {

@@ -15,6 +15,11 @@ struct TouchData
     Vector2 pos, delta, startPos;
     TouchState state;
 };
+struct KeyData
+{
+    KeyCode key;
+    bool wasPressed;
+};
 
 namespace Input
 {
@@ -28,4 +33,5 @@ namespace Input
 
     Vector2 mousePos();
     SignalT<TouchData>& touch_changed();
+    SignalT<KeyData>& key_pressed();
 };

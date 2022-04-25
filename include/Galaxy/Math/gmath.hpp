@@ -15,25 +15,20 @@
 
 namespace Math
 {
-    inline float min(float a, float b) { return (a < b) ? a : b; }
-    inline float max(float a, float b) { return (a > b) ? a : b; }
-    inline float clamp(float v, float min, float max)
+    constexpr inline float min(float a, float b) { return (a < b) ? a : b; }
+    constexpr inline float max(float a, float b) { return (a > b) ? a : b; }
+    constexpr inline float clamp(float v, float min, float max)
     {
         if (v > max) return max;
         else if (v < min) return min;
         return v;
     }
-    inline float sqr(float v) { return v*v; }
+    constexpr inline float sqr(float v) { return v*v; }
 
-    inline float remap(float v, float min, float max, float newMin, float newMax)
+    constexpr inline float remap(float v, float min, float max, float newMin, float newMax)
     { return (v-min)/(max-min)*(newMax-newMin)+newMin; }
 
-    inline float remapFrom01(float v, float newMin, float newMax)
-    { return v*(newMax-newMin)+newMin; }
-    inline float remapTo01(float v, float min, float max)
-    { return (v-min)/(max-min); }
-
-    inline float lerp(float start, float goal, float t)
+    constexpr inline float lerp(float start, float goal, float t)
     { return start + (goal - start) * t; }
 
 
@@ -41,12 +36,12 @@ namespace Math
     void insertion_sort(std::vector<T> &array, bool(*predicate)(T &a, T &b));
 
     template<typename T>
-    inline bool within(T v, T min, T max) { return v >= min && v <= max; }
+    constexpr inline bool within(T v, T min, T max) { return v >= min && v <= max; }
 
     template<typename T>
-    inline T abs(T v) { return v < (T)0 ? -v : v; }
+    constexpr inline T abs(T v) { return v < (T)0 ? -v : v; }
     template<typename T>
-    inline bool approx(T a, T b, T threshold = 0.00001f) { return abs(a-b)<=threshold; }
+    constexpr inline bool approx(T a, T b, T threshold = 0.00001f) { return abs(a-b)<=threshold; }
 
 
     constexpr float PI = 3.14159265359f;

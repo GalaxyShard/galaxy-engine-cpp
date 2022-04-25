@@ -12,6 +12,7 @@
 #include <Galaxy/UI/text.hpp>
 #include <Galaxy/UI/group.hpp>
 #include <Galaxy/Input/input.hpp>
+#include <Galaxy/Events/timer.hpp>
 
 #include <Galaxy/Math/time.hpp>
 #include <Galaxy/Physics/physics.hpp>
@@ -24,7 +25,7 @@
 #include <Renderer/buffer.hpp>
 #include <UI/uiobject.hpp>
 
-void iinit_renderer()
+void refresh_aspect()
 {
     int w, h;
     #if USE_GLFM
@@ -34,6 +35,11 @@ void iinit_renderer()
         glfwGetWindowSize(glfwGetCurrentContext(), &w, &h);
     #endif
     Renderer::fix_aspect(w, h);
+    Timer::wait(0.5, []() { refresh_aspect(); });
+}
+void iinit_renderer()
+{
+    refresh_aspect();
 }
 static auto aspectChanged = new Event();
 static auto preRender = new Event();
@@ -58,6 +64,29 @@ void Renderer::fix_aspect(int w, int h)
     }
     UIGroup::aspectRatio->scale = reverseAspect;
     UIGroup::aspectRatio->cache();
+
+#if USE_GLFM
+    double top,right,bottom,left;
+    glfmGetDisplayChromeInsets(glfmDisplay, &top, &right, &bottom, &left);
+    float wTo11 = 2.f/w;
+    float hTo11 = 2.f/h;
+    Vector2 max = Vector2( 1 - wTo11*right,  1 - hTo11*top);
+    Vector2 min = Vector2(-1 + wTo11*left,  -1 + hTo11*bottom);
+
+    // test case:
+    //    top=40
+    //    scale.x should be 1
+    //    scale.y should be <1
+    //    pos.x should be 0
+    //    pos.y should be <0
+
+    Vector2 scale = (max-min)*0.5f;
+    Vector2 pos = (max+min);
+
+    UIGroup::safeArea->scale = scale;
+    UIGroup::safeArea->pos = pos;
+    UIGroup::safeArea->cache();
+#endif
 
 #if USE_GLFM
     GLCall(glViewport(0, 0, w, h));
