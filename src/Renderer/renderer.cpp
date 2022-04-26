@@ -50,49 +50,58 @@ Vector2 Renderer::aspectRatio, Renderer::reverseAspect;
 
 void Renderer::fix_aspect(int w, int h)
 {
-    screenWidth = w;
-    screenHeight = h;
-    if (h > w)
-    {
-        aspectRatio = Vector2(1,  (float)h / (float)w);
-        reverseAspect = Vector2(1, (float)w / (float)h);
-    }
-    else
-    {
-        aspectRatio = Vector2((float)w / (float)h, 1);
-        reverseAspect = Vector2((float)h / (float)w, 1);
-    }
-    UIGroup::aspectRatio->scale = reverseAspect;
-    UIGroup::aspectRatio->cache();
-
 #if USE_GLFM
+    static float lastTop=0,lastRight=0,lastBottom=0,lastLeft=0;
     double top,right,bottom,left;
     glfmGetDisplayChromeInsets(glfmDisplay, &top, &right, &bottom, &left);
-    float wTo11 = 2.f/w;
-    float hTo11 = 2.f/h;
-    Vector2 max = Vector2( 1 - wTo11*right,  1 - hTo11*top);
-    Vector2 min = Vector2(-1 + wTo11*left,  -1 + hTo11*bottom);
-
-    // test case:
-    //    top=40
-    //    scale.x should be 1
-    //    scale.y should be <1
-    //    pos.x should be 0
-    //    pos.y should be <0
-
-    Vector2 scale = (max-min)*0.5f;
-    Vector2 pos = (max+min);
-
-    UIGroup::safeArea->scale = scale;
-    UIGroup::safeArea->pos = pos;
-    UIGroup::safeArea->cache();
+    
+    bool safeAreaChanged = !Math::approx<float>(top, lastTop)
+        || !Math::approx<float>(right, lastRight)
+        || !Math::approx<float>(bottom, lastBottom)
+        || !Math::approx<float>(left, lastLeft);
+    
 #endif
+    bool aspectDidChange = screenHeight!=h || screenWidth!=w;
+    if (aspectDidChange)
+    {
+        screenWidth = w;
+        screenHeight = h;
+        if (h > w)
+        {
+            aspectRatio = Vector2(1,  (float)h / (float)w);
+            reverseAspect = Vector2(1, (float)w / (float)h);
+        }
+        else
+        {
+            aspectRatio = Vector2((float)w / (float)h, 1);
+            reverseAspect = Vector2((float)h / (float)w, 1);
+        }
+        UIGroup::aspectRatio->scale = reverseAspect;
+        UIGroup::aspectRatio->cache();
+        Camera::main->refresh();
+#if USE_GLFM
+        GLCall(glViewport(0, 0, w, h));
+#endif
+    }
 
 #if USE_GLFM
-    GLCall(glViewport(0, 0, w, h));
+    if (safeAreaChanged||aspectDidChange)
+    {
+        float wTo11 = 2.f/w;
+        float hTo11 = 2.f/h;
+        Vector2 max = Vector2( 1 - wTo11*right,  1 - hTo11*top);
+        Vector2 min = Vector2(-1 + wTo11*left,  -1 + hTo11*bottom);
+
+        Vector2 scale = (max-min)*0.5f;
+        Vector2 pos = (max+min);
+
+        UIGroup::safeArea->scale = scale;
+        UIGroup::safeArea->pos = pos;
+        UIGroup::safeArea->cache();
+    }
 #endif
-    Camera::main->refresh();
-    aspectChanged->fire();
+    if (aspectDidChange)
+        aspectChanged->fire();
 }
 void Renderer::draw_square(Vector2 pos, Vector2 s)
 {

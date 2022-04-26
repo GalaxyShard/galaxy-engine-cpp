@@ -76,7 +76,7 @@ static bool init_glfw()
         InternalTime::end_frame();
         glfwSwapBuffers(window);
     });
-    glfwSetWindowSizeLimits(window, 300, 200, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowSizeLimits(window, 400, 225, GLFW_DONT_CARE, GLFW_DONT_CARE);
     return 1;
 }
 #endif

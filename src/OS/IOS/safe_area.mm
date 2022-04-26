@@ -1,6 +1,5 @@
 #import <UIKit/UIKit.h>
 
-// TODO implement this into Renderer (use glfmGetDisplayChromeInsets)
 extern "C" void get_safe_area_platform(float *top, float *bottom, float *left, float *right)
 {
     UIWindow *window = UIApplication.sharedApplication.windows.firstObject;

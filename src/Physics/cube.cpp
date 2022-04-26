@@ -160,7 +160,7 @@ CollisionData CubeCollider::is_colliding(Collider *other)
         if (!testAxis(forward1))
             return CollisionData();
         
-        // causes errors (todo: check if it still does with the new implementation)
+        // doesnt work (todo: check if it still does with the new implementation)
         //if (!testAxis(Vector3::cross(up0, up1))
         //    || !testAxis(Vector3::cross(up0, right1))
         //    || !testAxis(Vector3::cross(up0, forward1))

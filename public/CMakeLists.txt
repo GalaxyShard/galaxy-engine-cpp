@@ -94,14 +94,14 @@ if (APPLE)
     set(MACOSX_BUNDLE_ICON_FILE appIcon)
     set(CMAKE_MACOSX_BUNDLE 1)
 
-    set(icon_path ${proj_dir}/assets/appIcon.icns)
-    if (EXISTS ${icon_path})
-        # Duplicates the appIcons.icns into "Resources"
+    set(icon_path "${proj_dir}/assets/appIcon.png")
+    if (EXISTS "${icon_path}")
+        # Duplicates the appIcon into "Resources"
         set_source_files_properties(
-            ${icon_path} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
+            "${icon_path}" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
         )
     endif()
-    add_executable(game ${GAME_SRC} ${GAME_HEADERS})
+    add_executable(game ${GAME_SRC} ${GAME_HEADERS} ${icon_path})
     set_target_properties(game PROPERTIES OUTPUT_NAME "${OUT_NAME}")
 
     macro(add_fw fwname)
@@ -141,41 +141,38 @@ if (APPLE)
         # Galaxy Engine
         add_fw(OpenAL)
 
-        set_source_files_properties(LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
         
         # LaunchScreen needed to allow any screen size. Don't overwrite. (GLFM)
-        if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/LaunchScreen.storyboard)
+        set(STORYBOARD_PATH "${bin_dir}/LaunchScreen.storyboard")
+        if (NOT EXISTS "${STORYBOARD_PATH}")
             file(READ "$ENV{HOME}/Projects/cmake/cmake_launchscreen.txt" launchscreen)
-            file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/LaunchScreen.storyboard" "${launchscreen}")
+            file(WRITE "${STORYBOARD_PATH}" "${launchscreen}")
         endif()
+        set_source_files_properties("${STORYBOARD_PATH}" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+        target_sources(game PUBLIC "${STORYBOARD_PATH}")
+
         # In place of MacOSXBundleInfo.plist.in (GLFM)
         file(READ "$ENV{HOME}/Projects/cmake/cmake_infoplist.txt" infoplist)
         string(REPLACE "MACOSX_BUNDLE_SHORT_VERSION_STRING" "1.0" infoplist "${infoplist}")
         string(REPLACE "MACOSX_BUNDLE_BUNDLE_VERSION" "1" infoplist "${infoplist}")
-        file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/CMake-Info.plist.in" "${infoplist}")
-        set_property(TARGET game PROPERTY MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/CMake-Info.plist.in)
-        
+        file(WRITE "${bin_dir}/CMake-Info.plist.in" "${infoplist}")
+        set_property(TARGET game PROPERTY MACOSX_BUNDLE_INFO_PLIST ${bin_dir}/CMake-Info.plist.in)
+                
 
-        execute_process(
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${ENGINE_ROOT}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/galaxy_assets"
-        )
-        execute_process(
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${proj_dir}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/assets"
-        )
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${ENGINE_ROOT}/assets/" "${bin_dir}/galaxy_assets")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${proj_dir}/assets/" "${bin_dir}/assets")
         set_source_files_properties(
-            ${CMAKE_CURRENT_BINARY_DIR}/assets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
-        )
+            "${bin_dir}/assets" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
         set_source_files_properties(
-            ${CMAKE_CURRENT_BINARY_DIR}/galaxy_assets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
-        )
+            "${bin_dir}/galaxy_assets" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
         # try this instead
         #set_source_files_properties("${proj_dir}/assets" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
         #set_source_files_properties("${ENGINE_ROOT}/assets" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/engine")
         target_sources(game
-            PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/galaxy_assets
-            PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/assets
+            PUBLIC ${bin_dir}/galaxy_assets
+            PUBLIC ${bin_dir}/assets
         )
     else()
         # GLFW
@@ -186,18 +183,20 @@ if (APPLE)
         # Engine
         add_fw(OpenAL)
         
+        # TODO: Possibly replace these with the target_sources/set_source_files_properties combination
+
         # https://stackoverflow.com/questions/13429656/how-to-copy-contents-of-a-directory-into-build-directory-after-make-with-cmake
         add_custom_command(
             TARGET game
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${proj_dir}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/${OUT_NAME}.app/Contents/Resources/assets"
+            "${proj_dir}/assets/" "${bin_dir}/${OUT_NAME}.app/Contents/Resources/assets"
         )
         add_custom_command(
             TARGET game
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${ENGINE_ROOT}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/${OUT_NAME}.app/Contents/Resources/galaxy_assets"
+            "${ENGINE_ROOT}/assets/" "${bin_dir}/${OUT_NAME}.app/Contents/Resources/galaxy_assets"
         )
     endif()
 endif()
@@ -211,6 +210,7 @@ if (EMSCRIPTEN)
     else()
         string(CONCAT STYLE_REPLACEMENT "<meta name=\"viewport\" content=\"width=device-width,user-scalable=no,viewport-fit=cover\">\n"
             "    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n"
+            "    <link rel=\"apple-touch-icon\" href=\"appIcon.png\">\n"
             "    <style>\n"
             "      /* GLFM: Start changes */\n"
             "      :root {\n"
@@ -230,21 +230,22 @@ if (EMSCRIPTEN)
             "      /* GLFM: End changes */"
         )
         string(REPLACE "<style>" "${STYLE_REPLACEMENT}" EMSCRIPTEN_SHELL_HTML "${EMSCRIPTEN_SHELL_HTML}")
+        string(REPLACE "Emscripten-Generated Code" "${OUT_NAME}" EMSCRIPTEN_SHELL_HTML "${EMSCRIPTEN_SHELL_HTML}")
     endif()
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/shell.html.in "${EMSCRIPTEN_SHELL_HTML}")
+    file(WRITE ${bin_dir}/shell.html.in "${EMSCRIPTEN_SHELL_HTML}")
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     add_executable(game ${GAME_SRC})
     set_target_properties(game PROPERTIES OUTPUT_NAME "index")
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${ENGINE_ROOT}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/res/galaxy_assets"
+        "${ENGINE_ROOT}/assets/" "${bin_dir}/res/galaxy_assets"
     )
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${proj_dir}/assets/" "${CMAKE_CURRENT_BINARY_DIR}/res/assets"
+        "${proj_dir}/assets/" "${bin_dir}/res/assets"
     )
-    set_target_properties(game PROPERTIES LINK_FLAGS "--shell-file \"${CMAKE_CURRENT_BINARY_DIR}/shell.html.in\" --preload-file \"${proj_dir}/bin/web/res@bin/web/res\"")
+    set_target_properties(game PROPERTIES LINK_FLAGS "--shell-file \"${bin_dir}/shell.html.in\" --preload-file \"${proj_dir}/bin/web/res@bin/web/res\"")
 endif()
 target_precompile_headers(game PRIVATE ${ENGINE_ROOT}/include/Galaxy/engine.hpp)
 

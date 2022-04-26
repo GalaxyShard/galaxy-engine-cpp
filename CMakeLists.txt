@@ -7,7 +7,7 @@
 # make -C bin/ios -j8
 
 # WebGL
-# emcmake cmake -B bin/web -DRELEASE=1
+# emcmake cmake -B bin/web
 # emmake make -C bin/web -j8
 
 if (IOS) # Set on command line -DIOS=1
