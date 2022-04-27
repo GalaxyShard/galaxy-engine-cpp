@@ -1,7 +1,12 @@
 #pragma once
 
-#define CLASS_LAMBDA(func) [this](){func();}
-#define TYPE_LAMBDA(func, T) [this](T v){func(v);}
+#define MK_LAMBDA(func) [this](){func();}
+#define ARG_LAMBDA(func) [this](auto v0){func(v0);}
+#define ARG_LAMBDA1(func) [this](auto v0){func(v0);}
+#define ARG_LAMBDA2(func) [this](auto v0,auto v1){func(v0,v1);}
+#define ARG_LAMBDA3(func) [this](auto v0,auto v1,auto v2){func(v0,v1,v2);}
+#define ARG_LAMBDA4(func) [this](auto v0,auto v1,auto v2,auto v3){func(v0,v1,v2,v3);}
+
 
 class Callback;
 template<typename... Args>
@@ -10,16 +15,9 @@ struct RawCallback
 {
     void *data;
     void *indirection;
-    //explicit operator Callback() const;
-    //template<typename... Args>
-    //explicit operator ArgCallback<Args...>() const;
-
     explicit RawCallback(Callback c);
     template<typename... Args>
     explicit RawCallback(ArgCallback<Args...> c);
-
-    //RawCallback(void *data, void *indirection)
-    //    : data(data), indirection(indirection) { }
 };
 class Callback
 {
@@ -54,6 +52,7 @@ public:
 
     template<typename T>
     ArgCallback(T func_or_lambda);
+    
     
     void operator()(Args ...data) const;
     operator bool() const;
