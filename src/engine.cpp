@@ -190,7 +190,7 @@ void initialize()
                 return 1;
             });
         });
-    }
+    });
 #elif USE_GLFM
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
     {

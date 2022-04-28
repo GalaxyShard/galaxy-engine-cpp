@@ -110,30 +110,32 @@ namespace
     // {
     //     return strncmp(code, str, strlen(str))==0;
     // }
-    bool em_key_callback(int eventType, const EmscriptenKeyboardEvent *e, void*)
+    int em_key_callback(int eventType, const EmscriptenKeyboardEvent *e, void*)
     {
         if (e->repeat)
-            return;
+            return 0;
         // e->code is mod-insensitive, e->key is
         // possibly use map instead of if-statements
         
         KeyCode key; // ascii keycode, '0'==48, 'A'==65
-        // pressing any letter will result in Key#, where # is the letter
-        if (strncmp(e->code, "Key", 3)==0)
+        
+        // todo: support keys Backquote, Minus, Equal, Tab, Bracket Left/Right, Backslash, Semicolon, Quote, Comma, Period, Slash, Arrow Up/Down/Left/Right
+        
+        if (strncmp(e->code, "Key", 3)==0) // pressing any letter will result in Key#, where # is the letter
             key = (KeyCode)e->code[3];
         else if (strncmp(e->code, "Digit", 5)==0) // pressing any digit will result in Digit#
             key = (KeyCode)e->code[5];
         else if (strncmp(e->code, "Control", 7)==0)
             key = e->code[7]=='L' ? Key::LeftControl : Key::RightControl;
-        else if (strncmp(e->code, "Alt", 7)==0)
+        else if (strncmp(e->code, "Alt", 3)==0)
             key = e->code[7]=='L' ? Key::LeftAlt : Key::RightAlt;
-        else if (strncmp(e->code, "Shift", 7)==0)
+        else if (strncmp(e->code, "Shift", 5)==0)
             key = e->code[7]=='L' ? Key::LeftShift : Key::RightShift;
         else if (strcmp(e->code, "Space")==0)
             key = Key::Space;
         else
         {
-            logmsg("key not recognized: \'%o\'", e->code);
+            logmsg("key not recognized: \'%o\'\n", (char*)e->code);
             return 0;
         }
         
@@ -299,13 +301,13 @@ SignalT<KeyData>& Input::key_pressed() { return onKeyEvent.signal; }
 
 void iinit_input()
 {
-#if USE_GLFM
-    glfmSetTouchFunc(glfmDisplay, &touch_callback);
-#else
 #if OS_WEB
     emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 1, &em_key_callback);
     emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 1, &em_key_callback);
 #endif
+#if USE_GLFM
+    glfmSetTouchFunc(glfmDisplay, &touch_callback);
+#else
 
     auto *window = glfwGetCurrentContext();
     glfwSetKeyCallback(window, &key_callback);
