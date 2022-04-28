@@ -99,10 +99,7 @@ extern "C" void readyToInit()
     didInit = 1;
 
     Init::fire();
-    glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
-    {
-        redraw();
-    });
+    glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*) { redraw(); });
 }
 void initFS(bool firstTime)
 {
@@ -115,14 +112,12 @@ void initFS(bool firstTime)
     }
     // https://stackoverflow.com/a/54627719
     EM_ASM({
-        //FS.mkdir('/gamedata');
-        //FS.mount(IDBFS, {}, '/gamedata');
         FS.syncfs(true, function(err) {
             if (err) console.log('Error syncing file system: ', err);
             ccall('readyToInit', 'void');
         });
     });
-    glClearColor(0.2,0.2,0.2,1);
+    glClearColor(0.25,0.25,0.75,1);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 #endif
@@ -164,16 +159,20 @@ void initialize()
 
     InternalTime::initialize();
 #if OS_WEB
+    // Required for iOS, which sometimes doesnt run the syncfs callback. Allows the user to rerun syncfs by tapping the screen after 2 second.
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
     {
-        logmsg("Waiting for IndexedDB...\n");
-        static float endTime = Time::get()+2;
-        if (Time::get() > endTime)
+        initFS(1);
+        glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
         {
+            logmsg("Waiting for IndexedDB...\n");
+            static float endTime = Time::get()+2;
+            if (Time::get() < endTime)
+                return;
             endTime = Math::INF;
             glClearColor(0.5,0.5,0.5,1);
             glClear(GL_COLOR_BUFFER_BIT);
-            // this is run before init, so it is not already set
+            // this is run before Init::fire(), so touchFunc is not already set
             glfmSetTouchFunc(glfmDisplay, [](GLFMDisplay*,int,GLFMTouchPhase phase,double,double)->bool
             {
                 if (phase==GLFMTouchPhaseBegan)
@@ -184,30 +183,25 @@ void initialize()
                 else if (phase==GLFMTouchPhaseEnded)
                 {
                     logmsg("Reloading IndexedDB...\n");
+                    glfmSetTouchFunc(glfmDisplay, nullptr);
                     endTime = Time::get()+2;
                     initFS(0);
                 }
                 return 1;
             });
-        }
-    });
-    initFS(1);
+        });
+    }
 #elif USE_GLFM
     glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*)
     {
-        static bool didInit = 0;
-        if (!didInit) Init::fire();
-        didInit = 1;
-        
-        redraw();
+        Init::fire();
+        glfmSetRenderFunc(glfmDisplay, [](GLFMDisplay*) { redraw(); });
     });
 #endif
 #if USE_GLFW
     Init::fire();
     while (!glfwWindowShouldClose(window))
-    {
         redraw();
-    }
     glfwTerminate();
 #endif
 }
