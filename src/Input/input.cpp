@@ -24,30 +24,38 @@ struct InputData
 };
 extern UIImage **heldImages;
 extern int lastTouchID;
-
-static Vector2 mousePos = Vector2(-1,-1);
-auto onTouchEvent = EventT<TouchData>();
-auto onKeyEvent = EventT<KeyData>();
 namespace
 {
+    Vector2 mousePos = Vector2(-1,-1);
+    auto onTouchEvent = EventT<TouchData>();
+    auto onKeyEvent = EventT<KeyData>();
+
+    struct CompareCStr
+    {
+        // std::map requires true when the a < b
+        bool operator()(const char *a, const char *b) const
+        { return strcmp(a, b)<0; }
+    };
     auto lastTouchState = std::unordered_map<int, TouchData>();
     auto callbacks = std::unordered_multimap<KeyCode, InputData>();
-    auto bindMap = std::unordered_map<const char*, KeyCode>();
-    auto lastKeyStates = std::unordered_map<KeyCode, bool>();
+    auto bindMap = std::map<const char*, KeyCode, CompareCStr>();
+    auto lastBindState = std::map<const char*, bool, CompareCStr>();
     
-    void process_key(KeyCode key, bool action, int mods)
+    void process_key(KeyCode key, bool isPressed, int mods)
     {
         (void)mods;
-        if (lastKeyStates[key] == action)
-            return;
+        onKeyEvent.fire({key, isPressed});
 
-        onKeyEvent.fire({key, action});
-        
-        lastKeyStates[key] = action;
         auto iterator = callbacks.equal_range(key);
-
         for (auto i = iterator.first; i != iterator.second; ++i)
-            i->second.callback(action);
+        {
+            bool &state = lastBindState[i->second.bind];
+            if (state != isPressed)
+            {
+                state = isPressed;
+                i->second.callback(isPressed);
+            }
+        }
     }
     bool (*onRebindFinish)(KeyCode key);
     const char *changingBind;
@@ -106,39 +114,71 @@ namespace
         mousePos *= Renderer::aspectRatio;
     }
 #if OS_WEB
-    // bool startsWith(const char *code, const char *str)
-    // {
-    //     return strncmp(code, str, strlen(str))==0;
-    // }
     int em_key_callback(int eventType, const EmscriptenKeyboardEvent *e, void*)
     {
         if (e->repeat)
             return 0;
+        static std::map<const char*, KeyCode, CompareCStr> webCodeToKey = {
+            {"ControlLeft",Key::LeftControl},
+            {"ControlRight",Key::RightControl},
+
+            {"AltLeft",Key::LeftAlt},
+            {"AltRight",Key::RightAlt},
+
+            {"ShiftLeft",Key::LeftShift},
+            {"ShiftRight",Key::RightShift},
+
+            {"BracketLeft",Key::LeftBracket},
+            {"BracketRight",Key::RightBracket},
+
+            {"ArrowLeft",Key::Left},
+            {"ArrowRight",Key::Right},
+            {"ArrowUp",Key::Up},
+            {"ArrowDown",Key::Down},
+
+            {"Space",Key::Space},
+            {"Backquote",Key::GraveAccent},
+            {"Minus",Key::Minus},
+            {"Equal",Key::Equal},
+            {"Tab",Key::Tab},
+            {"Backslash",Key::Backslash},
+            {"Semicolon",Key::Semicolon},
+            {"Quote",Key::Apostrophe},
+            {"Comma",Key::Comma},
+            {"Period",Key::Period},
+            {"Slash",Key::Slash},
+            {"Enter",Key::Enter},
+            {"Escape",Key::Escape},
+            {"Backspace",Key::Backspace},
+            {"CapsLock",Key::CapsLock}
+        };
+        
+        KeyCode key;
+
         // e->code is mod-insensitive, e->key is
-        // possibly use map instead of if-statements
-        
-        KeyCode key; // ascii keycode, '0'==48, 'A'==65
-        
-        // todo: support keys Backquote, Minus, Equal, Tab, Bracket Left/Right, Backslash, Semicolon, Quote, Comma, Period, Slash, Arrow Up/Down/Left/Right
-        
         if (strncmp(e->code, "Key", 3)==0) // pressing any letter will result in Key#, where # is the letter
             key = (KeyCode)e->code[3];
         else if (strncmp(e->code, "Digit", 5)==0) // pressing any digit will result in Digit#
             key = (KeyCode)e->code[5];
-        else if (strncmp(e->code, "Control", 7)==0)
-            key = e->code[7]=='L' ? Key::LeftControl : Key::RightControl;
-        else if (strncmp(e->code, "Alt", 3)==0)
-            key = e->code[7]=='L' ? Key::LeftAlt : Key::RightAlt;
-        else if (strncmp(e->code, "Shift", 5)==0)
-            key = e->code[7]=='L' ? Key::LeftShift : Key::RightShift;
-        else if (strcmp(e->code, "Space")==0)
-            key = Key::Space;
+        else if (e->code[0]=='F') // function keys
+        {
+            if (e->code[2])
+                key = (e->code[1]-Key::D0)*10 + (e->code[2]-Key::D0);
+            else key = e->code[1]-Key::D0;
+            key += Key::F1-1;
+        }
+        else if (strncmp(e->code, "Meta", 4)==0) // ignore system keys (l/r cmd on osx, win on windows, search on chromeos)
+            return 0;
         else
         {
-            logmsg("key not recognized: \'%o\'\n", (char*)e->code);
-            return 0;
+            auto it = webCodeToKey.find(e->code);
+            if (it == webCodeToKey.end())
+            {
+                logmsg("key not recognized: \'%o\'\n", (char*)e->code);
+                return 0;
+            }
+            key = it->second;
         }
-        
         process_key(key, eventType==EMSCRIPTEN_EVENT_KEYDOWN, 0);
         return 1;
     }
@@ -148,18 +188,15 @@ namespace
     {
         process_cursor(x, y);
         if (phase == GLFMTouchPhaseBegan)
-        {
             process_click(touch, 1, 0, Input::mousePos());
-        }
         else if (phase == GLFMTouchPhaseEnded)
-        {
             process_click(touch, 0, 0, Input::mousePos());
-        }
+        
         TouchState state;
         if (phase==GLFMTouchPhaseBegan) state = TouchState::PRESSED;
         else if (phase==GLFMTouchPhaseCancelled || phase==GLFMTouchPhaseEnded) state = TouchState::RELEASED;
         else if (phase==GLFMTouchPhaseMoved) state = TouchState::MOVED;
-        else return 1;
+        else assert(false);
         
         TouchData data = TouchData();
         data.id = touch;
@@ -170,7 +207,7 @@ namespace
             data.delta = data.pos - lastTouchState[touch].pos;
             data.startPos = lastTouchState[touch].startPos;
         }
-        else { data.startPos = data.pos; }
+        else data.startPos = data.pos;
         if (state == TouchState::RELEASED) lastTouchState.erase(touch);
         else lastTouchState[touch] = data;
         onTouchEvent.fire(data);
@@ -227,7 +264,7 @@ namespace
 Vector2 Input::mousePos() { return ::mousePos; }
 void Input::add_bind(const char *bind, KeyCode key)
 {
-    add_bind(bind, key, input_callback());
+    add_bind(bind, key, nullptr);
 }
 void Input::add_bind(const char *bind, KeyCode key, input_callback callback)
 {
@@ -256,21 +293,21 @@ void Input::remove_bind(const char *bind)
 }
 bool Input::is_held(const char *bind)
 {
-    return lastKeyStates[bindMap[bind]];
+    return lastBindState[bind];
 }
-void Input::trigger(const char *bind, bool action)
+void Input::trigger(const char *bind, bool isPressed)
 {
-    KeyCode key = bindMap[bind];
-    if (lastKeyStates[key] == action)
+    if (lastBindState[bind] == isPressed)
         return;
-    
-    lastKeyStates[key] = action;
+    lastBindState[bind] = isPressed;
+    KeyCode key = bindMap[bind];
+
     auto iterator = callbacks.equal_range(key);
     for (auto i = iterator.first; i != iterator.second; ++i)
     {
         if (i->second.bind == bind)
         {
-            i->second.callback(action);
+            i->second.callback(isPressed);
             return;
         }
     }
@@ -284,6 +321,7 @@ void Input::rebind(const char *bind, KeyCode newKey)
         {
             i->second.key = newKey;
             bindMap[bind] = newKey;
+            return;
         }
     }
 }
@@ -302,13 +340,14 @@ SignalT<KeyData>& Input::key_pressed() { return onKeyEvent.signal; }
 void iinit_input()
 {
 #if OS_WEB
+    // Overrides glfm callbacks, but that doesnt matter since they are not used
     emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 1, &em_key_callback);
     emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 1, &em_key_callback);
 #endif
 #if USE_GLFM
     glfmSetTouchFunc(glfmDisplay, &touch_callback);
-#else
-
+#endif
+#if USE_GLFW
     auto *window = glfwGetCurrentContext();
     glfwSetKeyCallback(window, &key_callback);
     glfwSetMouseButtonCallback(window, &mouse_callback);

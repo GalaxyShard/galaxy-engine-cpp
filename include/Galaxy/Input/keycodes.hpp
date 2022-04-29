@@ -149,9 +149,9 @@ namespace Key
         B7 = 6,
         B8 = 7,
 
-        LEFT = B1,
-        RIGHT = B2,
-        MIDDLE = B3
+        MouseLeft = B1,
+        MouseRight = B2,
+        MouseMiddle = B3
 
     };
 }
