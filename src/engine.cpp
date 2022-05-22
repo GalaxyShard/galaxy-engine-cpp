@@ -92,7 +92,7 @@ static void redraw()
 #endif
 }
 #if OS_WEB
-extern "C" void readyToInit()
+extern "C" EMSCRIPTEN_KEEPALIVE void readyToInit()
 {
     static bool didInit = 0;
     if (didInit) return;

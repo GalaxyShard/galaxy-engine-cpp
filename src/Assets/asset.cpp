@@ -34,7 +34,7 @@ std::string Assets::gpath()
 { return resource_path()+"/galaxy_assets"; }
 
 #if OS_WEB
-extern "C" void sync_finished(int success, void *data, void *indirect)
+extern "C" EMSCRIPTEN_KEEPALIVE void sync_finished(int success, void *data, void *indirect)
 {
     ArgCallback<bool>(data, indirect)(success);
 }
