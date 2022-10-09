@@ -33,7 +33,6 @@ public:
     UIGroup *group = 0;
     static UIText* create(std::string text, Font *font = Font::defaultFont);
     static void destroy(UIText *text);
-    //UIText(std::string text, Font *font = Font::defaultFont);
     ~UIText();
 
     Vector2 pos;

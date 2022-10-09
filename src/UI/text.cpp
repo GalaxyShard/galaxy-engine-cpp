@@ -69,6 +69,7 @@ void UIText::build_mesh()
     float xadv = 0;
     float line = 0;
 
+    float charSize = font->fontSize;
     for (char c : str)
     {
         //if (c == '\n')
@@ -90,7 +91,6 @@ void UIText::build_mesh()
             xadv += data.xadv;
             continue;
         }
-        float charSize = 72;
         //float charSize = data.xadv;
         float w = data.width / charSize;
         float h = data.height / charSize;
@@ -104,11 +104,6 @@ void UIText::build_mesh()
         verts.push_back(Vertex(Vector3(xoff,   -(yoff+h)), Vector2(data.xCoord0, data.yCoord1)));
         verts.push_back(Vertex(Vector3(xoff+w, -(yoff+h)), Vector2(data.xCoord1, data.yCoord1)));
 
-        //verts.push_back(Vertex(Vector3(xoff,   -(yoff)),   Vector2(data.xCoord0, data.yCoord0)));
-        //verts.push_back(Vertex(Vector3(xoff+w, -(yoff)),   Vector2(data.xCoord1, data.yCoord0)));
-        //verts.push_back(Vertex(Vector3(xoff,   -(yoff+h)), Vector2(data.xCoord0, data.yCoord1)));
-        //verts.push_back(Vertex(Vector3(xoff+w, -(yoff+h)), Vector2(data.xCoord1, data.yCoord1)));
-
         tris.push_back(vert0 + 0);
         tris.push_back(vert0 + 2);
         tris.push_back(vert0 + 1);
@@ -119,14 +114,6 @@ void UIText::build_mesh()
         xadv += data.xadv;
     }
     mesh->calculate_bounds();
-//    Vector2 min = mesh->aabbMin;
-//    Vector2 max = mesh->aabbMax;
-//    for (auto &vert : verts)
-//    {
-//        vert.pos.x = Math::remap(vert.pos.x, min.x, max.x, -0.5f, 0.5f);
-//        vert.pos.y = Math::remap(vert.pos.y, min.y, max.y, -0.5f, 0.5f);
-//    }
-//    mesh->calculate_bounds();
 }
 void init_text()
 {

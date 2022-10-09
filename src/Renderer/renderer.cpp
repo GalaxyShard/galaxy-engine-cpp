@@ -403,6 +403,8 @@ void Renderer::draw(UIText &text)
 
     Vector2 worldScale = text.world_scale()*aspectRatio;
     Vector2 worldPos = text.calc_world_pos();
+
+    // hack: magic code, somehow works
     float charSize = std::min(worldScale.x/text.str.size()*2.5f, worldScale.y);
     float textWidth = charSize*text.str.size()/2.5f;
     

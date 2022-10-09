@@ -14,6 +14,8 @@ class Font
 private:
     AssetRef<Texture> fontTex;
     std::unordered_map<unsigned char, GlyphData> glyphs;
+    int fontSize;
+    
     friend class UIText;
     friend class Renderer;
 public:
