@@ -16,8 +16,8 @@ if (IOS) # Set on command line -DIOS=1
     set(CMAKE_OSX_SYSROOT "iphoneos" CACHE STRING "")
     add_compile_options(-arch arm64)
 endif()
-project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
 cmake_minimum_required(VERSION 3.19.7, FATAL_ERROR)
+project("Galaxy Engine" LANGUAGES C CXX OBJC OBJCXX)
 set(CMAKE_CXX_STANDARD 17)
 
 if (APPLE AND NOT IOS)
