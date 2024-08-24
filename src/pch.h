@@ -10,9 +10,9 @@
     #include <queue>
     #include <set>
     #include <unordered_set>
-    
+    #include <cstdint>
+
     #include <Galaxy/OS/defines.hpp>
-    #include <Galaxy/types.hpp>
     #include <Galaxy/print.hpp>
 #elif defined(__OBJC2__) || defined(__OBJC__)
 

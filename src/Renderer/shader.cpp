@@ -2,12 +2,17 @@
 #include <Galaxy/Assets/assets.hpp>
 #include <Galaxy/Math/vector.hpp>
 #include <Galaxy/Math/matrix.hpp>
-#include <iostream>
+#include <Galaxy/print.hpp>
 
-#include <sstream>
+#include <iostream>
+#include <cstdlib>
+#include <cassert>
+#include <iostream>
 #include <fstream>
+
 #include <internalinit.hpp>
 #include <gldebug.hpp>
+
 static unsigned int compile_shader(unsigned int type, const char *source)
 {
     unsigned int shader = GLCall(glCreateShader(type));

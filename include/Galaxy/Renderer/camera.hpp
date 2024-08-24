@@ -5,7 +5,7 @@
 class Camera
 {
 public:
-    enum CameraMode : ucharG { ORTHO, PERSPECTIVE };
+    enum CameraMode : uint8_t { ORTHO, PERSPECTIVE };
     static Camera *main;
     
     Vector3 position;

@@ -2,7 +2,6 @@
 #include <Galaxy/Math/vector.hpp>
 #include <vector>
 #include <unordered_map>
-#include <Galaxy/types.hpp>
 class Material;
 class Mesh;
 class Scene;
@@ -37,8 +36,8 @@ private:
     Vector3 minBounds, maxBounds;
     unsigned int objectIndex, sceneID;
 
-    enum DirtyFlags : ucharG { TRANSFORM=1<<0 };
-    ucharG dirty = 0xff;
+    enum DirtyFlags : uint8_t { TRANSFORM=1<<0 };
+    uint8_t dirty = 0xff;
 
     Object() = default;
 
@@ -97,8 +96,8 @@ private:
     Vector2 minBounds, maxBounds;
     unsigned int objectIndex, sceneID;
 
-    enum DirtyFlags : ucharG { TRANSFORM=1<<0 };
-    ucharG dirty = 0xff;
+    enum DirtyFlags : uint8_t { TRANSFORM=1<<0 };
+    uint8_t dirty = 0xff;
     bool m_wasCulled = 0;
 
     Object2D() = default;

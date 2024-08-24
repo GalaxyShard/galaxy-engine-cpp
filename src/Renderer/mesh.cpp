@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <cassert>
 
 Mesh::Mesh() { } // for smart ptr
 Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> tris) : verts(verts), tris(tris)
@@ -220,17 +221,17 @@ void Mesh::export_obj(const Mesh *mesh, const std::string &path)
 {
     std::ofstream out = std::ofstream(path);
     out << "# Exported from Galaxy Engine\n";
-    for (uintg i = 0; i < mesh->verts.size(); ++i)
+    for (uint32_t i = 0; i < mesh->verts.size(); ++i)
     {
         const Vertex &v = mesh->verts[i];
         out << "v " << v.pos.x << ' ' << v.pos.y << ' ' << v.pos.z << '\n';
     }
     out << "s off\n";
-    for (uintg i = 0; i < mesh->tris.size(); i+=3)
+    for (uint32_t i = 0; i < mesh->tris.size(); i+=3)
     {
-        uintg tri0 = mesh->tris[i+0]+1;
-        uintg tri1 = mesh->tris[i+1]+1;
-        uintg tri2 = mesh->tris[i+2]+1;
+        uint32_t tri0 = mesh->tris[i+0]+1;
+        uint32_t tri1 = mesh->tris[i+1]+1;
+        uint32_t tri2 = mesh->tris[i+2]+1;
         out << "f " << tri0 << ' ' << tri1 << ' ' << tri2 << '\n';
     }
 }

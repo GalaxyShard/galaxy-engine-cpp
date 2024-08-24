@@ -6,10 +6,10 @@ static std::vector<Callback> frameQueue;
 
 void FrameQueuer::trigger()
 {
-    uintg s = frameQueue.size();
+    uint32_t s = frameQueue.size();
     if (s)
     {
-        for (uintg i = 0; i < s; ++i)
+        for (uint32_t i = 0; i < s; ++i)
             frameQueue[i]();
         frameQueue.clear();
     }

@@ -1,5 +1,6 @@
 #include <Galaxy/Math/matrix.hpp>
 #include <ostream>
+#include <cassert>
 
 #include <cmath>
 Matrix4x4::Matrix4x4(float v0, float v1, float v2, float v3, float v4,

@@ -7,10 +7,10 @@
     All stored in big endian
 
     Asset info:
-        uintG length;
+        u32 length;
         (string path, assetType)[] assets;
     UI info:
-        uintG imageCount, textCount;
+        u32 imageCount, textCount;
         UIImage[] images;
         UIText[] texts;
 */
@@ -26,7 +26,7 @@ static void parse_scene(Scene *scene, const std::string &path)
 
     if (!stream.read(buffer, 4))
         throw ERRMSG("Failed to read");
-    //uintG numAssets = to_native_endian32(buffer, Endian::BIG);
+    //u32 numAssets = to_native_endian32(buffer, Endian::BIG);
 
 
 }

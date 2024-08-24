@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 
 #define MK_LAMBDA(func) [this](){func();}
 #define ARG_LAMBDA(func) [this](auto v0){func(v0);}

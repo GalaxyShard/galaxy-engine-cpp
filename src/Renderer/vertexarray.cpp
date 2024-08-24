@@ -38,12 +38,16 @@ void VertexArray::add_buffer(IndexBuffer &buffer)
 {
 #if OS_WEB
     ibo = &buffer;
+#else
+    (void)buffer;
 #endif
 }
 void VertexArray::add_buffer(VertexBuffer &buffer)
 {
 #if OS_WEB
     vbo = &buffer;
+#else
+    (void)buffer;
 #endif
 }
 static void apply_layout(const VertexLayout &layout)

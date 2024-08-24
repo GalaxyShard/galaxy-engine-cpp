@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <typeindex>
+#include <cstdint>
 class Object;
 class UIImage;
 class UIText;
@@ -28,7 +29,7 @@ struct SceneComponent
 class Scene
 {
 private:
-    enum InstType : uintG { OBJ,OBJ2D,IMG,TXT,GROUP };
+    enum InstType : uint32_t { OBJ,OBJ2D,IMG,TXT,GROUP };
     struct SceneInst
     {
         void *ptr;

@@ -14,8 +14,10 @@ void Log::print_overload(std::ostream &stream, std::vector<T> &obj)
     stream << obj[size];
 }
 template <unsigned int I, typename... Args>
-inline std::enable_if_t<I == sizeof...(Args)> Log::print_element(std::ostream &stream, const std::string &format, std::tuple<Args...> &args, int index)
-{ stream << format.substr(index); }
+inline std::enable_if_t<I == sizeof...(Args)> Log::print_element(std::ostream &stream, const std::string &format, std::tuple<Args...> &/* args */, int index)
+{
+    stream << format.substr(index);
+}
 
 template <unsigned int I, typename... Args>
 inline std::enable_if_t<I < sizeof...(Args)> Log::print_element(std::ostream &stream, const std::string &format, std::tuple<Args...> &args, int index)
@@ -33,7 +35,7 @@ inline std::enable_if_t<I < sizeof...(Args)> Log::print_element(std::ostream &st
     print_element<I+1, Args...>(stream, format, args, end+1);
 }
 template <typename... Args>
-void Log::print(std::ostream &stream, const std::string &format, const Args& ...args)
+void Log::print(std::ostream &stream, const std::string &format, const Args& .../* args */)
 {
     static_assert(sizeof...(Args) == 0, "template specialization error");
     stream << format;

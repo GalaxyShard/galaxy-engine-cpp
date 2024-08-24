@@ -1,4 +1,7 @@
 #include <Galaxy/Renderer/renderer.hpp>
+#include <Galaxy/OS/defines.hpp>
+#include <Galaxy/print.hpp>
+
 
 #include "internalnet.hpp"
 

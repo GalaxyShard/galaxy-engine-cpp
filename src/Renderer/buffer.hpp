@@ -13,25 +13,25 @@ public:
 class IndexBuffer : public GraphicsBuffer
 {
 private:
-    uintg rendererID, indexCount;
+    uint32_t rendererID, indexCount;
 public:
     IndexBuffer();
     ~IndexBuffer();
-    void update_data(const void* data, uintg bytes);
+    void update_data(const void* data, uint32_t bytes);
 
     void bind() const;
     void unbind() const;
-    inline uintg get_count() { return indexCount; }
+    inline uint32_t get_count() { return indexCount; }
 };
 class VertexBuffer : public GraphicsBuffer
 {
 private:
-    uintg rendererID;
+    uint32_t rendererID;
 public:
     VertexBuffer();
     ~VertexBuffer();
 
-    void update_data(const void *data, uintg count);
+    void update_data(const void *data, uint32_t count);
     void bind() const;
     void unbind() const;
 };
@@ -71,7 +71,7 @@ private:
     VertexBuffer *vbo = 0;
     VertexLayout vertexLayout;
 #else
-    uintg rendererID;
+    uint32_t rendererID;
 #endif
 public:
     VertexArray();

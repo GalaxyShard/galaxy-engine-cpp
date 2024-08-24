@@ -4,8 +4,9 @@
 #include <Galaxy/Assets/assets.hpp>
 
 #include <gldebug.hpp>
-#include <External/stb_image.h>
+#include <stb_image.h>
 #include <unordered_map>
+#include <cassert>
 
 #if USE_GLFM
 static constexpr unsigned int MAX_SLOTS = 8;

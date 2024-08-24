@@ -1,4 +1,5 @@
 #include <Galaxy/Math/matrix.hpp>
+#include <math.h>
 
 Matrix2x2::Matrix2x2(float v0, float v1, float v2, float v3)
     : v{Vector2(v0,v1),Vector2(v2,v3)} { }

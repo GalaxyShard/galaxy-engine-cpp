@@ -2,6 +2,7 @@
 #include <Galaxy/Input/input.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
 #include <Galaxy/UI/image.hpp>
+#include <Galaxy/print.hpp>
 #include <iostream>
 
 #include <internalinit.hpp>

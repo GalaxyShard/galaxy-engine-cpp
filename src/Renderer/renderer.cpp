@@ -25,6 +25,8 @@
 #include <Renderer/buffer.hpp>
 #include <UI/uiobject.hpp>
 
+#include <cassert>
+
 void refresh_aspect()
 {
     int w, h;

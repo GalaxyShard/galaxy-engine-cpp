@@ -12,7 +12,7 @@ static std::vector<TimerData> timerCallbacks;
 static void check_timers()
 {
     double time = Time::get();
-    for(uintg i = 0; i < timerCallbacks.size(); ++i)
+    for(uint32_t i = 0; i < timerCallbacks.size(); ++i)
     {
         if (time >= timerCallbacks[i].endTime)
         {
@@ -22,14 +22,14 @@ static void check_timers()
     }
 }
 
-uintg Timer::wait(double seconds, const Callback &callback)
+uint32_t Timer::wait(double seconds, const Callback &callback)
 {
     static bool didInit = 0;
     if (!didInit)
         Renderer::pre_render().connect_int(check_timers);
     didInit = 1;
 
-    for(uintg i = 0; i < timerCallbacks.size(); ++i)
+    for(uint32_t i = 0; i < timerCallbacks.size(); ++i)
     {
         TimerData &data = timerCallbacks[i];
         if (!data.c)
@@ -43,7 +43,7 @@ uintg Timer::wait(double seconds, const Callback &callback)
     timerCallbacks.emplace_back(callback, Time::get()+seconds);
     return timerCallbacks.size()-1;
 }
-void Timer::cancel(uintg id)
+void Timer::cancel(uint32_t id)
 {
     timerCallbacks[id].c = nullptr;
 }

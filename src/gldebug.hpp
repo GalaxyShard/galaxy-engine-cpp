@@ -1,11 +1,12 @@
 #pragma once
 #include <Galaxy/OS/defines.hpp>
 #if USE_GLFM
-    #include <External/GLFM/glfm.h>
+    #include <GLFM/glfm.h>
     extern GLFMDisplay *glfmDisplay;
 #endif
 #if USE_GLFW
-    #include <External/GLFW/glfw3.h>
+    #include <glad-gl.h>
+    #include <GLFW/glfw3.h>
 #endif
 #if defined(DEBUG) && !OS_WEB
 #include <unordered_map>
@@ -28,7 +29,7 @@ static inline bool gl_check_errors(int line, const char *fileName)
     }
     return !errored;
 }
-    #define GLCall(v) v; assert(gl_check_errors(__LINE__, __FILE__))
+#define GLCall(v) v; assert(gl_check_errors(__LINE__, __FILE__))
 #else
-    #define GLCall(v) v
+#define GLCall(v) v
 #endif

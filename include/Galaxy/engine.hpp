@@ -5,7 +5,6 @@
 #include "init.hpp"
 #include "object.hpp"
 #include "print.hpp"
-#include "types.hpp"
 
 #include "Assets/assets.hpp"
 #include "Audio/audio.hpp"

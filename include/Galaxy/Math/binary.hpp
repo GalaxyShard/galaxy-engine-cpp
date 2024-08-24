@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 #include <fstream>
+#include <cassert>
+#include <cstdint>
+#include <cstring>
 enum Endian:unsigned char { LITTLE, BIG };
 
 Endian sys_endian();
@@ -60,14 +63,14 @@ T to_native_endian(char *buffer, Endian current)
 
 struct BinaryBuffer
 {
-    typedef bool(*read_bytes_func)(void *reader, char* buffer, uintg num);
+    typedef bool(*read_bytes_func)(void *reader, char* buffer, uint32_t num);
     void *reader;
     read_bytes_func readBytes; // reads bytes to buffer
     char *temp; // 8 byte char array
     BinaryBuffer(void *reader, read_bytes_func readBytes, char *temp)
         : reader(reader), readBytes(readBytes), temp(temp) {}
 
-    bool read(char* buffer, uintg num) { return readBytes(reader,buffer,num); }
+    bool read(char* buffer, uint32_t num) { return readBytes(reader,buffer,num); }
 };
 // use full template specialization
 // users should be able to add their own specializations
@@ -97,7 +100,7 @@ class BinaryReader
 {
 public:
     const char *data;
-    uintg index = 0;
+    uint32_t index = 0;
     Endian endian;
     bool didAllocate;
     char bytes[8];
@@ -111,7 +114,7 @@ public:
 
     // copies contents, lifetime of buffer doesnt matter
     BinaryReader(const std::string &buffer, Endian endian = BIG);
-    BinaryReader(const char *buffer, uintg bufferLen, Endian endian = BIG);
+    BinaryReader(const char *buffer, uint32_t bufferLen, Endian endian = BIG);
     // does not copy contents, 'buffer' must not be deleted until finished reading
     BinaryReader(const char *buffer, Endian endian = BIG);
     ~BinaryReader();
@@ -137,24 +140,24 @@ public:
 };
 struct Vector2;
 struct Vector3;
-template<> ucharG deserialize(BinaryBuffer&, Endian);
-template<> scharG deserialize(BinaryBuffer&, Endian);
-template<> shortg deserialize(BinaryBuffer&, Endian);
-template<> ushortg deserialize(BinaryBuffer&, Endian);
-template<> intg deserialize(BinaryBuffer&, Endian);
-template<> uintg deserialize(BinaryBuffer&, Endian);
-template<> float deserialize(BinaryBuffer&, Endian);
+template<> uint8_t deserialize(BinaryBuffer&, Endian);
+template<> int8_t deserialize(BinaryBuffer&, Endian);
+template<> int16_t deserialize(BinaryBuffer&, Endian);
+template<> uint16_t deserialize(BinaryBuffer&, Endian);
+template<> int32_t deserialize(BinaryBuffer&, Endian);
+template<> uint32_t deserialize(BinaryBuffer&, Endian);
+template<> _Float32 deserialize(BinaryBuffer&, Endian);
 template<> Vector2 deserialize(BinaryBuffer&, Endian);
 template<> Vector3 deserialize(BinaryBuffer&, Endian);
 template<> std::string deserialize(BinaryBuffer&, Endian);
 
-template<> void BinaryWriter::write<ucharG>(ucharG data);
-template<> void BinaryWriter::write<scharG>(scharG data);
-template<> void BinaryWriter::write<shortg>(shortg data);
-template<> void BinaryWriter::write<ushortg>(ushortg data);
-template<> void BinaryWriter::write<intg>(intg data);
-template<> void BinaryWriter::write<uintg>(uintg data);
-template<> void BinaryWriter::write<float>(float data);
+template<> void BinaryWriter::write<uint8_t>(uint8_t data);
+template<> void BinaryWriter::write<int8_t>(int8_t data);
+template<> void BinaryWriter::write<int16_t>(int16_t data);
+template<> void BinaryWriter::write<uint16_t>(uint16_t data);
+template<> void BinaryWriter::write<int32_t>(int32_t data);
+template<> void BinaryWriter::write<uint32_t>(uint32_t data);
+template<> void BinaryWriter::write<_Float32>(_Float32 data);
 template<> void BinaryWriter::write<Vector2>(Vector2 data);
 template<> void BinaryWriter::write<Vector3>(Vector3 data);
 template<> void BinaryWriter::write<std::string>(std::string data);

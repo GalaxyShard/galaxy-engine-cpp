@@ -1,6 +1,10 @@
+
+#define GLAD_GL_IMPLEMENTATION
+
 #include <Galaxy/init.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
 #include <Galaxy/Input/input.hpp>
+#include <Galaxy/print.hpp>
 #include <iostream>
 
 #include <Math/internaltime.hpp>
@@ -77,6 +81,12 @@ static bool init_glfw()
         glfwSwapBuffers(window);
     });
     glfwSetWindowSizeLimits(window, 400, 225, GLFW_DONT_CARE, GLFW_DONT_CARE);
+
+    int version = gladLoadGL(glfwGetProcAddress);
+    if (version == 0) {
+        printf("Failed to initialize OpenGL context\n");
+        return -1;
+    }
     return 1;
 }
 #endif
@@ -204,4 +214,5 @@ void initialize()
         redraw();
     glfwTerminate();
 #endif
+    logmsg("Main exit\n");
 }

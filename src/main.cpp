@@ -1,3 +1,4 @@
+#include <Galaxy/OS/defines.hpp>
 #include <gldebug.hpp>
 #if OS_WEB
     #include <emscripten.h>

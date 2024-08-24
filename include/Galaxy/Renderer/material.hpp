@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include <cstring>
 #include <Galaxy/Events/event.hpp>
 #include <Galaxy/Math/matrix.hpp>
 class Shader;
@@ -19,7 +20,7 @@ struct Uniform
         Vector4 v4;
         int i;
         Matrix4x4 m4x4;
-        Value() { memset(this, 0, sizeof(Value)); }
+        Value() { memset((char*)this, 0, sizeof(Value)); }
         Value(float val) { v = val; }
         Value(Vector2 val) { v2 = val; }
         Value(Vector3 val) { v3 = val; }

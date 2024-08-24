@@ -1,33 +1,25 @@
+#include <fstream>
+#include <cstdint>
+
 #include <Galaxy/Math/binary.hpp>
 #include <Galaxy/Math/vector.hpp>
-#include <fstream>
 
-// In case some platform doesnt use these values
-static_assert(sizeof(int) == 4);
-static_assert(sizeof(unsigned int) == 4);
-static_assert(sizeof(short) == 2);
-static_assert(sizeof(unsigned short) == 2);
-static_assert(sizeof(long long) == 8);
-static_assert(sizeof(unsigned long long) == 8);
-static_assert(sizeof(float) == 4);
-static_assert(sizeof(double) == 8);
 
-static_assert((int)~0 == -1); // Two's complement
 Endian sys_endian()
 {
-    constexpr intg one=1;
-    static Endian endian = (*(ucharG*)&one == 1) ? LITTLE : BIG;
+    constexpr int32_t one=1;
+    static Endian endian = (*(uint8_t*)&one == 1) ? LITTLE : BIG;
     return endian;
 }
 
-bool read_bytes_regular(void *reader, char* buffer, uintg num)
+bool read_bytes_regular(void *reader, char* buffer, uint32_t num)
 {
     BinaryReader *reader0 = (BinaryReader*)reader;
     memcpy(buffer, reader0->data, num);
     reader0->index += num;
     return 1;
 }
-bool read_bytes_file(void *reader, char* buffer, uintg num)
+bool read_bytes_file(void *reader, char* buffer, uint32_t num)
 {
     BinaryFileReader *reader0 = (BinaryFileReader*)reader;
     return (bool)reader0->stream.read(buffer, num);
@@ -36,7 +28,7 @@ bool read_bytes_file(void *reader, char* buffer, uintg num)
 BinaryReader::BinaryReader(const char *buffer, Endian endian)
     : data(buffer), endian(endian), didAllocate(0),
     buffer((void*)this, &read_bytes_regular, (char*)bytes) { }
-BinaryReader::BinaryReader(const char *buffer, uintg bufferLen, Endian endian)
+BinaryReader::BinaryReader(const char *buffer, uint32_t bufferLen, Endian endian)
     : endian(endian), didAllocate(1),
     buffer((void*)this, &read_bytes_regular, (char*)bytes)
 {
@@ -98,54 +90,54 @@ inline T deserialize_general(BinaryBuffer &buffer, Endian endian)
     else return T();
 }
 template<>
-scharG deserialize<scharG>(BinaryBuffer &buffer, Endian endian)
+int8_t deserialize<int8_t>(BinaryBuffer &buffer, Endian endian)
 {
-    return deserialize_general<scharG>(buffer, endian);
+    return deserialize_general<int8_t>(buffer, endian);
 }
 template<>
-ucharG deserialize<ucharG>(BinaryBuffer &buffer, Endian endian)
+uint8_t deserialize<uint8_t>(BinaryBuffer &buffer, Endian endian)
 {
-    return deserialize_general<ucharG>(buffer, endian);
+    return deserialize_general<uint8_t>(buffer, endian);
 }
 template<>
-shortg deserialize<shortg>(BinaryBuffer &buffer, Endian endian)
+int16_t deserialize<int16_t>(BinaryBuffer &buffer, Endian endian)
 {
-    return deserialize_general<shortg>(buffer, endian);
+    return deserialize_general<int16_t>(buffer, endian);
 }
 template<>
-ushortg deserialize<ushortg>(BinaryBuffer &buffer, Endian endian)
+uint16_t deserialize<uint16_t>(BinaryBuffer &buffer, Endian endian)
 {
-    return deserialize_general<ushortg>(buffer, endian);
+    return deserialize_general<uint16_t>(buffer, endian);
 }
 template<>
-intg deserialize<intg>(BinaryBuffer &buffer, Endian endian)
+int32_t deserialize<int32_t>(BinaryBuffer &buffer, Endian endian)
 {
-    return deserialize_general<intg>(buffer, endian);
+    return deserialize_general<int32_t>(buffer, endian);
 }
 template<>
-uintg deserialize<uintg>(BinaryBuffer &buffer, Endian endian)
+uint32_t deserialize<uint32_t>(BinaryBuffer &buffer, Endian endian)
 {
-    return deserialize_general<uintg>(buffer, endian);
+    return deserialize_general<uint32_t>(buffer, endian);
 }
 template<>
-float deserialize<float>(BinaryBuffer &buffer, Endian endian)
+_Float32 deserialize<_Float32>(BinaryBuffer &buffer, Endian endian)
 {
-    static_assert(std::numeric_limits<float>::is_iec559);
-    return deserialize_general<float>(buffer, endian);
+    static_assert(std::numeric_limits<_Float32>::is_iec559);
+    return deserialize_general<_Float32>(buffer, endian);
 }
 template<>
 Vector2 deserialize<Vector2>(BinaryBuffer &buffer, Endian endian)
 {
-    float x = deserialize<float>(buffer, endian);
-    float y = deserialize<float>(buffer, endian);
+    _Float32 x = deserialize<_Float32>(buffer, endian);
+    _Float32 y = deserialize<_Float32>(buffer, endian);
     return Vector2(x,y);
 }
 template<>
 Vector3 deserialize<Vector3>(BinaryBuffer &buffer, Endian endian)
 {
-    float x = deserialize<float>(buffer, endian);
-    float y = deserialize<float>(buffer, endian);
-    float z = deserialize<float>(buffer, endian);
+    _Float32 x = deserialize<_Float32>(buffer, endian);
+    _Float32 y = deserialize<_Float32>(buffer, endian);
+    _Float32 z = deserialize<_Float32>(buffer, endian);
     return Vector3(x,y,z);
 }
 template<>
@@ -153,7 +145,7 @@ std::string deserialize<std::string>(BinaryBuffer &buffer, Endian endian)
 {
     if (!buffer.read(buffer.temp, 4))
         return std::string();
-    uintg length = to_native_endian<uintg>(buffer.temp, endian);
+    uint32_t length = to_native_endian<uint32_t>(buffer.temp, endian);
     std::string str;
     str.resize(length);
     if (!buffer.read(&str[0], length))
@@ -162,47 +154,47 @@ std::string deserialize<std::string>(BinaryBuffer &buffer, Endian endian)
 }
 
 template<>
-void BinaryWriter::write<scharG>(scharG data)
+void BinaryWriter::write<int8_t>(int8_t data)
 {
     buffer.push_back(data);
 }
 template<>
-void BinaryWriter::write<ucharG>(ucharG data)
+void BinaryWriter::write<uint8_t>(uint8_t data)
 {
     buffer.push_back(data);
 }
 template<>
-void BinaryWriter::write<shortg>(shortg data)
+void BinaryWriter::write<int16_t>(int16_t data)
 {
-    shortg newData = set_endian16<shortg>((char*)&data, sys_endian(), Endian::BIG);
-    buffer.append((char*)&newData, sizeof(shortg));
+    int16_t newData = set_endian16<int16_t>((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(int16_t));
 }
 template<>
-void BinaryWriter::write<ushortg>(ushortg data)
+void BinaryWriter::write<uint16_t>(uint16_t data)
 {
-    ushortg newData = set_endian16<ushortg>((char*)&data, sys_endian(), Endian::BIG);
-    buffer.append((char*)&newData, sizeof(ushortg));
+    uint16_t newData = set_endian16<uint16_t>((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(uint16_t));
 }
 template<>
-void BinaryWriter::write<intg>(intg data)
+void BinaryWriter::write<int32_t>(int32_t data)
 {
-    intg newData = set_endian32<intg>((char*)&data, sys_endian(), Endian::BIG);
-    buffer.append((char*)&newData, sizeof(intg));
+    int32_t newData = set_endian32<int32_t>((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(int32_t));
 }
 template<>
-void BinaryWriter::write<uintg>(uintg data)
+void BinaryWriter::write<uint32_t>(uint32_t data)
 {
-    uintg newData = set_endian32<uintg>((char*)&data, sys_endian(), Endian::BIG);
-    buffer.append((char*)&newData, sizeof(uintg));
+    uint32_t newData = set_endian32<uint32_t>((char*)&data, sys_endian(), Endian::BIG);
+    buffer.append((char*)&newData, sizeof(uint32_t));
 }
 
 template<>
-void BinaryWriter::write<float>(float data)
+void BinaryWriter::write<_Float32>(_Float32 data)
 {
     // IEEE-754
-    static_assert(std::numeric_limits<float>::is_iec559);
-    ucharG *rawBytes;
-    rawBytes = (ucharG*)&data;
+    static_assert(std::numeric_limits<_Float32>::is_iec559);
+    uint8_t *rawBytes;
+    rawBytes = (uint8_t*)&data;
 
     if (sys_endian() == LITTLE)
     {
@@ -228,6 +220,6 @@ void BinaryWriter::write<Vector3>(Vector3 data)
 template<>
 void BinaryWriter::write<std::string>(std::string data)
 {
-    write<uintg>(data.size());
+    write<uint32_t>(data.size());
     buffer += data;
 }

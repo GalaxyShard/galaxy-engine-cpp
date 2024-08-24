@@ -14,12 +14,18 @@
     #include <emscripten.h>
 #endif
 
+// iOS/MacOS implementation in src/OS/Apple/file_handler.mm
 const char *get_resource_path_platform();
 
 #if OS_WEB
 const char *get_resource_path_platform()
 {
     return "bin/web/res";
+}
+#elif OS_LINUX
+const char *get_resource_path_platform() {
+    exit(EXIT_FAILURE);
+    return NULL;
 }
 #endif
 extern const char *gameName;
@@ -75,10 +81,19 @@ std::string Assets::data_path()
 #elif OS_IOS
     // HOME on iOS is the application folder
     path = path + getenv("HOME") + "/Documents";
+#elif OS_LINUX
+    auto data_dir = getenv("XDG_DATA_HOME");
+    if (data_dir != NULL) {
+        path = path + data_dir;
+    } else {
+        auto home_dir = getenv("$HOME");
+        path = path + home_dir + "/.local/state";
+    }
+    path = path + "/gs_" + gameName;
 #elif OS_WEB
     path = path + "/gamedata";
 #else
-    static_assert(false, "Platform not implemented");
+    #error "Platform not implemented"
 #endif
     return path;
 }

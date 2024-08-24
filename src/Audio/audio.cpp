@@ -5,11 +5,16 @@
 #if OS_MAC || OS_IOS
     #include <OpenAL/OpenAL.h>
 #endif
-#if OS_WEB
+#if OS_WEB || OS_LINUX
     #include <AL/al.h>
     #include <AL/alc.h>
 #endif
 #include <internalinit.hpp>
+#include <Galaxy/print.hpp>
+#include <string>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
 
 static ALCdevice *alcDevice;
 

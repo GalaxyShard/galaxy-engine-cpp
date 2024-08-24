@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 template<typename T>
 Callback::Callback(T func_or_lambda)
 {

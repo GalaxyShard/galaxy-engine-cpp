@@ -1,7 +1,7 @@
 #include <Galaxy/Renderer/camera.hpp>
 #include <Galaxy/Renderer/renderer.hpp>
 
-auto Camera::main = new Camera();
+Camera* Camera::main = new Camera();
 
 void Camera::override_projection()
 {

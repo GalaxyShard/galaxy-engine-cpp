@@ -1,3 +1,4 @@
+#include <cassert>
 #include <Galaxy/UI/image.hpp>
 #include <Galaxy/UI/text.hpp>
 
